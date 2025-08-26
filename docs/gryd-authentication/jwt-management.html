@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Management - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🎫 JWT Management</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Gerenciamento de Tokens JWT</h2>
+                <p>O GrydAuthentication Framework fornece um sistema completo de gerenciamento de tokens JWT com recursos avançados de segurança, validação e renovação automática.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🔑 Funcionalidades</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li>Geração e validação de tokens JWT</li>
+                        <li>Refresh tokens seguros</li>
+                        <li>Blacklist de tokens revogados</li>
+                        <li>Rotação automática de chaves</li>
+                        <li>Claims customizadas</li>
+                        <li>Validação de expiração</li>
+                    </ul>
+                </div>
+
+                <h2>Configuração JWT</h2>
+
+                <h3>appsettings.json</h3>
+                <pre><code class="language-json">{
+  "Jwt": {
+    "Issuer": "https://api.yourapp.com",
+    "Audience": "https://api.yourapp.com",
+    "SecretKey": "super-secure-secret-key-with-minimum-256-bits-for-security",
+    "ExpirationMinutes": 60,
+    "RefreshTokenExpirationDays": 30,
+    "ValidateIssuer": true,
+    "ValidateAudience": true,
+    "ValidateLifetime": true,
+    "ValidateIssuerSigningKey": true,
+    "ClockSkew": "00:05:00",
+    "Algorithm": "HS256",
+    "EnableTokenBlacklist": true,
+    "EnableKeyRotation": false,
+    "KeyRotationIntervalDays": 90
+  }
+}</code></pre>
+
+                <h3>Configuração no Program.cs</h3>
+                <pre><code class="language-csharp">using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar JWT Authentication
+builder.Services.AddAuthentication(options =&gt;
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =&gt;
+{
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+    
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = jwtSettings.GetValue&lt;bool&gt;("ValidateIssuer"),
+        ValidateAudience = jwtSettings.GetValue&lt;bool&gt;("ValidateAudience"),
+        ValidateLifetime = jwtSettings.GetValue&lt;bool&gt;("ValidateLifetime"),
+        ValidateIssuerSigningKey = jwtSettings.GetValue&lt;bool&gt;("ValidateIssuerSigningKey"),
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["SecretKey"])),
+        ClockSkew = TimeSpan.Parse(jwtSettings["ClockSkew"])
+    };
+
+    // Eventos personalizados
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =&gt;
+        {
+            var tokenBlacklistService = context.HttpContext.RequestServices
+                .GetRequiredService&lt;ITokenBlacklistService&gt;();
+            
+            var jti = context.Principal.FindFirst("jti")?.Value;
+            if (!string.IsNullOrEmpty(jti) &amp;&amp; await tokenBlacklistService.IsBlacklistedAsync(jti))
+            {
+                context.Fail("Token has been revoked");
+            }
+        },
+        OnAuthenticationFailed = context =&gt;
+        {
+            if (context.Exception is SecurityTokenExpiredException)
+            {
+                context.Response.Headers.Add("Token-Expired", "true");
+            }
+            return Task.CompletedTask;
+        }
+    };
+});</code></pre>
+
+                <h2>Serviços JWT</h2>
+
+                <h3>IJwtService Interface</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+{
+    public interface IJwtService
+    {
+        Task&lt;string&gt; GenerateAccessTokenAsync(User user);
+        Task&lt;string&gt; GenerateRefreshTokenAsync(Guid userId);
+        Task&lt;ClaimsPrincipal&gt; ValidateTokenAsync(string token);
+        Task&lt;bool&gt; ValidateRefreshTokenAsync(string refreshToken, Guid userId);
+        Task RevokeTokenAsync(string jti);
+        Task RevokeAllUserTokensAsync(Guid userId);
+        Task&lt;TokenValidationResult&gt; ValidateTokenWithDetailsAsync(string token);
+        Task&lt;string&gt; RefreshAccessTokenAsync(string refreshToken);
+    }
+}</code></pre>
+
+                <h3>JwtService Implementation</h3>
+                <pre><code class="language-csharp">using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace GrydAuthenticationFramework.Infrastructure.Services
+{
+    public class JwtService : IJwtService
+    {
+        private readonly JwtSettings _jwtSettings;
+        private readonly ITokenBlacklistService _blacklistService;
+        private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+
+        public JwtService(
+            IOptions&lt;JwtSettings&gt; jwtSettings,
+            ITokenBlacklistService blacklistService,
+            IUserRepository userRepository,
+            IRefreshTokenRepository refreshTokenRepository)
+        {
+            _jwtSettings = jwtSettings.Value;
+            _blacklistService = blacklistService;
+            _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
+        }
+
+        public async Task&lt;string&gt; GenerateAccessTokenAsync(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+            
+            var claims = await BuildClaimsAsync(user);
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key), 
+                    SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public async Task&lt;string&gt; GenerateRefreshTokenAsync(Guid userId)
+        {
+            var refreshToken = new RefreshToken(
+                userId, 
+                GenerateSecureToken(), 
+                DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays));
+
+            await _refreshTokenRepository.AddAsync(refreshToken);
+            return refreshToken.Token;
+        }
+
+        public async Task&lt;ClaimsPrincipal&gt; ValidateTokenAsync(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = _jwtSettings.ValidateIssuer,
+                    ValidateAudience = _jwtSettings.ValidateAudience,
+                    ValidateLifetime = _jwtSettings.ValidateLifetime,
+                    ValidateIssuerSigningKey = _jwtSettings.ValidateIssuerSigningKey,
+                    ValidIssuer = _jwtSettings.Issuer,
+                    ValidAudience = _jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.FromMinutes(5)
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                
+                // Verificar blacklist
+                var jti = principal.FindFirst("jti")?.Value;
+                if (!string.IsNullOrEmpty(jti) &amp;&amp; await _blacklistService.IsBlacklistedAsync(jti))
+                {
+                    throw new SecurityTokenValidationException("Token has been revoked");
+                }
+
+                return principal;
+            }
+            catch (Exception ex)
+            {
+                throw new SecurityTokenValidationException($"Token validation failed: {ex.Message}");
+            }
+        }
+
+        public async Task&lt;bool&gt; ValidateRefreshTokenAsync(string refreshToken, Guid userId)
+        {
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            
+            return storedToken != null &amp;&amp; 
+                   storedToken.UserId == userId &amp;&amp; 
+                   storedToken.IsValid;
+        }
+
+        public async Task RevokeTokenAsync(string jti)
+        {
+            if (!string.IsNullOrEmpty(jti))
+            {
+                await _blacklistService.BlacklistTokenAsync(jti, DateTime.UtcNow.AddDays(1));
+            }
+        }
+
+        public async Task RevokeAllUserTokensAsync(Guid userId)
+        {
+            // Blacklist todos os refresh tokens do usuário
+            var refreshTokens = await _refreshTokenRepository.GetByUserIdAsync(userId);
+            foreach (var token in refreshTokens)
+            {
+                token.Revoke();
+            }
+
+            await _refreshTokenRepository.UpdateRangeAsync(refreshTokens);
+
+            // Blacklist baseado em timestamp - tokens emitidos antes deste momento são inválidos
+            await _blacklistService.BlacklistUserTokensAsync(userId, DateTime.UtcNow);
+        }
+
+        public async Task&lt;TokenValidationResult&gt; ValidateTokenWithDetailsAsync(string token)
+        {
+            try
+            {
+                var principal = await ValidateTokenAsync(token);
+                var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+                return new TokenValidationResult
+                {
+                    IsValid = true,
+                    Principal = principal,
+                    ExpiresAt = jwtToken.ValidTo,
+                    IssuedAt = jwtToken.ValidFrom,
+                    UserId = Guid.Parse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? ""),
+                    Claims = principal.Claims.ToDictionary(c =&gt; c.Type, c =&gt; c.Value)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new TokenValidationResult
+                {
+                    IsValid = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
+        public async Task&lt;string&gt; RefreshAccessTokenAsync(string refreshToken)
+        {
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            
+            if (storedToken == null || !storedToken.IsValid)
+            {
+                throw new SecurityTokenValidationException("Invalid refresh token");
+            }
+
+            var user = await _userRepository.GetByIdAsync(storedToken.UserId);
+            if (user == null || !user.IsActive)
+            {
+                throw new SecurityTokenValidationException("User not found or inactive");
+            }
+
+            // Revogar o refresh token usado
+            storedToken.Revoke();
+            await _refreshTokenRepository.UpdateAsync(storedToken);
+
+            // Gerar novo access token
+            var newAccessToken = await GenerateAccessTokenAsync(user);
+            
+            // Gerar novo refresh token
+            var newRefreshToken = await GenerateRefreshTokenAsync(user.Id);
+
+            return newAccessToken;
+        }
+
+        private async Task&lt;List&lt;Claim&gt;&gt; BuildClaimsAsync(User user)
+        {
+            var claims = new List&lt;Claim&gt;
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email),
+                new(ClaimTypes.Name, user.FullName),
+                new("jti", Guid.NewGuid().ToString()),
+                new("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                new("sub", user.Id.ToString())
+            };
+
+            // Adicionar roles
+            var roles = user.RoleNames;
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            // Adicionar permissões
+            var permissions = await GetUserPermissionsAsync(user.Id);
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permissions", permission));
+            }
+
+            // Claims customizadas
+            if (!string.IsNullOrEmpty(user.FirstName))
+                claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
+            
+            if (!string.IsNullOrEmpty(user.LastName))
+                claims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+
+            return claims;
+        }
+
+        private async Task&lt;List&lt;string&gt;&gt; GetUserPermissionsAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdWithRolesAsync(userId);
+            return user.UserRoles
+                .SelectMany(ur =&gt; ur.Role.RolePermissions)
+                .Select(rp =&gt; rp.Permission.Name)
+                .Distinct()
+                .ToList();
+        }
+
+        private string GenerateSecureToken()
+        {
+            using var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[64];
+            rng.GetBytes(bytes);
+            return Convert.ToBase64String(bytes);
+        }
+    }
+}</code></pre>
+
+                <h2>Token Blacklist Service</h2>
+
+                <h3>ITokenBlacklistService Interface</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+{
+    public interface ITokenBlacklistService
+    {
+        Task BlacklistTokenAsync(string jti, DateTime expiration);
+        Task&lt;bool&gt; IsBlacklistedAsync(string jti);
+        Task BlacklistUserTokensAsync(Guid userId, DateTime timestamp);
+        Task&lt;bool&gt; IsUserTokenValidAsync(Guid userId, DateTime issuedAt);
+        Task CleanupExpiredTokensAsync();
+    }
+}</code></pre>
+
+                <h3>Redis-based Implementation</h3>
+                <pre><code class="language-csharp">using StackExchange.Redis;
+
+namespace GrydAuthenticationFramework.Infrastructure.Services
+{
+    public class RedisTokenBlacklistService : ITokenBlacklistService
+    {
+        private readonly IDatabase _database;
+        private const string BlacklistedTokenPrefix = "blacklist:token:";
+        private const string UserInvalidationPrefix = "blacklist:user:";
+
+        public RedisTokenBlacklistService(IConnectionMultiplexer redis)
+        {
+            _database = redis.GetDatabase();
+        }
+
+        public async Task BlacklistTokenAsync(string jti, DateTime expiration)
+        {
+            var key = $"{BlacklistedTokenPrefix}{jti}";
+            var ttl = expiration - DateTime.UtcNow;
+            
+            if (ttl &gt; TimeSpan.Zero)
+            {
+                await _database.StringSetAsync(key, "1", ttl);
+            }
+        }
+
+        public async Task&lt;bool&gt; IsBlacklistedAsync(string jti)
+        {
+            var key = $"{BlacklistedTokenPrefix}{jti}";
+            return await _database.KeyExistsAsync(key);
+        }
+
+        public async Task BlacklistUserTokensAsync(Guid userId, DateTime timestamp)
+        {
+            var key = $"{UserInvalidationPrefix}{userId}";
+            var unixTimestamp = ((DateTimeOffset)timestamp).ToUnixTimeSeconds();
+            
+            // Armazenar por 30 dias (tempo máximo de refresh token)
+            await _database.StringSetAsync(key, unixTimestamp.ToString(), TimeSpan.FromDays(30));
+        }
+
+        public async Task&lt;bool&gt; IsUserTokenValidAsync(Guid userId, DateTime issuedAt)
+        {
+            var key = $"{UserInvalidationPrefix}{userId}";
+            var invalidationTimestamp = await _database.StringGetAsync(key);
+            
+            if (!invalidationTimestamp.HasValue)
+                return true;
+
+            var invalidationTime = DateTimeOffset.FromUnixTimeSeconds(invalidationTimestamp);
+            return issuedAt &gt; invalidationTime.DateTime;
+        }
+
+        public async Task CleanupExpiredTokensAsync()
+        {
+            // Redis limpa automaticamente com TTL, mas podemos implementar cleanup manual se necessário
+            await Task.CompletedTask;
+        }
+    }
+}</code></pre>
+
+                <h2>Middleware de JWT</h2>
+
+                <h3>JwtMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class JwtMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly IJwtService _jwtService;
+        private readonly ILogger&lt;JwtMiddleware&gt; _logger;
+
+        public JwtMiddleware(RequestDelegate next, IJwtService jwtService, ILogger&lt;JwtMiddleware&gt; logger)
+        {
+            _next = next;
+            _jwtService = jwtService;
+            _logger = logger;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            var token = ExtractTokenFromHeader(context.Request);
+            
+            if (!string.IsNullOrEmpty(token))
+            {
+                try
+                {
+                    var validationResult = await _jwtService.ValidateTokenWithDetailsAsync(token);
+                    
+                    if (validationResult.IsValid)
+                    {
+                        context.User = validationResult.Principal;
+                        
+                        // Adicionar informações úteis ao contexto
+                        context.Items["UserId"] = validationResult.UserId;
+                        context.Items["TokenExpiresAt"] = validationResult.ExpiresAt;
+                        context.Items["TokenIssuedAt"] = validationResult.IssuedAt;
+                        
+                        // Log successful validation
+                        _logger.LogDebug("Token validated successfully for user {UserId}", validationResult.UserId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Token validation failed: {Error}", validationResult.ErrorMessage);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error validating JWT token");
+                }
+            }
+
+            await _next(context);
+        }
+
+        private string? ExtractTokenFromHeader(HttpRequest request)
+        {
+            var authHeader = request.Headers["Authorization"].FirstOrDefault();
+            
+            if (authHeader != null &amp;&amp; authHeader.StartsWith("Bearer "))
+            {
+                return authHeader.Substring("Bearer ".Length).Trim();
+            }
+
+            return null;
+        }
+    }
+}</code></pre>
+
+                <h2>DTOs de JWT</h2>
+
+                <h3>TokenValidationResult</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Auth
+{
+    public class TokenValidationResult
+    {
+        public bool IsValid { get; set; }
+        public ClaimsPrincipal? Principal { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public DateTime? IssuedAt { get; set; }
+        public Guid UserId { get; set; }
+        public Dictionary&lt;string, string&gt; Claims { get; set; } = new();
+        public string? ErrorMessage { get; set; }
+    }
+}</code></pre>
+
+                <h3>RefreshTokenRequest</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Auth
+{
+    public class RefreshTokenRequest
+    {
+        [Required]
+        public string RefreshToken { get; set; } = string.Empty;
+        
+        public string? AccessToken { get; set; }
+    }
+
+    public class RefreshTokenResponse
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public string TokenType { get; set; } = "Bearer";
+    }
+}</code></pre>
+
+                <h2>Extensões Úteis</h2>
+
+                <h3>ClaimsPrincipal Extensions</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
+{
+    public static class ClaimsPrincipalExtensions
+    {
+        public static Guid GetUserId(this ClaimsPrincipal principal)
+        {
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+        }
+
+        public static string GetEmail(this ClaimsPrincipal principal)
+        {
+            return principal.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+        }
+
+        public static List&lt;string&gt; GetRoles(this ClaimsPrincipal principal)
+        {
+            return principal.FindAll(ClaimTypes.Role).Select(c =&gt; c.Value).ToList();
+        }
+
+        public static List&lt;string&gt; GetPermissions(this ClaimsPrincipal principal)
+        {
+            return principal.FindAll("permissions").Select(c =&gt; c.Value).ToList();
+        }
+
+        public static bool HasPermission(this ClaimsPrincipal principal, string permission)
+        {
+            return principal.FindAll("permissions").Any(c =&gt; c.Value == permission);
+        }
+
+        public static bool HasRole(this ClaimsPrincipal principal, string role)
+        {
+            return principal.IsInRole(role);
+        }
+
+        public static DateTime? GetTokenIssuedAt(this ClaimsPrincipal principal)
+        {
+            var iatClaim = principal.FindFirst("iat")?.Value;
+            if (long.TryParse(iatClaim, out var iat))
+            {
+                return DateTimeOffset.FromUnixTimeSeconds(iat).DateTime;
+            }
+            return null;
+        }
+
+        public static string? GetJti(this ClaimsPrincipal principal)
+        {
+            return principal.FindFirst("jti")?.Value;
+        }
+    }
+}</code></pre>
+
+                <h2>Configuração de Segurança Avançada</h2>
+
+                <h3>Key Rotation (Opcional)</h3>
+                <pre><code class="language-csharp">public class JwtKeyRotationService : IHostedService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger&lt;JwtKeyRotationService&gt; _logger;
+    private Timer? _timer;
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        // Executar rotação de chaves a cada 90 dias
+        _timer = new Timer(RotateKeys, null, TimeSpan.Zero, TimeSpan.FromDays(90));
+        await Task.CompletedTask;
+    }
+
+    private async void RotateKeys(object? state)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var keyService = scope.ServiceProvider.GetRequiredService&lt;IJwtKeyService&gt;();
+        
+        try
+        {
+            await keyService.RotateKeysAsync();
+            _logger.LogInformation("JWT keys rotated successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to rotate JWT keys");
+        }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _timer?.Dispose();
+        return Task.CompletedTask;
+    }
+}</code></pre>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">👥 Role-Based Access</h3>
+                        <p class="text-sm text-green-600 mb-3">Sistema de controle de acesso baseado em roles</p>
+                        <a href="role-based-access.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Role-Based Access →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">📊 Session Management</h3>
+                        <p class="text-sm text-blue-600 mb-3">Gerenciamento avançado de sessões</p>
+                        <a href="session-management.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Session Management →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

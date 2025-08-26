@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🚀 Quick Start</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Início Rápido</h2>
+                <p>Este guia te ajudará a configurar e usar o GrydAuthentication Framework em poucos minutos.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">⏱️ Tempo Estimado</h3>
+                    <p class="text-blue-700 mb-0">5-10 minutos para configuração básica</p>
+                </div>
+
+                <h2>Pré-requisitos</h2>
+                <ul>
+                    <li>.NET 8.0 ou superior</li>
+                    <li>Entity Framework Core</li>
+                    <li>Conta no Auth0 (para autenticação externa)</li>
+                    <li>SQL Server ou PostgreSQL</li>
+                </ul>
+
+                <h2>Passo 1: Instalação do Pacote</h2>
+                <pre><code class="language-bash"># Package Manager Console
+Install-Package GrydAuthenticationFramework
+
+# .NET CLI
+dotnet add package GrydAuthenticationFramework
+
+# PackageReference (*.csproj)
+&lt;PackageReference Include="GrydAuthenticationFramework" Version="1.0.1" /&gt;</code></pre>
+
+                <h2>Passo 2: Configuração do appsettings.json</h2>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MyApp;Trusted_Connection=true;TrustServerCertificate=true;"
+  },
+  "Auth0": {
+    "Domain": "seu-tenant.auth0.com",
+    "Audience": "https://api.myapp.com",
+    "ClientId": "seu-client-id",
+    "ClientSecret": "seu-client-secret",
+    "SocialProviders": {
+      "Google": {
+        "ClientId": "google-client-id",
+        "ClientSecret": "google-client-secret"
+      },
+      "Facebook": {
+        "AppId": "facebook-app-id",
+        "AppSecret": "facebook-app-secret"
+      }
+    }
+  },
+  "Jwt": {
+    "Issuer": "https://api.myapp.com",
+    "Audience": "https://api.myapp.com",
+    "SecretKey": "sua-secret-key-super-secreta-com-pelo-menos-256-bits",
+    "ExpirationMinutes": 60,
+    "RefreshTokenExpirationDays": 30
+  }
+}</code></pre>
+
+                <h2>Passo 3: Configuração do Program.cs</h2>
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Adicionar serviços do framework
+builder.Services.AddGrydAuthentication(builder.Configuration);
+builder.Services.AddAuth0Authentication(builder.Configuration);
+
+// Configurar Entity Framework
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Adicionar controllers
+builder.Services.AddControllers();
+
+// Configurar Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure o pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Middlewares do GrydAuthentication
+app.UseGrydAuthentication();
+
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                <h2>Passo 4: Executar as Migrations</h2>
+                <pre><code class="language-bash"># Adicionar migration inicial
+dotnet ef migrations add InitialGrydAuth
+
+# Aplicar migration no banco de dados
+dotnet ef database update</code></pre>
+
+                <h2>Passo 5: Proteger seus Controllers</h2>
+                <pre><code class="language-csharp">using Microsoft.AspNetCore.Authorization;
+using GrydAuthenticationFramework.Attributes;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize] // Requer autenticação
+public class ProductsController : ControllerBase
+{
+    [HttpGet]
+    [RequirePermission("products:read")] // Requer permissão específica
+    public async Task&lt;IActionResult&gt; GetProducts()
+    {
+        // Seu código aqui
+        return Ok(new { message = "Lista de produtos" });
+    }
+
+    [HttpPost]
+    [RequirePermission("products:create")]
+    public async Task&lt;IActionResult&gt; CreateProduct([FromBody] CreateProductDto dto)
+    {
+        // Seu código aqui
+        return Ok(new { message = "Produto criado" });
+    }
+
+    [HttpDelete("{id}")]
+    [RequireRole("Admin")] // Requer role específica
+    public async Task&lt;IActionResult&gt; DeleteProduct(int id)
+    {
+        // Seu código aqui
+        return Ok(new { message = $"Produto {id} deletado" });
+    }
+}</code></pre>
+
+                <h2>Passo 6: Configurar o Frontend (Opcional)</h2>
+                <p>Para integração com frontend, use os endpoints de autenticação:</p>
+
+                <h3>Login Tradicional</h3>
+                <pre><code class="language-javascript">// Login com email/senha
+const loginResponse = await fetch('/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password123',
+    rememberMe: true
+  })
+});
+
+const { accessToken, refreshToken, user } = await loginResponse.json();</code></pre>
+
+                <h3>Login Social</h3>
+                <pre><code class="language-javascript">// Login com Google
+const socialLoginResponse = await fetch('/api/auth/social-login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    provider: 'google',
+    accessToken: 'google-access-token-aqui'
+  })
+});
+
+const { accessToken, user } = await socialLoginResponse.json();</code></pre>
+
+                <h2>Passo 7: Testar a Configuração</h2>
+                
+                <h3>1. Executar a aplicação</h3>
+                <pre><code class="language-bash">dotnet run</code></pre>
+
+                <h3>2. Acessar o Swagger</h3>
+                <p>Navegue para <code>https://localhost:5001/swagger</code> para ver todos os endpoints disponíveis.</p>
+
+                <h3>3. Testar autenticação</h3>
+                <pre><code class="language-bash"># Teste de login
+curl -X POST "https://localhost:5001/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!",
+    "rememberMe": true
+  }'</code></pre>
+
+                <h2>Próximos Passos</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">🔧 Configuração Avançada</h3>
+                        <p class="text-sm text-green-600 mb-3">Configure múltiplas aplicações e provedores</p>
+                        <a href="multi-app-setup.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Multi-App Setup →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🔐 Auth0 Detalhado</h3>
+                        <p class="text-sm text-blue-600 mb-3">Configuração completa do Auth0</p>
+                        <a href="auth0-integration.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Auth0 Integration →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🎮 API Reference</h3>
+                        <p class="text-sm text-purple-600 mb-3">Documentação completa dos endpoints</p>
+                        <a href="controllers.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Ver Controllers →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h3 class="font-semibold text-yellow-800 mb-2">💡 Exemplos Práticos</h3>
+                        <p class="text-sm text-yellow-600 mb-3">Implementações completas de exemplo</p>
+                        <a href="usage-examples.html" class="text-yellow-600 text-sm font-medium hover:underline">
+                            Ver Usage Examples →
+                        </a>
+                    </div>
+                </div>
+
+                <h2>Solução de Problemas</h2>
+                
+                <h3>Erro de Connection String</h3>
+                <p>Se você receber erros de conexão com banco de dados:</p>
+                <pre><code class="language-bash"># Verificar se o SQL Server está rodando
+services.msc
+
+# Ou usar SQLite para testes rápidos
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite</code></pre>
+
+                <h3>Erro de Auth0</h3>
+                <p>Se você receber erros de configuração do Auth0:</p>
+                <ul>
+                    <li>Verifique se o Domain está correto</li>
+                    <li>Confirme se o ClientId e ClientSecret estão válidos</li>
+                    <li>Certifique-se que o Audience está configurado no Auth0</li>
+                </ul>
+
+                <h3>Erro de JWT</h3>
+                <p>Se você receber erros de token JWT:</p>
+                <ul>
+                    <li>Verifique se a SecretKey tem pelo menos 256 bits</li>
+                    <li>Confirme se o Issuer e Audience estão corretos</li>
+                    <li>Verifique se o token não expirou</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

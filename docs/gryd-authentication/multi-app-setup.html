@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-App Setup - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🔒 Multi-App Setup</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Configuração Segura para Múltiplas Aplicações</h2>
+                <p>Este guia mostra como configurar o GrydAuthentication Framework para funcionar com múltiplas aplicações de forma segura, compartilhando autenticação entre diferentes sistemas.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🎯 Cenários de Uso</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li>API Backend + Frontend Web + Mobile App</li>
+                        <li>Microserviços com autenticação centralizada</li>
+                        <li>Sistema principal + Aplicações satélites</li>
+                        <li>Multi-tenant com aplicações dedicadas</li>
+                    </ul>
+                </div>
+
+                <h2>Arquitetura Multi-App</h2>
+
+                <div class="bg-gray-50 p-4 rounded-lg my-6">
+                    <pre class="text-sm"><code>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend Web  │    │   Mobile App    │    │   Admin Panel   │
+│   React/Vue/    │    │   Flutter/RN    │    │   Internal      │
+│   Angular       │    │                 │    │   Management    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+         ┌───────────────────────▼───────────────────────┐
+         │           API Gateway / Load Balancer         │
+         └───────────────────────┬───────────────────────┘
+                                 │
+    ┌────────────────────────────┼────────────────────────────┐
+    │                            │                            │
+    ▼                            ▼                            ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Auth Service  │    │   API Service   │    │   Other APIs    │
+│   (Primary)     │    │   (Consumer)    │    │   (Consumers)   │
+│                 │    │                 │    │                 │
+│ GrydAuth Core   │    │ GrydAuth Client │    │ GrydAuth Client │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+              ┌─────────────────────────────────┐
+              │     Shared Database             │
+              │     (Users, Roles, Sessions)    │
+              └─────────────────────────────────┘</code></pre>
+                </div>
+
+                <h2>1. Configuração do Auth Service (Primary)</h2>
+                <p>O serviço principal que gerencia autenticação e autorização.</p>
+
+                <h3>appsettings.json (Auth Service)</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=shared-db-server;Database=GrydAuth_Shared;User Id=authuser;Password=secure-password;TrustServerCertificate=true;",
+    "RedisConnection": "localhost:6379"
+  },
+  "Auth0": {
+    "Domain": "your-tenant.auth0.com",
+    "Audience": "https://api.yourcompany.com",
+    "ClientId": "auth-service-client-id",
+    "ClientSecret": "auth-service-client-secret",
+    "SocialProviders": {
+      "Google": {
+        "ClientId": "google-client-id",
+        "ClientSecret": "google-client-secret"
+      },
+      "Facebook": {
+        "AppId": "facebook-app-id",
+        "AppSecret": "facebook-app-secret"
+      }
+    }
+  },
+  "Jwt": {
+    "Issuer": "https://auth.yourcompany.com",
+    "Audience": "https://api.yourcompany.com",
+    "SecretKey": "shared-super-secure-secret-key-for-all-apps-256-bits",
+    "ExpirationMinutes": 60,
+    "RefreshTokenExpirationDays": 30
+  },
+  "GrydAuthentication": {
+    "IsPrimaryService": true,
+    "SharedDatabase": true,
+    "AllowedOrigins": [
+      "https://app.yourcompany.com",
+      "https://admin.yourcompany.com",
+      "https://mobile.yourcompany.com"
+    ],
+    "TrustedServices": [
+      "https://api.yourcompany.com",
+      "https://orders.yourcompany.com",
+      "https://products.yourcompany.com"
+    ]
+  },
+  "Cors": {
+    "AllowedOrigins": [
+      "https://app.yourcompany.com",
+      "https://admin.yourcompany.com"
+    ],
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["*"],
+    "AllowCredentials": true
+  }
+}</code></pre>
+
+                <h3>Program.cs (Auth Service)</h3>
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydAuthenticationFramework.Extensions;
+using StackExchange.Redis;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Entity Framework (Banco Compartilhado)
+builder.Services.AddDbContext&lt;SharedAuthDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configurar Redis para cache de sessões
+builder.Services.AddStackExchangeRedisCache(options =&gt;
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+});
+
+// Registrar GrydAuthentication como serviço primário
+builder.Services.AddGrydAuthentication(builder.Configuration, options =&gt;
+{
+    options.IsPrimaryService = true;
+    options.EnableDistributedCache = true;
+    options.EnableSessionSharing = true;
+});
+
+// Registrar Auth0
+builder.Services.AddAuth0Authentication(builder.Configuration);
+
+// Configurar CORS para múltiplas origens
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get&lt;string[]&gt;();
+builder.Services.AddCors(options =&gt;
+{
+    options.AddPolicy("MultiAppPolicy", policy =&gt;
+    {
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("MultiAppPolicy");
+
+// Middlewares do GrydAuthentication
+app.UseGrydAuthentication();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                <h2>2. Configuração dos Consumer Services</h2>
+                <p>Serviços que consomem autenticação do serviço principal.</p>
+
+                <h3>appsettings.json (Consumer Service)</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=app-db-server;Database=ProductsAPI;User Id=appuser;Password=secure-password;TrustServerCertificate=true;",
+    "AuthConnection": "Server=shared-db-server;Database=GrydAuth_Shared;User Id=authuser;Password=secure-password;TrustServerCertificate=true;",
+    "RedisConnection": "localhost:6379"
+  },
+  "Jwt": {
+    "Issuer": "https://auth.yourcompany.com",
+    "Audience": "https://api.yourcompany.com",
+    "SecretKey": "shared-super-secure-secret-key-for-all-apps-256-bits",
+    "ValidateIssuer": true,
+    "ValidateAudience": true,
+    "ValidateLifetime": true
+  },
+  "GrydAuthentication": {
+    "IsPrimaryService": false,
+    "AuthServiceUrl": "https://auth.yourcompany.com",
+    "SharedDatabase": true,
+    "EnableTokenValidation": true,
+    "EnablePermissionCheck": true
+  },
+  "HttpClients": {
+    "AuthService": {
+      "BaseUrl": "https://auth.yourcompany.com",
+      "Timeout": "00:00:30"
+    }
+  }
+}</code></pre>
+
+                <h3>Program.cs (Consumer Service)</h3>
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydAuthenticationFramework.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Banco de dados da aplicação
+builder.Services.AddDbContext&lt;ProductsDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Banco de dados compartilhado para autenticação (somente leitura)
+builder.Services.AddDbContext&lt;SharedAuthDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnection")));
+
+// Configurar Redis
+builder.Services.AddStackExchangeRedisCache(options =&gt;
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+});
+
+// Registrar GrydAuthentication como cliente
+builder.Services.AddGrydAuthenticationClient(builder.Configuration, options =&gt;
+{
+    options.AuthServiceUrl = "https://auth.yourcompany.com";
+    options.EnableTokenValidation = true;
+    options.EnablePermissionCache = true;
+    options.CacheExpiration = TimeSpan.FromMinutes(15);
+});
+
+// Configurar HttpClient para Auth Service
+builder.Services.AddHttpClient("AuthService", client =&gt;
+{
+    client.BaseAddress = new Uri("https://auth.yourcompany.com");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+// Middleware de validação de token
+app.UseGrydAuthenticationClient();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                <h2>3. Configuração de Frontend</h2>
+
+                <h3>React/TypeScript Frontend</h3>
+                <pre><code class="language-typescript">// src/config/auth.ts
+export const authConfig = {
+  authServiceUrl: 'https://auth.yourcompany.com',
+  apiServiceUrl: 'https://api.yourcompany.com',
+  clientId: 'frontend-client-id',
+  redirectUri: 'https://app.yourcompany.com/callback',
+  logoutUri: 'https://app.yourcompany.com',
+  scopes: ['openid', 'profile', 'email', 'api:access']
+};
+
+// src/services/authService.ts
+class AuthService {
+  private baseUrl = authConfig.authServiceUrl;
+
+  async login(email: string, password: string, rememberMe = false) {
+    const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, password, rememberMe })
+    });
+
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+
+    const { accessToken, refreshToken, user } = await response.json();
+    
+    // Armazenar tokens
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    
+    return { user, accessToken };
+  }
+
+  async socialLogin(provider: string, accessToken: string) {
+    const response = await fetch(`${this.baseUrl}/api/auth/social-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ provider, accessToken })
+    });
+
+    return response.json();
+  }
+
+  async refreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    const response = await fetch(`${this.baseUrl}/api/auth/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    if (response.ok) {
+      const { accessToken } = await response.json();
+      localStorage.setItem('accessToken', accessToken);
+      return accessToken;
+    }
+    
+    throw new Error('Token refresh failed');
+  }
+
+  async logout() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    await fetch(`${this.baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.getAccessToken()}`
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+  getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
+
+  isAuthenticated() {
+    const token = this.getAccessToken();
+    if (!token) return false;
+    
+    // Verificar se o token não expirou
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp > Date.now() / 1000;
+    } catch {
+      return false;
+    }
+  }
+}
+
+export const authService = new AuthService();</code></pre>
+
+                <h3>API Client com Interceptors</h3>
+                <pre><code class="language-typescript">// src/services/apiClient.ts
+import axios from 'axios';
+import { authService } from './authService';
+import { authConfig } from '../config/auth';
+
+const apiClient = axios.create({
+  baseURL: authConfig.apiServiceUrl,
+  timeout: 10000,
+});
+
+// Interceptor de request - adicionar token
+apiClient.interceptors.request.use(
+  (config) =&gt; {
+    const token = authService.getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) =&gt; Promise.reject(error)
+);
+
+// Interceptor de response - refresh token automático
+apiClient.interceptors.response.use(
+  (response) =&gt; response,
+  async (error) =&gt; {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 &amp;&amp; !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const newToken = await authService.refreshToken();
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh falhou, redirecionar para login
+        authService.logout();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;</code></pre>
+
+                <h2>4. Gerenciamento de Sessões Distribuídas</h2>
+
+                <h3>Configuração de Redis (Shared Sessions)</h3>
+                <pre><code class="language-csharp">// Services/DistributedSessionService.cs
+using StackExchange.Redis;
+using System.Text.Json;
+
+namespace GrydAuthenticationFramework.Services
+{
+    public interface IDistributedSessionService
+    {
+        Task&lt;UserSession?&gt; GetSessionAsync(string sessionId);
+        Task SetSessionAsync(string sessionId, UserSession session, TimeSpan expiration);
+        Task RemoveSessionAsync(string sessionId);
+        Task&lt;List&lt;UserSession&gt;&gt; GetUserSessionsAsync(Guid userId);
+    }
+
+    public class DistributedSessionService : IDistributedSessionService
+    {
+        private readonly IDatabase _database;
+        private const string SessionPrefix = "session:";
+        private const string UserSessionsPrefix = "user_sessions:";
+
+        public DistributedSessionService(IConnectionMultiplexer redis)
+        {
+            _database = redis.GetDatabase();
+        }
+
+        public async Task&lt;UserSession?&gt; GetSessionAsync(string sessionId)
+        {
+            var sessionData = await _database.StringGetAsync($"{SessionPrefix}{sessionId}");
+            
+            if (!sessionData.HasValue)
+                return null;
+
+            return JsonSerializer.Deserialize&lt;UserSession&gt;(sessionData);
+        }
+
+        public async Task SetSessionAsync(string sessionId, UserSession session, TimeSpan expiration)
+        {
+            var sessionData = JsonSerializer.Serialize(session);
+            
+            // Armazenar sessão
+            await _database.StringSetAsync($"{SessionPrefix}{sessionId}", sessionData, expiration);
+            
+            // Adicionar à lista de sessões do usuário
+            await _database.SetAddAsync($"{UserSessionsPrefix}{session.UserId}", sessionId);
+            await _database.KeyExpireAsync($"{UserSessionsPrefix}{session.UserId}", expiration);
+        }
+
+        public async Task RemoveSessionAsync(string sessionId)
+        {
+            var session = await GetSessionAsync(sessionId);
+            if (session != null)
+            {
+                await _database.KeyDeleteAsync($"{SessionPrefix}{sessionId}");
+                await _database.SetRemoveAsync($"{UserSessionsPrefix}{session.UserId}", sessionId);
+            }
+        }
+
+        public async Task&lt;List&lt;UserSession&gt;&gt; GetUserSessionsAsync(Guid userId)
+        {
+            var sessionIds = await _database.SetMembersAsync($"{UserSessionsPrefix}{userId}");
+            var sessions = new List&lt;UserSession&gt;();
+
+            foreach (var sessionId in sessionIds)
+            {
+                var session = await GetSessionAsync(sessionId);
+                if (session != null)
+                {
+                    sessions.Add(session);
+                }
+            }
+
+            return sessions;
+        }
+    }
+}</code></pre>
+
+                <h2>5. Load Balancer / API Gateway</h2>
+
+                <h3>Nginx Configuration</h3>
+                <pre><code class="language-nginx"># /etc/nginx/sites-available/gryd-multi-app
+upstream auth_service {
+    server auth1.yourcompany.com:5000;
+    server auth2.yourcompany.com:5000;
+}
+
+upstream api_service {
+    server api1.yourcompany.com:5001;
+    server api2.yourcompany.com:5001;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name auth.yourcompany.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://auth_service;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name api.yourcompany.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://api_service;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Headers de CORS
+        add_header Access-Control-Allow-Origin "https://app.yourcompany.com";
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+        add_header Access-Control-Allow-Headers "Authorization, Content-Type";
+        add_header Access-Control-Allow-Credentials true;
+    }
+}</code></pre>
+
+                <h2>6. Monitoramento e Logs</h2>
+
+                <h3>Structured Logging</h3>
+                <pre><code class="language-csharp">// Program.cs - Configuração de logs
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("ServiceName", "AuthService")
+    .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
+    .WriteTo.Console()
+    .WriteTo.File("logs/auth-service-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elasticsearch:9200"))
+    {
+        IndexFormat = "gryd-auth-{0:yyyy.MM.dd}",
+        AutoRegisterTemplate = true
+    })
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// Middleware de logging para múltiplas apps
+app.UseMiddleware&lt;RequestLoggingMiddleware&gt;();</code></pre>
+
+                <h3>Health Checks</h3>
+                <pre><code class="language-csharp">// Health checks para serviços distribuídos
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck&lt;SharedAuthDbContext&gt;("auth-database")
+    .AddRedis(builder.Configuration.GetConnectionString("RedisConnection"))
+    .AddUrlGroup(new Uri("https://auth.yourcompany.com/health"), "auth-service")
+    .AddUrlGroup(new Uri("https://api.yourcompany.com/health"), "api-service");
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});</code></pre>
+
+                <h2>7. Segurança Multi-App</h2>
+
+                <h3>Configuração de CORS Dinâmica</h3>
+                <pre><code class="language-csharp">public class DynamicCorsService : ICorsService
+{
+    private readonly IConfiguration _configuration;
+    private readonly IDistributedCache _cache;
+
+    public async Task&lt;bool&gt; IsOriginAllowedAsync(string origin)
+    {
+        // Verificar cache primeiro
+        var cacheKey = $"cors:allowed:{origin}";
+        var cached = await _cache.GetStringAsync(cacheKey);
+        
+        if (cached != null)
+            return bool.Parse(cached);
+
+        // Verificar contra lista permitida
+        var allowedOrigins = _configuration.GetSection("Cors:AllowedOrigins").Get&lt;string[]&gt;();
+        var isAllowed = allowedOrigins.Contains(origin);
+
+        // Cache por 5 minutos
+        await _cache.SetStringAsync(cacheKey, isAllowed.ToString(), 
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+        return isAllowed;
+    }
+}</code></pre>
+
+                <h2>Próximos Passos</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">🌍 Environment Variables</h3>
+                        <p class="text-sm text-green-600 mb-3">Configure variáveis para diferentes ambientes</p>
+                        <a href="environment-variables.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Environment Variables →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">📊 Session Management</h3>
+                        <p class="text-sm text-blue-600 mb-3">Gerenciamento avançado de sessões</p>
+                        <a href="session-management.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Session Management →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

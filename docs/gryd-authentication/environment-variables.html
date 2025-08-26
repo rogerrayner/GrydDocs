@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variables - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🌍 Environment Variables</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Configuração de Variáveis de Ambiente</h2>
+                <p>Este guia mostra como configurar todas as variáveis de ambiente necessárias para o GrydAuthentication Framework em diferentes ambientes (Development, Staging, Production).</p>
+
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 my-6">
+                    <h3 class="text-yellow-800 font-semibold">⚠️ Segurança</h3>
+                    <p class="text-yellow-700 mb-0">Nunca commite secrets em arquivos de configuração. Use sempre variáveis de ambiente para dados sensíveis em produção.</p>
+                </div>
+
+                <h2>Variáveis Essenciais</h2>
+
+                <h3>1. Database Connection</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variável</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exemplo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Obrigatório</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">ConnectionStrings__DefaultConnection</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">String de conexão principal do banco</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Server=localhost;Database=...</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">ConnectionStrings__AuthConnection</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Conexão específica para autenticação</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Server=auth-db;Database=...</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Opcional</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">ConnectionStrings__RedisConnection</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Conexão Redis para cache</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">localhost:6379</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Opcional</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>2. Auth0 Configuration</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variável</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exemplo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Obrigatório</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Auth0__Domain</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Domínio do tenant Auth0</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">your-tenant.auth0.com</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Auth0__Audience</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Identificador da API</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">https://api.yourapp.com</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Auth0__ClientId</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Client ID da aplicação</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">abc123xyz789</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Auth0__ClientSecret</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Client Secret da aplicação</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">secret123...</td>
+                                <td class="px-6 py-4 text-sm text-red-600">✓ Sensível</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>3. JWT Configuration</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variável</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exemplo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Obrigatório</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Jwt__SecretKey</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Chave secreta (256+ bits)</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">super-secret-key-256-bits...</td>
+                                <td class="px-6 py-4 text-sm text-red-600">✓ Sensível</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Jwt__Issuer</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Emissor do token</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">https://api.yourapp.com</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Jwt__Audience</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Audiência do token</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">https://api.yourapp.com</td>
+                                <td class="px-6 py-4 text-sm text-green-600">✓ Sim</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">Jwt__ExpirationMinutes</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Tempo de expiração em minutos</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">60</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Opcional</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Configuração por Ambiente</h2>
+
+                <h3>Development Environment</h3>
+                <pre><code class="language-bash"># .env.development
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=https://localhost:5001;http://localhost:5000
+
+# Database
+ConnectionStrings__DefaultConnection=Server=localhost;Database=GrydAuth_Dev;Trusted_Connection=true;TrustServerCertificate=true;
+
+# Auth0 (Development)
+Auth0__Domain=dev-tenant.auth0.com
+Auth0__Audience=https://api.myapp.dev
+Auth0__ClientId=dev_client_id_here
+Auth0__ClientSecret=dev_client_secret_here
+
+# JWT
+Jwt__SecretKey=development-secret-key-super-long-for-256-bits-minimum-security
+Jwt__Issuer=https://api.myapp.dev
+Jwt__Audience=https://api.myapp.dev
+Jwt__ExpirationMinutes=1440
+
+# Social Providers (Development)
+Auth0__SocialProviders__Google__ClientId=google-dev-client-id
+Auth0__SocialProviders__Google__ClientSecret=google-dev-client-secret
+Auth0__SocialProviders__Facebook__AppId=facebook-dev-app-id
+Auth0__SocialProviders__Facebook__AppSecret=facebook-dev-app-secret
+
+# Logging
+Serilog__MinimumLevel__Default=Debug
+Serilog__MinimumLevel__Override__Microsoft=Information
+Serilog__MinimumLevel__Override__System=Warning
+
+# CORS
+Cors__AllowedOrigins__0=http://localhost:3000
+Cors__AllowedOrigins__1=https://localhost:3000</code></pre>
+
+                <h3>Staging Environment</h3>
+                <pre><code class="language-bash"># .env.staging
+ASPNETCORE_ENVIRONMENT=Staging
+ASPNETCORE_URLS=https://auth-staging.yourapp.com
+
+# Database
+ConnectionStrings__DefaultConnection=Server=staging-db.yourapp.com;Database=GrydAuth_Staging;User Id=staginguser;Password=${DB_PASSWORD};TrustServerCertificate=false;Encrypt=true;
+
+# Redis
+ConnectionStrings__RedisConnection=staging-redis.yourapp.com:6379,password=${REDIS_PASSWORD}
+
+# Auth0 (Staging)
+Auth0__Domain=staging-tenant.auth0.com
+Auth0__Audience=https://api-staging.yourapp.com
+Auth0__ClientId=${AUTH0_STAGING_CLIENT_ID}
+Auth0__ClientSecret=${AUTH0_STAGING_CLIENT_SECRET}
+
+# JWT
+Jwt__SecretKey=${JWT_SECRET_KEY}
+Jwt__Issuer=https://api-staging.yourapp.com
+Jwt__Audience=https://api-staging.yourapp.com
+Jwt__ExpirationMinutes=60
+
+# Social Providers (Staging)
+Auth0__SocialProviders__Google__ClientId=${GOOGLE_STAGING_CLIENT_ID}
+Auth0__SocialProviders__Google__ClientSecret=${GOOGLE_STAGING_CLIENT_SECRET}
+
+# CORS
+Cors__AllowedOrigins__0=https://app-staging.yourapp.com
+Cors__AllowedOrigins__1=https://admin-staging.yourapp.com
+
+# Monitoring
+ApplicationInsights__ConnectionString=${APPINSIGHTS_CONNECTION_STRING}</code></pre>
+
+                <h3>Production Environment</h3>
+                <pre><code class="language-bash"># .env.production
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_URLS=https://auth.yourapp.com
+
+# Database
+ConnectionStrings__DefaultConnection=Server=prod-db.yourapp.com;Database=GrydAuth;User Id=produser;Password=${DB_PASSWORD};TrustServerCertificate=false;Encrypt=true;Connection Timeout=30;
+
+# Redis
+ConnectionStrings__RedisConnection=prod-redis.yourapp.com:6380,password=${REDIS_PASSWORD},ssl=true
+
+# Auth0 (Production)
+Auth0__Domain=yourapp.auth0.com
+Auth0__Audience=https://api.yourapp.com
+Auth0__ClientId=${AUTH0_PROD_CLIENT_ID}
+Auth0__ClientSecret=${AUTH0_PROD_CLIENT_SECRET}
+
+# JWT
+Jwt__SecretKey=${JWT_SECRET_KEY}
+Jwt__Issuer=https://api.yourapp.com
+Jwt__Audience=https://api.yourapp.com
+Jwt__ExpirationMinutes=60
+Jwt__RefreshTokenExpirationDays=30
+
+# Social Providers (Production)
+Auth0__SocialProviders__Google__ClientId=${GOOGLE_PROD_CLIENT_ID}
+Auth0__SocialProviders__Google__ClientSecret=${GOOGLE_PROD_CLIENT_SECRET}
+Auth0__SocialProviders__Facebook__AppId=${FACEBOOK_PROD_APP_ID}
+Auth0__SocialProviders__Facebook__AppSecret=${FACEBOOK_PROD_APP_SECRET}
+
+# CORS
+Cors__AllowedOrigins__0=https://app.yourapp.com
+Cors__AllowedOrigins__1=https://admin.yourapp.com
+
+# Security
+GrydAuthentication__EnableStrictMode=true
+GrydAuthentication__RequireHttps=true
+GrydAuthentication__TokenBlacklistEnabled=true
+
+# Monitoring
+ApplicationInsights__ConnectionString=${APPINSIGHTS_CONNECTION_STRING}
+Serilog__WriteTo__Elasticsearch__nodeUris=https://elasticsearch.yourapp.com
+
+# Rate Limiting
+RateLimit__EnableIpRateLimit=true
+RateLimit__IpRateLimitPeriod=1m
+RateLimit__IpRateLimit=100</code></pre>
+
+                <h2>Configuração em Diferentes Plataformas</h2>
+
+                <h3>Docker</h3>
+                <pre><code class="language-yaml"># docker-compose.yml
+version: '3.8'
+services:
+  gryd-auth:
+    image: yourapp/gryd-auth:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+      - Auth0__Domain=${AUTH0_DOMAIN}
+      - Auth0__ClientId=${AUTH0_CLIENT_ID}
+      - Auth0__ClientSecret=${AUTH0_CLIENT_SECRET}
+      - Jwt__SecretKey=${JWT_SECRET_KEY}
+    env_file:
+      - .env.production
+    ports:
+      - "5000:80"
+      - "5001:443"
+    networks:
+      - gryd-network
+
+networks:
+  gryd-network:
+    driver: bridge</code></pre>
+
+                <h3>Kubernetes</h3>
+                <pre><code class="language-yaml"># k8s-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gryd-auth-secrets
+type: Opaque
+data:
+  connection-string: U2VydmVyPXByb2QtZGI7RGF0YWJhc2U9R3J5ZEF1dGg7Li4u # base64 encoded
+  jwt-secret: c3VwZXItc2VjdXJlLWp3dC1rZXktMjU2LWJpdHMtbWluaW11bQ== # base64 encoded
+  auth0-client-secret: YXV0aDBfY2xpZW50X3NlY3JldF9oZXJl # base64 encoded
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gryd-auth-config
+data:
+  Auth0__Domain: "yourapp.auth0.com"
+  Auth0__Audience: "https://api.yourapp.com"
+  Auth0__ClientId: "your-client-id"
+  Jwt__Issuer: "https://api.yourapp.com"
+  Jwt__Audience: "https://api.yourapp.com"
+  Jwt__ExpirationMinutes: "60"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gryd-auth
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gryd-auth
+  template:
+    metadata:
+      labels:
+        app: gryd-auth
+    spec:
+      containers:
+      - name: gryd-auth
+        image: yourapp/gryd-auth:latest
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: gryd-auth-secrets
+              key: connection-string
+        - name: Jwt__SecretKey
+          valueFrom:
+            secretKeyRef:
+              name: gryd-auth-secrets
+              key: jwt-secret
+        - name: Auth0__ClientSecret
+          valueFrom:
+            secretKeyRef:
+              name: gryd-auth-secrets
+              key: auth0-client-secret
+        envFrom:
+        - configMapRef:
+            name: gryd-auth-config</code></pre>
+
+                <h3>Azure App Service</h3>
+                <pre><code class="language-bash"># Azure CLI - Configurar variáveis
+az webapp config appsettings set \
+  --resource-group myResourceGroup \
+  --name myapp-auth \
+  --settings \
+    "ConnectionStrings__DefaultConnection=Server=myserver.database.windows.net;Database=GrydAuth;..." \
+    "Auth0__Domain=yourapp.auth0.com" \
+    "Auth0__ClientId=your-client-id" \
+    "Jwt__Issuer=https://api.yourapp.com"
+
+# Configurar secrets via Key Vault
+az webapp config appsettings set \
+  --resource-group myResourceGroup \
+  --name myapp-auth \
+  --settings \
+    "Auth0__ClientSecret=@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/auth0-secret/)" \
+    "Jwt__SecretKey=@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/jwt-secret/)"</code></pre>
+
+                <h3>AWS ECS/Fargate</h3>
+                <pre><code class="language-json">{
+  "family": "gryd-auth",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::account:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::account:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "gryd-auth",
+      "image": "yourapp/gryd-auth:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "ASPNETCORE_ENVIRONMENT",
+          "value": "Production"
+        },
+        {
+          "name": "Auth0__Domain",
+          "value": "yourapp.auth0.com"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "ConnectionStrings__DefaultConnection",
+          "valueFrom": "arn:aws:ssm:region:account:parameter/gryd-auth/connection-string"
+        },
+        {
+          "name": "Auth0__ClientSecret",
+          "valueFrom": "arn:aws:ssm:region:account:parameter/gryd-auth/auth0-secret"
+        },
+        {
+          "name": "Jwt__SecretKey",
+          "valueFrom": "arn:aws:ssm:region:account:parameter/gryd-auth/jwt-secret"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+                <h2>Validação de Configuração</h2>
+
+                <h3>Startup Validation</h3>
+                <pre><code class="language-csharp">// Program.cs - Validar configurações na inicialização
+public static class ConfigurationValidator
+{
+    public static void ValidateConfiguration(IConfiguration configuration)
+    {
+        var requiredSettings = new[]
+        {
+            "ConnectionStrings:DefaultConnection",
+            "Auth0:Domain",
+            "Auth0:ClientId",
+            "Auth0:ClientSecret",
+            "Jwt:SecretKey",
+            "Jwt:Issuer",
+            "Jwt:Audience"
+        };
+
+        var missingSettings = new List&lt;string&gt;();
+
+        foreach (var setting in requiredSettings)
+        {
+            var value = configuration[setting];
+            if (string.IsNullOrEmpty(value))
+            {
+                missingSettings.Add(setting);
+            }
+        }
+
+        if (missingSettings.Any())
+        {
+            throw new InvalidOperationException(
+                $"Configurações obrigatórias não encontradas: {string.Join(", ", missingSettings)}");
+        }
+
+        // Validar JWT Secret Key (mínimo 256 bits)
+        var jwtSecret = configuration["Jwt:SecretKey"];
+        if (jwtSecret.Length &lt; 32)
+        {
+            throw new InvalidOperationException("JWT SecretKey deve ter pelo menos 32 caracteres (256 bits)");
+        }
+
+        // Validar URLs
+        var issuer = configuration["Jwt:Issuer"];
+        if (!Uri.TryCreate(issuer, UriKind.Absolute, out _))
+        {
+            throw new InvalidOperationException($"JWT Issuer deve ser uma URL válida: {issuer}");
+        }
+    }
+}
+
+// Chamar na inicialização
+ConfigurationValidator.ValidateConfiguration(builder.Configuration);</code></pre>
+
+                <h3>Health Check para Configuração</h3>
+                <pre><code class="language-csharp">public class ConfigurationHealthCheck : IHealthCheck
+{
+    private readonly IConfiguration _configuration;
+
+    public ConfigurationHealthCheck(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public Task&lt;HealthCheckResult&gt; CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            ConfigurationValidator.ValidateConfiguration(_configuration);
+            return Task.FromResult(HealthCheckResult.Healthy("Configuração válida"));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(HealthCheckResult.Unhealthy($"Configuração inválida: {ex.Message}"));
+        }
+    }
+}</code></pre>
+
+                <h2>Ferramentas de Gerenciamento</h2>
+
+                <h3>Script de Geração de Secrets</h3>
+                <pre><code class="language-bash">#!/bin/bash
+# generate-secrets.sh
+
+echo "Gerando secrets para GrydAuthentication..."
+
+# Gerar JWT Secret (256 bits)
+JWT_SECRET=$(openssl rand -base64 32)
+echo "JWT_SECRET=$JWT_SECRET"
+
+# Gerar encryption key
+ENCRYPTION_KEY=$(openssl rand -base64 32)
+echo "ENCRYPTION_KEY=$ENCRYPTION_KEY"
+
+# Gerar connection string template
+echo "CONNECTION_STRING=Server=your-server;Database=GrydAuth;User Id=your-user;Password=your-password;"
+
+echo ""
+echo "Adicione essas variáveis ao seu ambiente de produção."
+echo "NUNCA commite esses valores no código fonte!"</code></pre>
+
+                <h3>Script de Validação</h3>
+                <pre><code class="language-bash">#!/bin/bash
+# validate-env.sh
+
+required_vars=(
+    "ConnectionStrings__DefaultConnection"
+    "Auth0__Domain"
+    "Auth0__ClientId"
+    "Auth0__ClientSecret"
+    "Jwt__SecretKey"
+    "Jwt__Issuer"
+    "Jwt__Audience"
+)
+
+missing_vars=()
+
+for var in "${required_vars[@]}"; do
+    if [ -z "${!var}" ]; then
+        missing_vars+=("$var")
+    fi
+done
+
+if [ ${#missing_vars[@]} -gt 0 ]; then
+    echo "❌ Variáveis obrigatórias não encontradas:"
+    printf '%s\n' "${missing_vars[@]}"
+    exit 1
+else
+    echo "✅ Todas as variáveis obrigatórias estão configuradas"
+fi</code></pre>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">🚀 Quick Start</h3>
+                        <p class="text-sm text-green-600 mb-3">Configure rapidamente sua aplicação</p>
+                        <a href="quick-start.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Quick Start →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🔒 Multi-App Setup</h3>
+                        <p class="text-sm text-blue-600 mb-3">Configuração para múltiplas aplicações</p>
+                        <a href="multi-app-setup.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Multi-App Setup →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

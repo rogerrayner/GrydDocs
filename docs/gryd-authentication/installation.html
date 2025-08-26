@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">💾 Installation</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Requisitos do Sistema</h2>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">📋 Pré-requisitos</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li>.NET 8.0 SDK ou superior</li>
+                        <li>Entity Framework Core 8.0+</li>
+                        <li>SQL Server 2019+ ou PostgreSQL 12+</li>
+                        <li>Visual Studio 2022 ou VS Code</li>
+                    </ul>
+                </div>
+
+                <h2>1. Instalação via NuGet</h2>
+
+                <h3>Package Manager Console</h3>
+                <pre><code class="language-powershell">Install-Package GrydAuthenticationFramework
+Install-Package GrydAuthenticationFramework.Auth0
+Install-Package GrydAuthenticationFramework.EntityFramework</code></pre>
+
+                <h3>.NET CLI</h3>
+                <pre><code class="language-bash">dotnet add package GrydAuthenticationFramework
+dotnet add package GrydAuthenticationFramework.Auth0
+dotnet add package GrydAuthenticationFramework.EntityFramework</code></pre>
+
+                <h3>PackageReference (.csproj)</h3>
+                <pre><code class="language-xml">&lt;Project Sdk="Microsoft.NET.Sdk.Web"&gt;
+
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    &lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="GrydAuthenticationFramework" Version="1.0.1" /&gt;
+    &lt;PackageReference Include="GrydAuthenticationFramework.Auth0" Version="1.0.1" /&gt;
+    &lt;PackageReference Include="GrydAuthenticationFramework.EntityFramework" Version="1.0.1" /&gt;
+    
+    &lt;!-- Dependências do Entity Framework --&gt;
+    &lt;PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" /&gt;
+    &lt;PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" /&gt;
+    &lt;PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" /&gt;
+    
+    &lt;!-- Para PostgreSQL (alternativa ao SQL Server) --&gt;
+    &lt;!-- &lt;PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" /&gt; --&gt;
+  &lt;/ItemGroup&gt;
+
+&lt;/Project&gt;</code></pre>
+
+                <h2>2. Configuração do Banco de Dados</h2>
+
+                <h3>SQL Server</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MyAppAuth;Trusted_Connection=true;TrustServerCertificate=true;",
+    "AuthConnection": "Server=localhost;Database=MyAppAuth;Trusted_Connection=true;TrustServerCertificate=true;"
+  }
+}</code></pre>
+
+                <h3>PostgreSQL</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=myappauth;Username=postgres;Password=yourpassword;",
+    "AuthConnection": "Host=localhost;Database=myappauth;Username=postgres;Password=yourpassword;"
+  }
+}</code></pre>
+
+                <h3>SQLite (Para desenvolvimento/testes)</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=app.db",
+    "AuthConnection": "Data Source=app.db"
+  }
+}</code></pre>
+
+                <h2>3. Configuração do DbContext</h2>
+
+                <p>Crie ou modifique seu DbContext para incluir as entidades do GrydAuthentication:</p>
+
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydAuthenticationFramework.Infrastructure.Data;
+using GrydAuthenticationFramework.Domain.Entities;
+
+namespace YourApp.Data
+{
+    public class ApplicationDbContext : GrydAuthDbContext
+    {
+        public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options) 
+            : base(options)
+        {
+        }
+
+        // Suas entidades personalizadas
+        public DbSet&lt;Product&gt; Products { get; set; }
+        public DbSet&lt;Order&gt; Orders { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Aplicar configurações do GrydAuthentication
+            base.OnModelCreating(modelBuilder);
+
+            // Suas configurações personalizadas
+            modelBuilder.Entity&lt;Product&gt;(entity =&gt;
+            {
+                entity.HasKey(e =&gt; e.Id);
+                entity.Property(e =&gt; e.Name).IsRequired().HasMaxLength(100);
+            });
+        }
+    }
+}</code></pre>
+
+                <h2>4. Configuração dos Serviços</h2>
+
+                <h3>Program.cs Completo</h3>
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydAuthenticationFramework.Extensions;
+using YourApp.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Entity Framework
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    
+    // SQL Server
+    options.UseSqlServer(connectionString);
+    
+    // PostgreSQL (alternativa)
+    // options.UseNpgsql(connectionString);
+    
+    // SQLite (alternativa)
+    // options.UseSqlite(connectionString);
+});
+
+// Registrar o GrydAuthentication Framework
+builder.Services.AddGrydAuthentication(builder.Configuration);
+
+// Registrar Auth0 (se usando)
+builder.Services.AddAuth0Authentication(builder.Configuration);
+
+// Registrar AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
+
+// Registrar MediatR
+builder.Services.AddMediatR(cfg =&gt; cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+// Configurar CORS
+builder.Services.AddCors(options =&gt;
+{
+    options.AddPolicy("AllowFrontend", policy =&gt;
+    {
+        policy.WithOrigins("http://localhost:3000", "https://yourfrontend.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+// Adicionar controllers
+builder.Services.AddControllers();
+
+// Configurar Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =&gt;
+{
+    c.SwaggerDoc("v1", new() { Title = "Your API", Version = "v1" });
+    
+    // Configurar autenticação no Swagger
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new()
+            {
+                Reference = new()
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+var app = builder.Build();
+
+// Configure o pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+// CORS deve vir antes de Authentication
+app.UseCors("AllowFrontend");
+
+// Middlewares do GrydAuthentication
+app.UseGrydAuthentication();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+// Aplicar migrations automaticamente (opcional - remover em produção)
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+    context.Database.Migrate();
+}
+
+app.Run();</code></pre>
+
+                <h2>5. Criar e Aplicar Migrations</h2>
+
+                <h3>Adicionar Migration</h3>
+                <pre><code class="language-bash"># Navegue até o diretório do projeto
+cd YourApp
+
+# Adicione a migration inicial
+dotnet ef migrations add InitialGrydAuthMigration
+
+# Ou se você tem múltiplos contextos
+dotnet ef migrations add InitialGrydAuthMigration --context ApplicationDbContext</code></pre>
+
+                <h3>Aplicar Migration</h3>
+                <pre><code class="language-bash"># Aplicar no banco de dados
+dotnet ef database update
+
+# Ou para contexto específico
+dotnet ef database update --context ApplicationDbContext</code></pre>
+
+                <h3>Script SQL (Opcional)</h3>
+                <p>Para gerar script SQL sem aplicar:</p>
+                <pre><code class="language-bash"># Gerar script SQL
+dotnet ef migrations script
+
+# Gerar script para migration específica
+dotnet ef migrations script InitialCreate AddGrydAuth</code></pre>
+
+                <h2>6. Configuração de Desenvolvimento</h2>
+
+                <h3>appsettings.Development.json</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MyAppAuth_Dev;Trusted_Connection=true;TrustServerCertificate=true;"
+  },
+  "Auth0": {
+    "Domain": "dev-tenant.auth0.com",
+    "Audience": "https://api.myapp.dev",
+    "ClientId": "dev-client-id",
+    "ClientSecret": "dev-client-secret"
+  },
+  "Jwt": {
+    "SecretKey": "dev-secret-key-super-long-for-development-only",
+    "ExpirationMinutes": 1440
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug",
+      "GrydAuthentication": "Trace",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+    }
+  }
+}</code></pre>
+
+                <h2>7. Seed de Dados Inicial</h2>
+
+                <p>Crie dados iniciais para teste:</p>
+
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydAuthenticationFramework.Domain.Entities;
+
+namespace YourApp.Data
+{
+    public static class DataSeeder
+    {
+        public static async Task SeedAsync(ApplicationDbContext context)
+        {
+            await context.Database.EnsureCreatedAsync();
+
+            // Seed Permissions
+            if (!await context.Permissions.AnyAsync())
+            {
+                var permissions = new[]
+                {
+                    new Permission("users:read", "Read Users", "users", "users", "read", "Permite visualizar usuários"),
+                    new Permission("users:create", "Create Users", "users", "users", "create", "Permite criar usuários"),
+                    new Permission("users:update", "Update Users", "users", "users", "update", "Permite atualizar usuários"),
+                    new Permission("users:delete", "Delete Users", "users", "users", "delete", "Permite deletar usuários"),
+                    new Permission("products:read", "Read Products", "products", "products", "read", "Permite visualizar produtos"),
+                    new Permission("products:create", "Create Products", "products", "products", "create", "Permite criar produtos")
+                };
+
+                await context.Permissions.AddRangeAsync(permissions);
+                await context.SaveChangesAsync();
+            }
+
+            // Seed Roles
+            if (!await context.Roles.AnyAsync())
+            {
+                var adminRole = new Role("admin", "Administrator", "Administrador do sistema");
+                var userRole = new Role("user", "User", "Usuário padrão");
+
+                await context.Roles.AddRangeAsync(adminRole, userRole);
+                await context.SaveChangesAsync();
+
+                // Atribuir todas as permissões ao admin
+                var allPermissions = await context.Permissions.ToListAsync();
+                foreach (var permission in allPermissions)
+                {
+                    adminRole.AddPermission(permission);
+                }
+
+                // Atribuir apenas read permissions ao user
+                var readPermissions = allPermissions.Where(p =&gt; p.Action == "read").ToList();
+                foreach (var permission in readPermissions)
+                {
+                    userRole.AddPermission(permission);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            // Seed Admin User
+            if (!await context.Users.AnyAsync())
+            {
+                var adminUser = new User("admin@example.com", "Admin", "User");
+                adminUser.ConfirmEmail();
+                adminUser.Activate();
+
+                await context.Users.AddAsync(adminUser);
+                await context.SaveChangesAsync();
+
+                // Atribuir role admin
+                var adminRole = await context.Roles.FirstAsync(r =&gt; r.Name == "admin");
+                adminUser.AddRole(adminRole);
+
+                await context.SaveChangesAsync();
+            }
+        }
+    }
+}</code></pre>
+
+                <h3>Chamar o Seed no Program.cs</h3>
+                <pre><code class="language-csharp">// Aplicar migrations e seed automaticamente
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+    
+    // Aplicar migrations
+    await context.Database.MigrateAsync();
+    
+    // Executar seed
+    await DataSeeder.SeedAsync(context);
+}</code></pre>
+
+                <h2>8. Verificação da Instalação</h2>
+
+                <h3>Executar a Aplicação</h3>
+                <pre><code class="language-bash">dotnet run</code></pre>
+
+                <h3>Verificar Endpoints no Swagger</h3>
+                <p>Acesse: <code>https://localhost:5001/swagger</code></p>
+
+                <p>Você deve ver os seguintes grupos de endpoints:</p>
+                <ul>
+                    <li><strong>Auth</strong> - Login, logout, refresh token</li>
+                    <li><strong>Users</strong> - Gerenciamento de usuários</li>
+                    <li><strong>Roles</strong> - Gerenciamento de roles</li>
+                </ul>
+
+                <h3>Testar Login</h3>
+                <pre><code class="language-bash">curl -X POST "https://localhost:5001/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "Admin123!"
+  }'</code></pre>
+
+                <h2>9. Configuração de Produção</h2>
+
+                <h3>appsettings.Production.json</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=prod-server;Database=MyAppAuth;User Id=appuser;Password=secure-password;TrustServerCertificate=false;Encrypt=true;"
+  },
+  "Auth0": {
+    "Domain": "prod-tenant.auth0.com",
+    "Audience": "https://api.myapp.com",
+    "ClientId": "prod-client-id",
+    "ClientSecret": "prod-client-secret"
+  },
+  "Jwt": {
+    "SecretKey": "prod-super-secure-secret-key-with-256-bits-minimum",
+    "ExpirationMinutes": 60
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning",
+      "GrydAuthentication": "Information"
+    }
+  }
+}</code></pre>
+
+                <h3>Variáveis de Ambiente</h3>
+                <pre><code class="language-bash"># Defina estas variáveis no ambiente de produção
+export ConnectionStrings__DefaultConnection="Server=prod-server;Database=MyAppAuth;..."
+export Auth0__ClientSecret="prod-client-secret"
+export Jwt__SecretKey="prod-super-secure-secret-key"</code></pre>
+
+                <h2>Problemas Comuns</h2>
+
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 my-6">
+                    <h3 class="text-yellow-800 font-semibold">⚠️ Troubleshooting</h3>
+                    <div class="text-yellow-700">
+                        <p><strong>Erro de Migration:</strong> Certifique-se de que o SQL Server está rodando e a connection string está correta.</p>
+                        <p><strong>Erro de Auth0:</strong> Verifique se o Domain, ClientId e ClientSecret estão corretos no Auth0 Dashboard.</p>
+                        <p><strong>Erro de JWT:</strong> A SecretKey deve ter pelo menos 256 bits (32 caracteres).</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">🚀 Próximo Passo</h3>
+                        <p class="text-sm text-green-600 mb-3">Configure rapidamente sua aplicação</p>
+                        <a href="quick-start.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Quick Start →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🌍 Variáveis de Ambiente</h3>
+                        <p class="text-sm text-blue-600 mb-3">Configure variáveis para diferentes ambientes</p>
+                        <a href="environment-variables.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Environment Variables →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
