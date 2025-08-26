@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gryd Frameworks Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .framework-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 16px;
+        }
+        .grydui-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .auth-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .crud-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tenant-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="container mx-auto px-6 py-16">
+            <div class="text-center">
+                <h1 class="text-5xl font-bold mb-4">Gryd Frameworks</h1>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Documentação completa dos frameworks Gryd para desenvolvimento de aplicações enterprise
+                </p>
+                <div class="mt-8 flex justify-center space-x-4">
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                        🚀 Enterprise-Ready
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                        📚 Complete Documentation
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                        🔧 Module Federation
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Escolha o Framework</h2>
+            <p class="text-gray-600 max-w-3xl mx-auto">
+                Selecione o framework que deseja consultar. Cada um possui documentação completa com guias de instalação, 
+                exemplos práticos e referência de API.
+            </p>
+        </div>
+
+        <!-- Framework Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            <!-- GrydUI Framework -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover cursor-pointer" onclick="navigateToFramework('grydui')">
+                <div class="grydui-icon framework-icon mx-auto">
+                    UI
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">GrydUI</h3>
+                <p class="text-gray-600 text-sm mb-4 text-center">
+                    Framework React com Module Federation para microfrontends enterprise
+                </p>
+                <div class="space-y-2 text-xs text-gray-500">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        Component Library
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        Module Federation
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        CRUD Operations
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        CLI Tools
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
+                        Frontend Framework
+                    </span>
+                </div>
+            </div>
+
+            <!-- Gryd Authentication Framework -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover cursor-pointer" onclick="navigateToFramework('gryd-authentication')">
+                <div class="auth-icon framework-icon mx-auto">
+                    🔐
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">Authentication</h3>
+                <p class="text-gray-600 text-sm mb-4 text-center">
+                    Framework .NET para autenticação e autorização com Auth0 e JWT
+                </p>
+                <div class="space-y-2 text-xs text-gray-500">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Auth0 Integration
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        JWT Management
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Role-based Access
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Social Providers
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">
+                        .NET Framework
+                    </span>
+                </div>
+            </div>
+
+            <!-- Gryd CRUD Framework -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover cursor-pointer" onclick="navigateToFramework('gryd-crud')">
+                <div class="crud-icon framework-icon mx-auto">
+                    📊
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">CRUD Framework</h3>
+                <p class="text-gray-600 text-sm mb-4 text-center">
+                    Framework .NET para operações CRUD automatizadas com Entity Framework
+                </p>
+                <div class="space-y-2 text-xs text-gray-500">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                        Entity Framework
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                        Auto CRUD APIs
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                        Query Builder
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                        Validation
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full">
+                        .NET Framework
+                    </span>
+                </div>
+            </div>
+
+            <!-- Gryd User Tenant Framework -->
+            <div class="bg-white rounded-xl shadow-lg p-8 card-hover cursor-pointer" onclick="navigateToFramework('gryd-user-tenant')">
+                <div class="tenant-icon framework-icon mx-auto">
+                    🏢
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">User Tenant</h3>
+                <p class="text-gray-600 text-sm mb-4 text-center">
+                    Framework .NET para multi-tenancy e gerenciamento de usuários
+                </p>
+                <div class="space-y-2 text-xs text-gray-500">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                        Multi-tenancy
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                        User Management
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                        Tenant Isolation
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                        Role Assignment
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full">
+                        .NET Framework
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links Section -->
+        <div class="mt-20 bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Links Rápidos</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        🚀
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Quick Start</h4>
+                    <p class="text-sm text-gray-600">Guias de início rápido para cada framework</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        📖
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">API Reference</h4>
+                    <p class="text-sm text-gray-600">Documentação completa das APIs</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        💡
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Examples</h4>
+                    <p class="text-sm text-gray-600">Exemplos práticos e casos de uso</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-lg font-semibold mb-4">Gryd Frameworks</h3>
+            <p class="text-gray-400 mb-6">
+                Frameworks enterprise para desenvolvimento ágil e escalável
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="https://github.com/gryd" class="text-gray-400 hover:text-white transition">GitHub</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Support</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Community</a>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700">
+                <p class="text-gray-400 text-sm">
+                    &copy; 2025 Gryd Frameworks. Made with ❤️ for developers.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function navigateToFramework(framework) {
+            window.location.href = `docs/${framework}/index.html`;
+        }
+
+        // Add smooth scrolling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading animation
+            const cards = document.querySelectorAll('.card-hover');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

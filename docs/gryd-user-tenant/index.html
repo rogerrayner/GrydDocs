@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydUserTenant Framework Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #dc2626;
+            color: white;
+            transform: translateX(4px);
+        }
+        .nav-link.active {
+            background-color: #991b1b;
+            color: white;
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="../../index.html" class="text-white hover:text-red-200 transition">
+                        ← Voltar aos Frameworks
+                    </a>
+                    <div class="w-px h-6 bg-red-300"></div>
+                    <h1 class="text-2xl font-bold">GrydUserTenant Framework</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-500 bg-opacity-50 px-3 py-1 rounded-full text-sm">
+                        v1.0.0
+                    </span>
+                    <a href="https://github.com/gryd/gryd-user-tenant" class="text-white hover:text-red-200 transition">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="w-80 bg-white shadow-lg border-r border-gray-200">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Documentação</h2>
+                <div class="space-y-2">
+                    <!-- Getting Started -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Getting Started</h3>
+                        <a href="#overview" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📖 Overview
+                        </a>
+                        <a href="README.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🚀 Quick Start
+                        </a>
+                        <a href="#installation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💾 Installation
+                        </a>
+                    </div>
+
+                    <!-- Core Concepts -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Core Concepts</h3>
+                        <a href="#multi-tenancy" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏢 Multi-Tenancy
+                        </a>
+                        <a href="#user-management" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👥 User Management
+                        </a>
+                        <a href="#tenant-isolation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔒 Tenant Isolation
+                        </a>
+                        <a href="#context-resolution" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎯 Context Resolution
+                        </a>
+                    </div>
+
+                    <!-- Architecture -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Architecture</h3>
+                        <a href="#domain-layer" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏗️ Domain Layer
+                        </a>
+                        <a href="#application-layer" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚙️ Application Layer
+                        </a>
+                        <a href="#infrastructure-layer" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔧 Infrastructure Layer
+                        </a>
+                        <a href="#presentation-layer" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎨 Presentation Layer
+                        </a>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Features</h3>
+                        <a href="#tenant-entities" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🗄️ Tenant Entities
+                        </a>
+                        <a href="#user-entities" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👤 User Entities
+                        </a>
+                        <a href="#role-management" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎭 Role Management
+                        </a>
+                        <a href="#permission-system" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🛡️ Permission System
+                        </a>
+                    </div>
+
+                    <!-- API Reference -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">API Reference</h3>
+                        <a href="#tenant-controller" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏢 Tenant Controller
+                        </a>
+                        <a href="#user-controller" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👤 User Controller
+                        </a>
+                        <a href="#role-controller" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎭 Role Controller
+                        </a>
+                        <a href="#dto-models" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📝 DTO Models
+                        </a>
+                    </div>
+
+                    <!-- Data Layer -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data Layer</h3>
+                        <a href="#dbcontext" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🗃️ DbContext
+                        </a>
+                        <a href="#migrations" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔄 Migrations
+                        </a>
+                        <a href="#seed-data" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🌱 Seed Data
+                        </a>
+                        <a href="#repositories" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📚 Repositories
+                        </a>
+                    </div>
+
+                    <!-- Integration -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Integration</h3>
+                        <a href="#authentication" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔐 Authentication
+                        </a>
+                        <a href="#authorization" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🛡️ Authorization
+                        </a>
+                        <a href="#middleware" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚡ Middleware
+                        </a>
+                        <a href="#dependency-injection" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💉 Dependency Injection
+                        </a>
+                    </div>
+
+                    <!-- Testing -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Testing</h3>
+                        <a href="#unit-tests" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🧪 Unit Tests
+                        </a>
+                        <a href="#integration-tests" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔗 Integration Tests
+                        </a>
+                        <a href="#test-results" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📊 Test Results
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- Hero Section -->
+                <div class="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-8 mb-8 border border-red-100">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">GrydUserTenant Framework</h1>
+                    <p class="text-xl text-gray-600 mb-6">
+                        Framework enterprise para gestão de usuários e multi-tenancy com Clean Architecture e isolamento completo de dados
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="README.html" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
+                            Começar Agora
+                        </a>
+                        <a href="#multi-tenancy" class="border border-red-600 text-red-600 px-6 py-3 rounded-lg hover:bg-red-50 transition">
+                            Conceitos de Multi-Tenancy
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Navigation Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🏢 Multi-Tenancy</h3>
+                        <p class="text-sm text-gray-600 mb-3">Isolamento completo de dados por tenant</p>
+                        <a href="#multi-tenancy" class="text-red-600 text-sm font-medium hover:underline">
+                            Ver conceitos →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">👥 User Management</h3>
+                        <p class="text-sm text-gray-600 mb-3">Gestão completa de usuários por tenant</p>
+                        <a href="#user-management" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver funcionalidades →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🎯 Context Resolution</h3>
+                        <p class="text-sm text-gray-600 mb-3">Resolução automática de contexto do tenant</p>
+                        <a href="#context-resolution" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver implementação →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🛡️ Permission System</h3>
+                        <p class="text-sm text-gray-600 mb-3">Sistema avançado de permissões</p>
+                        <a href="#permission-system" class="text-yellow-600 text-sm font-medium hover:underline">
+                            Ver sistema →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🏗️ Clean Architecture</h3>
+                        <p class="text-sm text-gray-600 mb-3">Arquitetura limpa com separação de responsabilidades</p>
+                        <a href="#domain-layer" class="text-purple-600 text-sm font-medium hover:underline">
+                            Ver arquitetura →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🧪 Testing</h3>
+                        <p class="text-sm text-gray-600 mb-3">Testes unitários e de integração</p>
+                        <a href="#unit-tests" class="text-indigo-600 text-sm font-medium hover:underline">
+                            Ver testes →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Features Overview -->
+                <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Principais Funcionalidades</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">🏢 Multi-Tenancy</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Isolamento completo de dados</li>
+                                <li>• Tenant context resolution</li>
+                                <li>• Configuração por tenant</li>
+                                <li>• Middleware de tenant detection</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">👥 User Management</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• CRUD completo de usuários</li>
+                                <li>• Profile management</li>
+                                <li>• User preferences</li>
+                                <li>• Account activation/deactivation</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">🎭 Role & Permissions</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Role-based access control</li>
+                                <li>• Permission management</li>
+                                <li>• Hierarchical roles</li>
+                                <li>• Dynamic permission assignment</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">🏗️ Architecture</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Clean Architecture pattern</li>
+                                <li>• Domain-driven design</li>
+                                <li>• CQRS implementation</li>
+                                <li>• Repository pattern</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Tenancy Architecture -->
+                <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Arquitetura Multi-Tenant</h2>
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">🔒 Tenant Isolation</h3>
+                            <p class="text-sm text-gray-600">
+                                Cada tenant possui isolamento completo de dados, garantindo que nunca haverá vazamento de informações entre tenants diferentes. 
+                                O sistema automaticamente filtra todos os dados baseado no contexto do tenant atual.
+                            </p>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">🎯 Context Resolution</h3>
+                            <p class="text-sm text-gray-600">
+                                O middleware de tenant detection identifica automaticamente o tenant através de headers, subdomínio ou token JWT, 
+                                configurando o contexto para todas as operações subsequentes.
+                            </p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h3 class="font-semibold text-gray-800 mb-2">📊 Scalability</h3>
+                            <p class="text-sm text-gray-600">
+                                Arquitetado para suportar milhares de tenants com performance otimizada através de índices específicos e 
+                                estratégias de cache por tenant.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Implementation Example -->
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Implementação Rápida</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">1. Tenant Configuration</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>public class Tenant : BaseEntity
+{
+    public string Name { get; set; }
+    public string Subdomain { get; set; }
+    public bool IsActive { get; set; }
+    public TenantSettings Settings { get; set; }
+}</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">2. User with Tenant Context</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>public class User : BaseEntity, ITenantEntity
+{
+    public Guid TenantId { get; set; }
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public List&lt;UserRole&gt; Roles { get; set; }
+}</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">3. Controller with Tenant Isolation</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>[ApiController]
+[Route("api/[controller]")]
+public class UsersController : BaseTenantController&lt;User, UserDto&gt;
+{
+    public UsersController(IUserService service) : base(service) { }
+    
+    // All operations automatically filtered by tenant
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Highlight.js initialization
+        hljs.highlightAll();
+
+        // Navigation highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydUI Framework Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #3b82f6;
+            color: white;
+            transform: translateX(4px);
+        }
+        .nav-link.active {
+            background-color: #1d4ed8;
+            color: white;
+            border-left: 4px solid #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="../../index.html" class="text-white hover:text-blue-200 transition">
+                        ← Voltar aos Frameworks
+                    </a>
+                    <div class="w-px h-6 bg-blue-300"></div>
+                    <h1 class="text-2xl font-bold">GrydUI Framework</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-blue-500 bg-opacity-50 px-3 py-1 rounded-full text-sm">
+                        v2.0.0
+                    </span>
+                    <a href="https://github.com/gryd/grydui" class="text-white hover:text-blue-200 transition">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="w-80 bg-white shadow-lg border-r border-gray-200">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Documentação</h2>
+                <div class="space-y-2">
+                    <!-- Getting Started -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Getting Started</h3>
+                        <a href="#overview" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📖 Overview
+                        </a>
+                        <a href="#quick-start" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🚀 Quick Start
+                        </a>
+                        <a href="#installation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💾 Installation
+                        </a>
+                    </div>
+
+                    <!-- Architecture -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Architecture</h3>
+                        <a href="#module-federation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏗️ Module Federation
+                        </a>
+                        <a href="#container-shell" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏠 Container Shell
+                        </a>
+                        <a href="#microfrontends" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🧩 Microfrontends
+                        </a>
+                        <a href="#communication" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📡 Communication
+                        </a>
+                    </div>
+
+                    <!-- Packages -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Packages</h3>
+                        <a href="#api-client" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🌐 API Client
+                        </a>
+                        <a href="#components" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎨 Components
+                        </a>
+                        <a href="#default-layout" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📐 Default Layout
+                        </a>
+                        <a href="#crud" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📊 CRUD Operations
+                        </a>
+                        <a href="#forms" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📝 Forms
+                        </a>
+                        <a href="#charts" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📈 Charts
+                        </a>
+                        <a href="#auth" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔐 Authentication
+                        </a>
+                    </div>
+
+                    <!-- CLI Tools -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">CLI Tools</h3>
+                        <a href="#create-gryd-app" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚡ create-gryd-app
+                        </a>
+                        <a href="#project-generation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏗️ Project Generation
+                        </a>
+                    </div>
+
+                    <!-- Development -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Development</h3>
+                        <a href="#development-guide" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👨‍💻 Development Guide
+                        </a>
+                        <a href="#testing" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🧪 Testing
+                        </a>
+                        <a href="#debugging" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🐛 Debugging
+                        </a>
+                    </div>
+
+                    <!-- Deployment -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Deployment</h3>
+                        <a href="#cicd" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🚀 CI/CD Pipeline
+                        </a>
+                        <a href="#production" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🌐 Production
+                        </a>
+                        <a href="#gitflow" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🌿 Gitflow Strategy
+                        </a>
+                    </div>
+
+                    <!-- Examples -->
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Examples</h3>
+                        <a href="#examples" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💡 Code Examples
+                        </a>
+                        <a href="#best-practices" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ✨ Best Practices
+                        </a>
+                        <a href="#troubleshooting" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔧 Troubleshooting
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- Hero Section -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 border border-blue-100">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">GrydUI Framework</h1>
+                    <p class="text-xl text-gray-600 mb-6">
+                        Framework React enterprise com Module Federation para desenvolvimento de microfrontends escaláveis
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#quick-start" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                            Começar Agora
+                        </a>
+                        <a href="README.html" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition">
+                            Documentação Completa
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Navigation Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🚀 Quick Start</h3>
+                        <p class="text-sm text-gray-600 mb-3">Crie sua primeira aplicação em minutos</p>
+                        <a href="#quick-start" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver guia →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🏗️ Module Federation</h3>
+                        <p class="text-sm text-gray-600 mb-3">Arquitetura de microfrontends com webpack</p>
+                        <a href="MODULE-FEDERATION-GUIDE.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver guia →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">📊 CRUD Package</h3>
+                        <p class="text-sm text-gray-600 mb-3">Operações CRUD completas com backend</p>
+                        <a href="../crud/README.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Ver documentação →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">⚡ CLI Tools</h3>
+                        <p class="text-sm text-gray-600 mb-3">Geração automática de projetos</p>
+                        <a href="#create-gryd-app" class="text-yellow-600 text-sm font-medium hover:underline">
+                            Ver ferramentas →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">🚀 CI/CD</h3>
+                        <p class="text-sm text-gray-600 mb-3">Pipeline completo para produção</p>
+                        <a href="GITFLOW-STRATEGY.html" class="text-red-600 text-sm font-medium hover:underline">
+                            Ver strategy →
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
+                        <h3 class="font-semibold text-gray-800 mb-2">💡 Examples</h3>
+                        <p class="text-sm text-gray-600 mb-3">Exemplos práticos e casos de uso</p>
+                        <a href="#examples" class="text-indigo-600 text-sm font-medium hover:underline">
+                            Ver exemplos →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Features Overview -->
+                <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Principais Funcionalidades</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">🏗️ Module Federation</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• Container Shell para orquestração</li>
+                                <li>• Microfrontends independentes</li>
+                                <li>• Shared dependencies otimizadas</li>
+                                <li>• Hot reloading em desenvolvimento</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">📦 Packages Integrados</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• @gryd/api-client - HTTP e EventBus</li>
+                                <li>• @gryd/components - UI Components</li>
+                                <li>• @gryd/crud - Operações CRUD</li>
+                                <li>• @gryd/forms - Formulários avançados</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">⚡ Automação CLI</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• create-gryd-app para projetos</li>
+                                <li>• Webpack configs automáticos</li>
+                                <li>• TypeScript declarations</li>
+                                <li>• Error boundaries incluídas</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-3">🚀 Enterprise Ready</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• CI/CD pipeline completo</li>
+                                <li>• Gitflow para equipes</li>
+                                <li>• Testes E2E automatizados</li>
+                                <li>• Deploy independente</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Code Example -->
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Exemplo Rápido</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">1. Criar Container Application</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>npx create-gryd-app my-app create
+# Escolha: Container Shell
+# Microfrontends: users,products,orders</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">2. Criar Microfrontend</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>npx create-gryd-app users create
+# Escolha: Microfrontend
+# Port: 3001</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-2">3. Comunicação Entre Microfrontends</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>import { MicroFrontendEventBus } from '@gryd/api-client';
+
+// Atualizar header do microfrontend
+MicroFrontendEventBus.emit('page:title-changed', 'Users Management');</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Highlight.js initialization
+        hljs.highlightAll();
+
+        // Navigation highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
