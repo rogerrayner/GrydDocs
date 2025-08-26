@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role-Based Access - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">👥 Role-Based Access Control</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Sistema de Controle de Acesso Baseado em Roles</h2>
+                <p>O GrydAuthentication Framework implementa um sistema robusto de RBAC (Role-Based Access Control) com suporte a permissões granulares e hierarquia de roles.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🔑 Conceitos Principais</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li><strong>Users:</strong> Usuários do sistema</li>
+                        <li><strong>Roles:</strong> Conjuntos de permissões (Admin, Manager, User)</li>
+                        <li><strong>Permissions:</strong> Ações específicas (users:read, products:create)</li>
+                        <li><strong>Resources:</strong> Objetos protegidos (users, products, orders)</li>
+                    </ul>
+                </div>
+
+                <h2>Arquitetura RBAC</h2>
+
+                <div class="bg-gray-50 p-4 rounded-lg my-6">
+                    <pre class="text-sm"><code>┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│    Users    │───▶│    Roles    │───▶│ Permissions │
+│             │    │             │    │             │
+│ • john@     │    │ • Admin     │    │ • users:*   │
+│ • mary@     │    │ • Manager   │    │ • products:*│
+│ • guest@    │    │ • User      │    │ • orders:*  │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       └───────────────────┼───────────────────┘
+                           │
+                  ┌─────────────┐
+                  │  Resources  │
+                  │             │
+                  │ • /api/users│
+                  │ • /products │
+                  │ • /orders   │
+                  └─────────────┘</code></pre>
+                </div>
+
+                <h2>Definição de Permissions</h2>
+
+                <h3>Estrutura de Permissões</h3>
+                <p>As permissões seguem o padrão <code>resource:action</code>:</p>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Permission</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Resource</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">users:read</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">users</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">read</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Visualizar usuários</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">users:create</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">users</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">create</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Criar novos usuários</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">users:update</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">users</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">update</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Atualizar usuários</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">users:delete</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">users</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">delete</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Remover usuários</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">products:*</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">products</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">*</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Todas as ações em produtos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Seed de Permissões</h3>
+                <pre><code class="language-csharp">public static class PermissionSeeder
+{
+    public static async Task SeedPermissionsAsync(IServiceScope scope)
+    {
+        var context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+        
+        if (!await context.Permissions.AnyAsync())
+        {
+            var permissions = new[]
+            {
+                // User Management
+                Permission.CreateSystemPermission("users:read", "Read Users", "management", "users", "read", "Visualizar lista de usuários"),
+                Permission.CreateSystemPermission("users:create", "Create Users", "management", "users", "create", "Criar novos usuários"),
+                Permission.CreateSystemPermission("users:update", "Update Users", "management", "users", "update", "Atualizar dados de usuários"),
+                Permission.CreateSystemPermission("users:delete", "Delete Users", "management", "users", "delete", "Remover usuários"),
+                
+                // Role Management
+                Permission.CreateSystemPermission("roles:read", "Read Roles", "management", "roles", "read", "Visualizar roles do sistema"),
+                Permission.CreateSystemPermission("roles:create", "Create Roles", "management", "roles", "create", "Criar novas roles"),
+                Permission.CreateSystemPermission("roles:update", "Update Roles", "management", "roles", "update", "Atualizar roles existentes"),
+                Permission.CreateSystemPermission("roles:delete", "Delete Roles", "management", "roles", "delete", "Remover roles"),
+                
+                // Product Management
+                Permission.CreateSystemPermission("products:read", "Read Products", "business", "products", "read", "Visualizar produtos"),
+                Permission.CreateSystemPermission("products:create", "Create Products", "business", "products", "create", "Criar novos produtos"),
+                Permission.CreateSystemPermission("products:update", "Update Products", "business", "products", "update", "Atualizar produtos"),
+                Permission.CreateSystemPermission("products:delete", "Delete Products", "business", "products", "delete", "Remover produtos"),
+                
+                // Order Management
+                Permission.CreateSystemPermission("orders:read", "Read Orders", "business", "orders", "read", "Visualizar pedidos"),
+                Permission.CreateSystemPermission("orders:create", "Create Orders", "business", "orders", "create", "Criar novos pedidos"),
+                Permission.CreateSystemPermission("orders:update", "Update Orders", "business", "orders", "update", "Atualizar pedidos"),
+                Permission.CreateSystemPermission("orders:cancel", "Cancel Orders", "business", "orders", "cancel", "Cancelar pedidos"),
+                
+                // Reports
+                Permission.CreateSystemPermission("reports:view", "View Reports", "analytics", "reports", "view", "Visualizar relatórios"),
+                Permission.CreateSystemPermission("reports:export", "Export Reports", "analytics", "reports", "export", "Exportar relatórios"),
+                
+                // Admin Functions
+                Permission.CreateSystemPermission("admin:system", "System Administration", "admin", "system", "admin", "Administração completa do sistema")
+            };
+
+            await context.Permissions.AddRangeAsync(permissions);
+            await context.SaveChangesAsync();
+        }
+    }
+}</code></pre>
+
+                <h2>Definição de Roles</h2>
+
+                <h3>Roles Padrão do Sistema</h3>
+                <pre><code class="language-csharp">public static class RoleSeeder
+{
+    public static async Task SeedRolesAsync(IServiceScope scope)
+    {
+        var context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+        
+        if (!await context.Roles.AnyAsync())
+        {
+            // Super Admin - Acesso completo
+            var superAdmin = new Role("super-admin", "Super Administrator", "Acesso completo ao sistema");
+            superAdmin.MarkAsSystemRole();
+            
+            // Admin - Gerenciamento geral
+            var admin = new Role("admin", "Administrator", "Administrador com acesso a usuários e configurações");
+            
+            // Manager - Gerenciamento de negócio
+            var manager = new Role("manager", "Manager", "Gerente com acesso a produtos, pedidos e relatórios");
+            
+            // User - Usuário padrão
+            var user = new Role("user", "User", "Usuário padrão com acesso limitado");
+            
+            // Guest - Acesso mínimo
+            var guest = new Role("guest", "Guest", "Visitante com acesso somente leitura");
+
+            await context.Roles.AddRangeAsync(superAdmin, admin, manager, user, guest);
+            await context.SaveChangesAsync();
+
+            // Atribuir permissões às roles
+            await AssignPermissionsToRolesAsync(context, superAdmin, admin, manager, user, guest);
+        }
+    }
+
+    private static async Task AssignPermissionsToRolesAsync(
+        ApplicationDbContext context, 
+        Role superAdmin, 
+        Role admin, 
+        Role manager, 
+        Role user, 
+        Role guest)
+    {
+        var allPermissions = await context.Permissions.ToListAsync();
+
+        // Super Admin - Todas as permissões
+        foreach (var permission in allPermissions)
+        {
+            superAdmin.AddPermission(permission);
+        }
+
+        // Admin - Gerenciamento de usuários e roles
+        var adminPermissions = allPermissions.Where(p =&gt; 
+            p.Resource == "users" || 
+            p.Resource == "roles" ||
+            p.Name == "reports:view").ToList();
+        
+        foreach (var permission in adminPermissions)
+        {
+            admin.AddPermission(permission);
+        }
+
+        // Manager - Negócio e relatórios
+        var managerPermissions = allPermissions.Where(p =&gt; 
+            p.Resource == "products" || 
+            p.Resource == "orders" ||
+            p.Resource == "reports" ||
+            (p.Resource == "users" &amp;&amp; p.Action == "read")).ToList();
+        
+        foreach (var permission in managerPermissions)
+        {
+            manager.AddPermission(permission);
+        }
+
+        // User - Acesso básico
+        var userPermissions = allPermissions.Where(p =&gt; 
+            (p.Resource == "products" &amp;&amp; p.Action == "read") ||
+            (p.Resource == "orders" &amp;&amp; (p.Action == "read" || p.Action == "create"))).ToList();
+        
+        foreach (var permission in userPermissions)
+        {
+            user.AddPermission(permission);
+        }
+
+        // Guest - Somente leitura limitada
+        var guestPermissions = allPermissions.Where(p =&gt; 
+            p.Resource == "products" &amp;&amp; p.Action == "read").ToList();
+        
+        foreach (var permission in guestPermissions)
+        {
+            guest.AddPermission(permission);
+        }
+
+        await context.SaveChangesAsync();
+    }
+}</code></pre>
+
+                <h2>Atributos de Autorização</h2>
+
+                <h3>RequirePermissionAttribute</h3>
+                <pre><code class="language-csharp">using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace GrydAuthenticationFramework.Attributes
+{
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class RequirePermissionAttribute : Attribute, IAuthorizationFilter
+    {
+        private readonly string _permission;
+        private readonly bool _requireAll;
+        private readonly string[] _permissions;
+
+        public RequirePermissionAttribute(string permission)
+        {
+            _permission = permission;
+            _permissions = new[] { permission };
+            _requireAll = false;
+        }
+
+        public RequirePermissionAttribute(params string[] permissions)
+        {
+            _permissions = permissions;
+            _requireAll = false;
+        }
+
+        public RequirePermissionAttribute(bool requireAll, params string[] permissions)
+        {
+            _permissions = permissions;
+            _requireAll = requireAll;
+        }
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            var user = context.HttpContext.User;
+
+            // Verificar se está autenticado
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                context.Result = new UnauthorizedObjectResult(new { message = "Authentication required" });
+                return;
+            }
+
+            // Verificar permissões
+            var userPermissions = user.FindAll("permissions").Select(c =&gt; c.Value).ToList();
+            
+            bool hasAccess;
+            
+            if (_requireAll)
+            {
+                // Requer TODAS as permissões
+                hasAccess = _permissions.All(p =&gt; userPermissions.Contains(p) || HasWildcardPermission(userPermissions, p));
+            }
+            else
+            {
+                // Requer QUALQUER uma das permissões
+                hasAccess = _permissions.Any(p =&gt; userPermissions.Contains(p) || HasWildcardPermission(userPermissions, p));
+            }
+
+            if (!hasAccess)
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
+        }
+
+        private bool HasWildcardPermission(List&lt;string&gt; userPermissions, string requiredPermission)
+        {
+            var parts = requiredPermission.Split(':');
+            if (parts.Length != 2) return false;
+
+            var resource = parts[0];
+            var wildcardPermission = $"{resource}:*";
+            
+            return userPermissions.Contains(wildcardPermission);
+        }
+    }
+}</code></pre>
+
+                <h3>RequireRoleAttribute</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Attributes
+{
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class RequireRoleAttribute : Attribute, IAuthorizationFilter
+    {
+        private readonly string[] _roles;
+        private readonly bool _requireAll;
+
+        public RequireRoleAttribute(string role)
+        {
+            _roles = new[] { role };
+            _requireAll = false;
+        }
+
+        public RequireRoleAttribute(params string[] roles)
+        {
+            _roles = roles;
+            _requireAll = false;
+        }
+
+        public RequireRoleAttribute(bool requireAll, params string[] roles)
+        {
+            _roles = roles;
+            _requireAll = requireAll;
+        }
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            var user = context.HttpContext.User;
+
+            if (!user.Identity?.IsAuthenticated ?? true)
+            {
+                context.Result = new UnauthorizedObjectResult(new { message = "Authentication required" });
+                return;
+            }
+
+            bool hasAccess;
+
+            if (_requireAll)
+            {
+                // Requer TODAS as roles
+                hasAccess = _roles.All(role =&gt; user.IsInRole(role));
+            }
+            else
+            {
+                // Requer QUALQUER uma das roles
+                hasAccess = _roles.Any(role =&gt; user.IsInRole(role));
+            }
+
+            if (!hasAccess)
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
+        }
+    }
+}</code></pre>
+
+                <h2>Aplicação dos Atributos</h2>
+
+                <h3>Controller com RBAC</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize] // Requer autenticação básica
+public class UsersController : ControllerBase
+{
+    [HttpGet]
+    [RequirePermission("users:read")]
+    public async Task&lt;ActionResult&lt;PagedResult&lt;UserDto&gt;&gt;&gt; GetUsers([FromQuery] GetUsersQuery query)
+    {
+        // Implementação
+    }
+
+    [HttpPost]
+    [RequirePermission("users:create")]
+    public async Task&lt;ActionResult&lt;UserDto&gt;&gt; CreateUser([FromBody] CreateUserCommand command)
+    {
+        // Implementação
+    }
+
+    [HttpPut("{id}")]
+    [RequirePermission("users:update")]
+    public async Task&lt;ActionResult&lt;UserDto&gt;&gt; UpdateUser(Guid id, [FromBody] UpdateUserCommand command)
+    {
+        // Implementação
+    }
+
+    [HttpDelete("{id}")]
+    [RequirePermission("users:delete")]
+    [RequireRole("admin", "super-admin")] // Dupla verificação
+    public async Task&lt;ActionResult&gt; DeleteUser(Guid id)
+    {
+        // Implementação
+    }
+
+    [HttpPost("{id}/roles")]
+    [RequirePermission(true, "users:update", "roles:read")] // Requer AMBAS as permissões
+    public async Task&lt;ActionResult&gt; AssignRole(Guid id, [FromBody] AssignRoleCommand command)
+    {
+        // Implementação
+    }
+}</code></pre>
+
+                <h3>Verificação Programática</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IAuthorizationService _authorizationService;
+    private readonly IPermissionService _permissionService;
+
+    public ProductsController(
+        IAuthorizationService authorizationService,
+        IPermissionService permissionService)
+    {
+        _authorizationService = authorizationService;
+        _permissionService = permissionService;
+    }
+
+    [HttpGet("{id}")]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; GetProduct(Guid id)
+    {
+        // Verificação básica de leitura
+        if (!await _permissionService.HasPermissionAsync(User, "products:read"))
+        {
+            return Forbid();
+        }
+
+        var product = await GetProductByIdAsync(id);
+        
+        // Verificação condicional - somente o criador ou admin pode ver produtos inativos
+        if (!product.IsActive)
+        {
+            var canViewInactive = await _permissionService.HasPermissionAsync(User, "products:view-inactive") ||
+                                   product.CreatedBy == User.GetUserId() ||
+                                   User.IsInRole("admin");
+            
+            if (!canViewInactive)
+            {
+                return NotFound();
+            }
+        }
+
+        return Ok(product);
+    }
+
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; CreateProduct([FromBody] CreateProductCommand command)
+    {
+        // Verificação de permissão
+        if (!await _permissionService.HasPermissionAsync(User, "products:create"))
+        {
+            return Forbid();
+        }
+
+        // Verificação de limite baseada em role
+        if (User.IsInRole("user"))
+        {
+            var userProductCount = await GetUserProductCountAsync(User.GetUserId());
+            if (userProductCount &gt;= 10) // Limite para usuários comuns
+            {
+                return BadRequest("Product limit exceeded for your role");
+            }
+        }
+
+        // Criar produto
+        var result = await CreateProductAsync(command);
+        return Ok(result);
+    }
+}</code></pre>
+
+                <h2>Serviços de Autorização</h2>
+
+                <h3>IPermissionService</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+{
+    public interface IPermissionService
+    {
+        Task&lt;bool&gt; HasPermissionAsync(ClaimsPrincipal user, string permission);
+        Task&lt;bool&gt; HasAnyPermissionAsync(ClaimsPrincipal user, params string[] permissions);
+        Task&lt;bool&gt; HasAllPermissionsAsync(ClaimsPrincipal user, params string[] permissions);
+        Task&lt;List&lt;string&gt;&gt; GetUserPermissionsAsync(Guid userId);
+        Task&lt;bool&gt; CanAccessResourceAsync(ClaimsPrincipal user, string resource, string action);
+        Task&lt;bool&gt; IsResourceOwnerAsync(ClaimsPrincipal user, string resource, Guid resourceId);
+    }
+}</code></pre>
+
+                <h3>PermissionService Implementation</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Services
+{
+    public class PermissionService : IPermissionService
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IDistributedCache _cache;
+        private readonly ILogger&lt;PermissionService&gt; _logger;
+
+        public PermissionService(
+            IUserRepository userRepository,
+            IDistributedCache cache,
+            ILogger&lt;PermissionService&gt; logger)
+        {
+            _userRepository = userRepository;
+            _cache = cache;
+            _logger = logger;
+        }
+
+        public async Task&lt;bool&gt; HasPermissionAsync(ClaimsPrincipal user, string permission)
+        {
+            var userId = user.GetUserId();
+            if (userId == Guid.Empty) return false;
+
+            var permissions = await GetUserPermissionsAsync(userId);
+            return permissions.Contains(permission) || HasWildcardPermission(permissions, permission);
+        }
+
+        public async Task&lt;bool&gt; HasAnyPermissionAsync(ClaimsPrincipal user, params string[] permissions)
+        {
+            var userId = user.GetUserId();
+            if (userId == Guid.Empty) return false;
+
+            var userPermissions = await GetUserPermissionsAsync(userId);
+            
+            return permissions.Any(p =&gt; 
+                userPermissions.Contains(p) || 
+                HasWildcardPermission(userPermissions, p));
+        }
+
+        public async Task&lt;bool&gt; HasAllPermissionsAsync(ClaimsPrincipal user, params string[] permissions)
+        {
+            var userId = user.GetUserId();
+            if (userId == Guid.Empty) return false;
+
+            var userPermissions = await GetUserPermissionsAsync(userId);
+            
+            return permissions.All(p =&gt; 
+                userPermissions.Contains(p) || 
+                HasWildcardPermission(userPermissions, p));
+        }
+
+        public async Task&lt;List&lt;string&gt;&gt; GetUserPermissionsAsync(Guid userId)
+        {
+            var cacheKey = $"user_permissions:{userId}";
+            var cachedPermissions = await _cache.GetStringAsync(cacheKey);
+            
+            if (!string.IsNullOrEmpty(cachedPermissions))
+            {
+                return JsonSerializer.Deserialize&lt;List&lt;string&gt;&gt;(cachedPermissions) ?? new List&lt;string&gt;();
+            }
+
+            var user = await _userRepository.GetByIdWithRolesAsync(userId);
+            if (user == null) return new List&lt;string&gt;();
+
+            var permissions = user.UserRoles
+                .Where(ur =&gt; ur.Role.IsActive)
+                .SelectMany(ur =&gt; ur.Role.RolePermissions)
+                .Where(rp =&gt; rp.Permission.IsActive)
+                .Select(rp =&gt; rp.Permission.Name)
+                .Distinct()
+                .ToList();
+
+            // Cache por 15 minutos
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
+            };
+            
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(permissions), cacheOptions);
+
+            return permissions;
+        }
+
+        public async Task&lt;bool&gt; CanAccessResourceAsync(ClaimsPrincipal user, string resource, string action)
+        {
+            var permission = $"{resource}:{action}";
+            return await HasPermissionAsync(user, permission);
+        }
+
+        public async Task&lt;bool&gt; IsResourceOwnerAsync(ClaimsPrincipal user, string resource, Guid resourceId)
+        {
+            var userId = user.GetUserId();
+            if (userId == Guid.Empty) return false;
+
+            // Implementar lógica específica por resource
+            // Exemplo simplificado:
+            switch (resource.ToLower())
+            {
+                case "products":
+                    return await IsProductOwnerAsync(userId, resourceId);
+                case "orders":
+                    return await IsOrderOwnerAsync(userId, resourceId);
+                default:
+                    return false;
+            }
+        }
+
+        private bool HasWildcardPermission(List&lt;string&gt; userPermissions, string requiredPermission)
+        {
+            var parts = requiredPermission.Split(':');
+            if (parts.Length != 2) return false;
+
+            var resource = parts[0];
+            var wildcardPermission = $"{resource}:*";
+            
+            return userPermissions.Contains(wildcardPermission);
+        }
+
+        private async Task&lt;bool&gt; IsProductOwnerAsync(Guid userId, Guid productId)
+        {
+            // Implementar verificação de ownership para produtos
+            return await Task.FromResult(false);
+        }
+
+        private async Task&lt;bool&gt; IsOrderOwnerAsync(Guid userId, Guid orderId)
+        {
+            // Implementar verificação de ownership para pedidos
+            return await Task.FromResult(false);
+        }
+    }
+}</code></pre>
+
+                <h2>Políticas de Autorização</h2>
+
+                <h3>Configuração de Policies</h3>
+                <pre><code class="language-csharp">// Program.cs
+builder.Services.AddAuthorization(options =&gt;
+{
+    // Policy baseada em permissão
+    options.AddPolicy("RequireUserManagement", policy =&gt;
+        policy.RequireClaim("permissions", "users:read", "users:create", "users:update"));
+
+    // Policy baseada em role
+    options.AddPolicy("RequireAdminRole", policy =&gt;
+        policy.RequireRole("admin", "super-admin"));
+
+    // Policy customizada
+    options.AddPolicy("RequireProductAccess", policy =&gt;
+        policy.RequireAssertion(context =&gt;
+        {
+            var user = context.User;
+            var permissions = user.FindAll("permissions").Select(c =&gt; c.Value).ToList();
+            
+            return permissions.Contains("products:read") || 
+                   permissions.Contains("products:*") ||
+                   user.IsInRole("manager");
+        }));
+
+    // Policy com múltiplos requisitos
+    options.AddPolicy("RequireAdvancedAccess", policy =&gt;
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole("admin", "manager");
+        policy.RequireClaim("permissions", "reports:view");
+        policy.RequireAssertion(context =&gt; 
+            context.User.FindFirst("email_verified")?.Value == "true");
+    });
+});</code></pre>
+
+                <h3>Uso de Policies em Controllers</h3>
+                <pre><code class="language-csharp">[Authorize(Policy = "RequireUserManagement")]
+public class UserManagementController : ControllerBase
+{
+    [HttpGet]
+    public async Task&lt;ActionResult&gt; GetDashboard()
+    {
+        // Acesso garantido pela policy
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class ReportsController : ControllerBase
+{
+    [HttpGet("advanced")]
+    [Authorize(Policy = "RequireAdvancedAccess")]
+    public async Task&lt;ActionResult&gt; GetAdvancedReports()
+    {
+        // Múltiplos requisitos verificados
+    }
+}</code></pre>
+
+                <h2>Extensões e Helpers</h2>
+
+                <h3>Authorization Extensions</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
+{
+    public static class AuthorizationExtensions
+    {
+        public static async Task&lt;bool&gt; CanAsync(this IAuthorizationService authService, 
+            ClaimsPrincipal user, string permission)
+        {
+            var result = await authService.AuthorizeAsync(user, permission);
+            return result.Succeeded;
+        }
+
+        public static async Task&lt;bool&gt; CanAnyAsync(this IAuthorizationService authService, 
+            ClaimsPrincipal user, params string[] permissions)
+        {
+            foreach (var permission in permissions)
+            {
+                var result = await authService.AuthorizeAsync(user, permission);
+                if (result.Succeeded) return true;
+            }
+            return false;
+        }
+
+        public static bool HasPermissionInClaims(this ClaimsPrincipal user, string permission)
+        {
+            var permissions = user.FindAll("permissions").Select(c =&gt; c.Value).ToList();
+            return permissions.Contains(permission) || HasWildcardPermission(permissions, permission);
+        }
+
+        private static bool HasWildcardPermission(List&lt;string&gt; userPermissions, string requiredPermission)
+        {
+            var parts = requiredPermission.Split(':');
+            if (parts.Length != 2) return false;
+            
+            var resource = parts[0];
+            return userPermissions.Contains($"{resource}:*");
+        }
+    }
+}</code></pre>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">⚡ Middleware</h3>
+                        <p class="text-sm text-green-600 mb-3">Middlewares de autenticação e autorização</p>
+                        <a href="middleware.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Middleware →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">📊 Session Management</h3>
+                        <p class="text-sm text-blue-600 mb-3">Gerenciamento avançado de sessões</p>
+                        <a href="session-management.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Session Management →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

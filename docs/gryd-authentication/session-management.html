@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Management - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🔐 Session Management</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Gerenciamento Avançado de Sessões</h2>
+                <p>O GrydAuthentication Framework oferece um sistema completo de gerenciamento de sessões com suporte a múltiplas aplicações, Redis distribuído e controle granular de sessões.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🎯 Features Principais</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li><strong>Sessões Distribuídas:</strong> Redis para aplicações multi-instância</li>
+                        <li><strong>Múltiplos Dispositivos:</strong> Controle de sessões por dispositivo</li>
+                        <li><strong>Timeout Configurável:</strong> Expiração automática e renovação</li>
+                        <li><strong>Session Hijacking Protection:</strong> Proteção contra sequestro</li>
+                        <li><strong>Concurrent Sessions:</strong> Limitação de sessões simultâneas</li>
+                    </ul>
+                </div>
+
+                <h2>Arquitetura de Sessões</h2>
+
+                <div class="bg-gray-50 p-4 rounded-lg my-6">
+                    <pre class="text-sm"><code>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Web Client    │    │   Mobile App    │    │   Desktop App   │
+│                 │    │                 │    │                 │
+│ SessionId: ABC  │    │ SessionId: DEF  │    │ SessionId: GHI  │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌─────────────▼─────────────┐
+                    │      Load Balancer       │
+                    └─────────────┬─────────────┘
+                                 │
+          ┌──────────────────────┼──────────────────────┐
+          │                      │                      │
+          ▼                      ▼                      ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   API Server 1  │    │   API Server 2  │    │   API Server 3  │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌─────────────▼─────────────┐
+                    │      Redis Cluster       │
+                    │                          │
+                    │  Session Store:          │
+                    │  - User Sessions         │
+                    │  - Device Tracking       │
+                    │  - Security Metadata     │
+                    └──────────────────────────┘</code></pre>
+                </div>
+
+                <h2>Configuração de Sessões</h2>
+
+                <h3>appsettings.json</h3>
+                <pre><code class="language-json">{
+  "SessionConfiguration": {
+    "CookieName": "GrydAuth.Session",
+    "TimeoutMinutes": 30,
+    "SlidingExpiration": true,
+    "RequireHttps": true,
+    "SameSite": "Strict",
+    "MaxConcurrentSessions": 3,
+    "EnableDeviceTracking": true,
+    "SecureSessionValidation": true,
+    "SessionHijackingProtection": {
+      "Enabled": true,
+      "ValidateIpAddress": true,
+      "ValidateUserAgent": true,
+      "MaxIpChangesPerSession": 2
+    },
+    "DistributedSession": {
+      "Provider": "Redis",
+      "Redis": {
+        "ConnectionString": "localhost:6379",
+        "Database": 0,
+        "KeyPrefix": "GrydAuth:Session:",
+        "PoolSize": 10
+      }
+    }
+  }
+}</code></pre>
+
+                <h3>Program.cs - Configuração</h3>
+                <pre><code class="language-csharp">// Program.cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Configuração de Sessão
+builder.Services.AddGrydSessionManagement(options =&gt;
+{
+    options.CookieName = builder.Configuration["SessionConfiguration:CookieName"];
+    options.TimeoutMinutes = builder.Configuration.GetValue&lt;int&gt;("SessionConfiguration:TimeoutMinutes");
+    options.SlidingExpiration = builder.Configuration.GetValue&lt;bool&gt;("SessionConfiguration:SlidingExpiration");
+    options.RequireHttps = builder.Configuration.GetValue&lt;bool&gt;("SessionConfiguration:RequireHttps");
+    options.MaxConcurrentSessions = builder.Configuration.GetValue&lt;int&gt;("SessionConfiguration:MaxConcurrentSessions");
+    options.EnableDeviceTracking = builder.Configuration.GetValue&lt;bool&gt;("SessionConfiguration:EnableDeviceTracking");
+});
+
+// Configuração Redis (Distribuído)
+if (builder.Configuration.GetValue&lt;string&gt;("SessionConfiguration:DistributedSession:Provider") == "Redis")
+{
+    builder.Services.AddStackExchangeRedisCache(options =&gt;
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("Redis");
+        options.InstanceName = "GrydAuth";
+    });
+}
+
+var app = builder.Build();
+
+// Middleware de Sessão
+app.UseGrydSessionManagement();
+
+app.Run();</code></pre>
+
+                <h2>Modelos de Sessão</h2>
+
+                <h3>UserSession Entity</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Domain.Entities
+{
+    public class UserSession : BaseEntity
+    {
+        public Guid UserId { get; private set; }
+        public string SessionId { get; private set; }
+        public string DeviceId { get; private set; }
+        public string DeviceType { get; private set; }
+        public string UserAgent { get; private set; }
+        public string IpAddress { get; private set; }
+        public DateTime CreatedAt { get; private set; }
+        public DateTime LastAccessedAt { get; private set; }
+        public DateTime ExpiresAt { get; private set; }
+        public bool IsActive { get; private set; }
+        public string Location { get; private set; }
+        public Dictionary&lt;string, object&gt; Metadata { get; private set; }
+        
+        // Navigation
+        public User User { get; private set; }
+
+        private UserSession() 
+        {
+            Metadata = new Dictionary&lt;string, object&gt;();
+        }
+
+        public static UserSession Create(
+            Guid userId,
+            string sessionId,
+            string deviceId,
+            string deviceType,
+            string userAgent,
+            string ipAddress,
+            TimeSpan timeout,
+            string location = null)
+        {
+            var session = new UserSession();
+            session.Id = Guid.NewGuid();
+            session.UserId = userId;
+            session.SessionId = sessionId;
+            session.DeviceId = deviceId;
+            session.DeviceType = deviceType;
+            session.UserAgent = userAgent;
+            session.IpAddress = ipAddress;
+            session.CreatedAt = DateTime.UtcNow;
+            session.LastAccessedAt = DateTime.UtcNow;
+            session.ExpiresAt = DateTime.UtcNow.Add(timeout);
+            session.IsActive = true;
+            session.Location = location;
+            session.Metadata = new Dictionary&lt;string, object&gt;();
+
+            return session;
+        }
+
+        public void UpdateLastAccess(string ipAddress = null, TimeSpan? newTimeout = null)
+        {
+            LastAccessedAt = DateTime.UtcNow;
+            
+            if (!string.IsNullOrEmpty(ipAddress) &amp;&amp; ipAddress != IpAddress)
+            {
+                // Log IP change for security
+                AddMetadata("ip_changes", GetIpChangeCount() + 1);
+                AddMetadata($"ip_change_{GetIpChangeCount()}", new { 
+                    OldIp = IpAddress, 
+                    NewIp = ipAddress, 
+                    Timestamp = DateTime.UtcNow 
+                });
+                IpAddress = ipAddress;
+            }
+
+            if (newTimeout.HasValue)
+            {
+                ExpiresAt = DateTime.UtcNow.Add(newTimeout.Value);
+            }
+        }
+
+        public void Terminate()
+        {
+            IsActive = false;
+            AddMetadata("terminated_at", DateTime.UtcNow);
+        }
+
+        public void AddMetadata(string key, object value)
+        {
+            Metadata[key] = value;
+        }
+
+        public T GetMetadata&lt;T&gt;(string key, T defaultValue = default)
+        {
+            if (Metadata.TryGetValue(key, out var value))
+            {
+                try
+                {
+                    return (T)value;
+                }
+                catch
+                {
+                    return defaultValue;
+                }
+            }
+            return defaultValue;
+        }
+
+        public int GetIpChangeCount()
+        {
+            return GetMetadata("ip_changes", 0);
+        }
+
+        public bool IsExpired =&gt; DateTime.UtcNow &gt; ExpiresAt;
+        
+        public bool RequiresSecurityValidation
+        {
+            get
+            {
+                var ipChanges = GetIpChangeCount();
+                return ipChanges &gt; 2 || 
+                       (DateTime.UtcNow - CreatedAt).TotalHours &gt; 24;
+            }
+        }
+    }
+}</code></pre>
+
+                <h3>SessionSecurityInfo</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Domain.ValueObjects
+{
+    public class SessionSecurityInfo
+    {
+        public string Fingerprint { get; }
+        public string IpAddress { get; }
+        public string UserAgent { get; }
+        public string Location { get; }
+        public List&lt;string&gt; SecurityFlags { get; }
+        public DateTime CreatedAt { get; }
+
+        public SessionSecurityInfo(
+            string fingerprint,
+            string ipAddress,
+            string userAgent,
+            string location = null)
+        {
+            Fingerprint = fingerprint;
+            IpAddress = ipAddress;
+            UserAgent = userAgent;
+            Location = location;
+            SecurityFlags = new List&lt;string&gt;();
+            CreatedAt = DateTime.UtcNow;
+        }
+
+        public void AddSecurityFlag(string flag)
+        {
+            if (!SecurityFlags.Contains(flag))
+            {
+                SecurityFlags.Add(flag);
+            }
+        }
+
+        public bool HasSecurityFlag(string flag) =&gt; SecurityFlags.Contains(flag);
+        
+        public bool IsFromSuspiciousLocation =&gt; HasSecurityFlag("SUSPICIOUS_LOCATION");
+        public bool IsFromTorNetwork =&gt; HasSecurityFlag("TOR_NETWORK");
+        public bool IsFromProxyServer =&gt; HasSecurityFlag("PROXY_SERVER");
+    }
+}</code></pre>
+
+                <h2>Serviços de Sessão</h2>
+
+                <h3>ISessionService Interface</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+{
+    public interface ISessionService
+    {
+        Task&lt;UserSession&gt; CreateSessionAsync(Guid userId, SessionSecurityInfo securityInfo, string deviceType);
+        Task&lt;UserSession&gt; GetSessionAsync(string sessionId);
+        Task&lt;bool&gt; ValidateSessionAsync(string sessionId, SessionSecurityInfo currentSecurityInfo);
+        Task&lt;bool&gt; RefreshSessionAsync(string sessionId, TimeSpan? newTimeout = null);
+        Task TerminateSessionAsync(string sessionId);
+        Task TerminateAllUserSessionsAsync(Guid userId, string exceptSessionId = null);
+        Task&lt;List&lt;UserSession&gt;&gt; GetActiveUserSessionsAsync(Guid userId);
+        Task&lt;bool&gt; IsSessionLimitExceededAsync(Guid userId);
+        Task CleanupExpiredSessionsAsync();
+        Task&lt;SessionStatistics&gt; GetSessionStatisticsAsync(Guid userId);
+    }
+}</code></pre>
+
+                <h3>SessionService Implementation</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Services
+{
+    public class SessionService : ISessionService
+    {
+        private readonly IUserSessionRepository _sessionRepository;
+        private readonly IDistributedCache _distributedCache;
+        private readonly ILogger&lt;SessionService&gt; _logger;
+        private readonly SessionConfiguration _config;
+        private readonly ILocationService _locationService;
+
+        public SessionService(
+            IUserSessionRepository sessionRepository,
+            IDistributedCache distributedCache,
+            ILogger&lt;SessionService&gt; logger,
+            IOptions&lt;SessionConfiguration&gt; config,
+            ILocationService locationService)
+        {
+            _sessionRepository = sessionRepository;
+            _distributedCache = distributedCache;
+            _logger = logger;
+            _config = config.Value;
+            _locationService = locationService;
+        }
+
+        public async Task&lt;UserSession&gt; CreateSessionAsync(
+            Guid userId, 
+            SessionSecurityInfo securityInfo, 
+            string deviceType)
+        {
+            // Verificar limite de sessões concorrentes
+            if (await IsSessionLimitExceededAsync(userId))
+            {
+                await TerminateOldestSessionAsync(userId);
+            }
+
+            // Criar nova sessão
+            var sessionId = GenerateSecureSessionId();
+            var deviceId = GenerateDeviceFingerprint(securityInfo);
+            var location = await _locationService.GetLocationAsync(securityInfo.IpAddress);
+            var timeout = TimeSpan.FromMinutes(_config.TimeoutMinutes);
+
+            var session = UserSession.Create(
+                userId,
+                sessionId,
+                deviceId,
+                deviceType,
+                securityInfo.UserAgent,
+                securityInfo.IpAddress,
+                timeout,
+                location);
+
+            // Adicionar metadata de segurança
+            session.AddMetadata("fingerprint", securityInfo.Fingerprint);
+            session.AddMetadata("security_flags", securityInfo.SecurityFlags);
+            session.AddMetadata("created_location", location);
+
+            // Salvar na base de dados
+            await _sessionRepository.AddAsync(session);
+
+            // Cache distribuído
+            await CacheSessionAsync(session);
+
+            _logger.LogInformation("Session created for user {UserId} from {IpAddress}", 
+                userId, securityInfo.IpAddress);
+
+            return session;
+        }
+
+        public async Task&lt;UserSession&gt; GetSessionAsync(string sessionId)
+        {
+            // Tentar cache primeiro
+            var cachedSession = await GetCachedSessionAsync(sessionId);
+            if (cachedSession != null)
+            {
+                return cachedSession;
+            }
+
+            // Buscar na base de dados
+            var session = await _sessionRepository.GetBySessionIdAsync(sessionId);
+            if (session != null &amp;&amp; session.IsActive &amp;&amp; !session.IsExpired)
+            {
+                await CacheSessionAsync(session);
+                return session;
+            }
+
+            return null;
+        }
+
+        public async Task&lt;bool&gt; ValidateSessionAsync(string sessionId, SessionSecurityInfo currentSecurityInfo)
+        {
+            var session = await GetSessionAsync(sessionId);
+            if (session == null || !session.IsActive || session.IsExpired)
+            {
+                return false;
+            }
+
+            // Validações de segurança
+            if (_config.SessionHijackingProtection.Enabled)
+            {
+                // Validar IP (com tolerância)
+                if (_config.SessionHijackingProtection.ValidateIpAddress)
+                {
+                    if (session.GetIpChangeCount() &gt; _config.SessionHijackingProtection.MaxIpChangesPerSession)
+                    {
+                        _logger.LogWarning("Session {SessionId} exceeded IP change limit", sessionId);
+                        await TerminateSessionAsync(sessionId);
+                        return false;
+                    }
+                }
+
+                // Validar User Agent
+                if (_config.SessionHijackingProtection.ValidateUserAgent)
+                {
+                    if (session.UserAgent != currentSecurityInfo.UserAgent)
+                    {
+                        _logger.LogWarning("Session {SessionId} user agent mismatch", sessionId);
+                        session.AddMetadata("security_warning", "USER_AGENT_MISMATCH");
+                    }
+                }
+
+                // Validar fingerprint
+                var storedFingerprint = session.GetMetadata&lt;string&gt;("fingerprint");
+                if (storedFingerprint != currentSecurityInfo.Fingerprint)
+                {
+                    _logger.LogWarning("Session {SessionId} fingerprint mismatch", sessionId);
+                    session.AddMetadata("security_warning", "FINGERPRINT_MISMATCH");
+                }
+            }
+
+            // Atualizar último acesso
+            session.UpdateLastAccess(currentSecurityInfo.IpAddress, 
+                _config.SlidingExpiration ? TimeSpan.FromMinutes(_config.TimeoutMinutes) : null);
+
+            await _sessionRepository.UpdateAsync(session);
+            await CacheSessionAsync(session);
+
+            return true;
+        }
+
+        public async Task&lt;bool&gt; RefreshSessionAsync(string sessionId, TimeSpan? newTimeout = null)
+        {
+            var session = await GetSessionAsync(sessionId);
+            if (session == null || !session.IsActive)
+            {
+                return false;
+            }
+
+            var timeout = newTimeout ?? TimeSpan.FromMinutes(_config.TimeoutMinutes);
+            session.UpdateLastAccess(newTimeout: timeout);
+
+            await _sessionRepository.UpdateAsync(session);
+            await CacheSessionAsync(session);
+
+            return true;
+        }
+
+        public async Task TerminateSessionAsync(string sessionId)
+        {
+            var session = await GetSessionAsync(sessionId);
+            if (session != null)
+            {
+                session.Terminate();
+                await _sessionRepository.UpdateAsync(session);
+                await RemoveFromCacheAsync(sessionId);
+
+                _logger.LogInformation("Session {SessionId} terminated", sessionId);
+            }
+        }
+
+        public async Task TerminateAllUserSessionsAsync(Guid userId, string exceptSessionId = null)
+        {
+            var sessions = await _sessionRepository.GetActiveSessionsByUserIdAsync(userId);
+            
+            foreach (var session in sessions.Where(s =&gt; s.SessionId != exceptSessionId))
+            {
+                session.Terminate();
+                await RemoveFromCacheAsync(session.SessionId);
+            }
+
+            await _sessionRepository.UpdateRangeAsync(sessions);
+
+            _logger.LogInformation("All sessions terminated for user {UserId}", userId);
+        }
+
+        public async Task&lt;List&lt;UserSession&gt;&gt; GetActiveUserSessionsAsync(Guid userId)
+        {
+            return await _sessionRepository.GetActiveSessionsByUserIdAsync(userId);
+        }
+
+        public async Task&lt;bool&gt; IsSessionLimitExceededAsync(Guid userId)
+        {
+            var activeSessions = await GetActiveUserSessionsAsync(userId);
+            return activeSessions.Count &gt;= _config.MaxConcurrentSessions;
+        }
+
+        public async Task CleanupExpiredSessionsAsync()
+        {
+            var expiredSessions = await _sessionRepository.GetExpiredSessionsAsync();
+            
+            foreach (var session in expiredSessions)
+            {
+                session.Terminate();
+                await RemoveFromCacheAsync(session.SessionId);
+            }
+
+            await _sessionRepository.UpdateRangeAsync(expiredSessions);
+
+            _logger.LogInformation("Cleaned up {Count} expired sessions", expiredSessions.Count);
+        }
+
+        public async Task&lt;SessionStatistics&gt; GetSessionStatisticsAsync(Guid userId)
+        {
+            var sessions = await _sessionRepository.GetUserSessionHistoryAsync(userId, TimeSpan.FromDays(30));
+            
+            return new SessionStatistics
+            {
+                TotalSessions = sessions.Count,
+                ActiveSessions = sessions.Count(s =&gt; s.IsActive),
+                UniqueDev DevicesUsed = sessions.Select(s =&gt; s.DeviceId).Distinct().Count(),
+                UniqueLocations = sessions.Select(s =&gt; s.Location).Where(l =&gt; !string.IsNullOrEmpty(l)).Distinct().Count(),
+                AverageSessionDuration = CalculateAverageSessionDuration(sessions),
+                LastActiveSession = sessions.Where(s =&gt; s.IsActive).OrderByDescending(s =&gt; s.LastAccessedAt).FirstOrDefault(),
+                SecurityIncidents = sessions.Sum(s =&gt; s.GetMetadata("security_warnings", new List&lt;string&gt;()).Count)
+            };
+        }
+
+        private async Task TerminateOldestSessionAsync(Guid userId)
+        {
+            var sessions = await GetActiveUserSessionsAsync(userId);
+            var oldestSession = sessions.OrderBy(s =&gt; s.CreatedAt).FirstOrDefault();
+            
+            if (oldestSession != null)
+            {
+                await TerminateSessionAsync(oldestSession.SessionId);
+            }
+        }
+
+        private string GenerateSecureSessionId()
+        {
+            return Guid.NewGuid().ToString("N") + 
+                   DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() +
+                   Random.Shared.Next(1000, 9999).ToString();
+        }
+
+        private string GenerateDeviceFingerprint(SessionSecurityInfo securityInfo)
+        {
+            var data = $"{securityInfo.UserAgent}|{securityInfo.Fingerprint}";
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(data));
+            return Convert.ToBase64String(hash);
+        }
+
+        private async Task CacheSessionAsync(UserSession session)
+        {
+            var cacheKey = $"{_config.DistributedSession.Redis.KeyPrefix}{session.SessionId}";
+            var serializedSession = JsonSerializer.Serialize(session);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = session.ExpiresAt
+            };
+            
+            await _distributedCache.SetStringAsync(cacheKey, serializedSession, options);
+        }
+
+        private async Task&lt;UserSession&gt; GetCachedSessionAsync(string sessionId)
+        {
+            var cacheKey = $"{_config.DistributedSession.Redis.KeyPrefix}{sessionId}";
+            var cachedData = await _distributedCache.GetStringAsync(cacheKey);
+            
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize&lt;UserSession&gt;(cachedData);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error deserializing cached session {SessionId}", sessionId);
+                }
+            }
+            
+            return null;
+        }
+
+        private async Task RemoveFromCacheAsync(string sessionId)
+        {
+            var cacheKey = $"{_config.DistributedSession.Redis.KeyPrefix}{sessionId}";
+            await _distributedCache.RemoveAsync(cacheKey);
+        }
+
+        private TimeSpan CalculateAverageSessionDuration(List&lt;UserSession&gt; sessions)
+        {
+            if (!sessions.Any()) return TimeSpan.Zero;
+            
+            var durations = sessions
+                .Where(s =&gt; !s.IsActive) // Sessões finalizadas
+                .Select(s =&gt; s.LastAccessedAt - s.CreatedAt)
+                .Where(d =&gt; d.TotalMinutes &gt; 0);
+                
+            if (!durations.Any()) return TimeSpan.Zero;
+            
+            return TimeSpan.FromTicks((long)durations.Average(d =&gt; d.Ticks));
+        }
+    }
+}</code></pre>
+
+                <h2>Middleware de Sessão</h2>
+
+                <h3>SessionManagementMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class SessionManagementMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger&lt;SessionManagementMiddleware&gt; _logger;
+        private readonly SessionConfiguration _config;
+
+        public SessionManagementMiddleware(
+            RequestDelegate next,
+            IServiceProvider serviceProvider,
+            ILogger&lt;SessionManagementMiddleware&gt; logger,
+            IOptions&lt;SessionConfiguration&gt; config)
+        {
+            _next = next;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _config = config.Value;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            // Skip para endpoints que não requerem sessão
+            if (ShouldSkipSessionValidation(context))
+            {
+                await _next(context);
+                return;
+            }
+
+            using var scope = _serviceProvider.CreateScope();
+            var sessionService = scope.ServiceProvider.GetRequiredService&lt;ISessionService&gt;();
+
+            var sessionId = ExtractSessionId(context);
+            
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                var securityInfo = CreateSecurityInfo(context);
+                var isValid = await sessionService.ValidateSessionAsync(sessionId, securityInfo);
+                
+                if (!isValid)
+                {
+                    await HandleInvalidSession(context);
+                    return;
+                }
+
+                // Adicionar informações da sessão ao contexto
+                var session = await sessionService.GetSessionAsync(sessionId);
+                if (session != null)
+                {
+                    context.Items["UserSession"] = session;
+                    context.Items["SessionId"] = sessionId;
+                }
+            }
+            else if (context.User.Identity?.IsAuthenticated == true)
+            {
+                // Usuário autenticado mas sem sessão válida
+                await HandleMissingSession(context);
+                return;
+            }
+
+            await _next(context);
+        }
+
+        private bool ShouldSkipSessionValidation(HttpContext context)
+        {
+            var path = context.Request.Path.Value?.ToLower();
+            
+            return path?.StartsWith("/api/auth/") == true ||
+                   path?.StartsWith("/health") == true ||
+                   path?.StartsWith("/swagger") == true ||
+                   context.Request.Method == "OPTIONS";
+        }
+
+        private string ExtractSessionId(HttpContext context)
+        {
+            // Tentar cookie primeiro
+            if (context.Request.Cookies.TryGetValue(_config.CookieName, out var cookieValue))
+            {
+                return cookieValue;
+            }
+
+            // Tentar header Authorization
+            var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+            if (!string.IsNullOrEmpty(authHeader) &amp;&amp; authHeader.StartsWith("Session "))
+            {
+                return authHeader.Substring("Session ".Length);
+            }
+
+            return null;
+        }
+
+        private SessionSecurityInfo CreateSecurityInfo(HttpContext context)
+        {
+            var ipAddress = GetClientIpAddress(context);
+            var userAgent = context.Request.Headers.UserAgent.FirstOrDefault() ?? "";
+            var fingerprint = GenerateFingerprint(context);
+
+            return new SessionSecurityInfo(fingerprint, ipAddress, userAgent);
+        }
+
+        private string GetClientIpAddress(HttpContext context)
+        {
+            // Verificar headers de proxy/load balancer
+            var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(forwardedFor))
+            {
+                return forwardedFor.Split(',')[0].Trim();
+            }
+
+            var realIp = context.Request.Headers["X-Real-IP"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(realIp))
+            {
+                return realIp;
+            }
+
+            return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        }
+
+        private string GenerateFingerprint(HttpContext context)
+        {
+            var userAgent = context.Request.Headers.UserAgent.FirstOrDefault() ?? "";
+            var acceptLanguage = context.Request.Headers.AcceptLanguage.FirstOrDefault() ?? "";
+            var acceptEncoding = context.Request.Headers.AcceptEncoding.FirstOrDefault() ?? "";
+            
+            var fingerprintData = $"{userAgent}|{acceptLanguage}|{acceptEncoding}";
+            
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprintData));
+            return Convert.ToBase64String(hash);
+        }
+
+        private async Task HandleInvalidSession(HttpContext context)
+        {
+            context.Response.StatusCode = 401;
+            context.Response.Headers.Add("X-Session-Status", "Invalid");
+            
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+            {
+                error = "invalid_session",
+                message = "Session is invalid or expired",
+                timestamp = DateTimeOffset.UtcNow
+            }));
+        }
+
+        private async Task HandleMissingSession(HttpContext context)
+        {
+            context.Response.StatusCode = 401;
+            context.Response.Headers.Add("X-Session-Status", "Missing");
+            
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+            {
+                error = "session_required",
+                message = "Valid session required for authenticated requests",
+                timestamp = DateTimeOffset.UtcNow
+            }));
+        }
+    }
+}</code></pre>
+
+                <h2>Controllers de Sessão</h2>
+
+                <h3>SessionController</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class SessionController : ControllerBase
+{
+    private readonly ISessionService _sessionService;
+    private readonly ILogger&lt;SessionController&gt; _logger;
+
+    public SessionController(
+        ISessionService sessionService,
+        ILogger&lt;SessionController&gt; logger)
+    {
+        _sessionService = sessionService;
+        _logger = logger;
+    }
+
+    [HttpGet("current")]
+    public async Task&lt;ActionResult&lt;UserSessionDto&gt;&gt; GetCurrentSession()
+    {
+        var sessionId = HttpContext.Items["SessionId"]?.ToString();
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            return BadRequest("No active session found");
+        }
+
+        var session = await _sessionService.GetSessionAsync(sessionId);
+        if (session == null)
+        {
+            return NotFound("Session not found");
+        }
+
+        return Ok(MapToDto(session));
+    }
+
+    [HttpGet("active")]
+    public async Task&lt;ActionResult&lt;List&lt;UserSessionDto&gt;&gt;&gt; GetActiveSessions()
+    {
+        var userId = User.GetUserId();
+        var sessions = await _sessionService.GetActiveUserSessionsAsync(userId);
+        
+        return Ok(sessions.Select(MapToDto).ToList());
+    }
+
+    [HttpPost("refresh")]
+    public async Task&lt;ActionResult&gt; RefreshCurrentSession()
+    {
+        var sessionId = HttpContext.Items["SessionId"]?.ToString();
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            return BadRequest("No active session found");
+        }
+
+        var success = await _sessionService.RefreshSessionAsync(sessionId);
+        if (!success)
+        {
+            return BadRequest("Failed to refresh session");
+        }
+
+        return Ok(new { message = "Session refreshed successfully" });
+    }
+
+    [HttpDelete("current")]
+    public async Task&lt;ActionResult&gt; TerminateCurrentSession()
+    {
+        var sessionId = HttpContext.Items["SessionId"]?.ToString();
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            return BadRequest("No active session found");
+        }
+
+        await _sessionService.TerminateSessionAsync(sessionId);
+        
+        return Ok(new { message = "Session terminated successfully" });
+    }
+
+    [HttpDelete("{sessionId}")]
+    public async Task&lt;ActionResult&gt; TerminateSession(string sessionId)
+    {
+        var session = await _sessionService.GetSessionAsync(sessionId);
+        if (session == null || session.UserId != User.GetUserId())
+        {
+            return NotFound("Session not found");
+        }
+
+        await _sessionService.TerminateSessionAsync(sessionId);
+        
+        return Ok(new { message = "Session terminated successfully" });
+    }
+
+    [HttpDelete("all")]
+    public async Task&lt;ActionResult&gt; TerminateAllSessions([FromQuery] bool exceptCurrent = true)
+    {
+        var userId = User.GetUserId();
+        var currentSessionId = exceptCurrent ? HttpContext.Items["SessionId"]?.ToString() : null;
+        
+        await _sessionService.TerminateAllUserSessionsAsync(userId, currentSessionId);
+        
+        return Ok(new { message = "All sessions terminated successfully" });
+    }
+
+    [HttpGet("statistics")]
+    public async Task&lt;ActionResult&lt;SessionStatistics&gt;&gt; GetSessionStatistics()
+    {
+        var userId = User.GetUserId();
+        var statistics = await _sessionService.GetSessionStatisticsAsync(userId);
+        
+        return Ok(statistics);
+    }
+
+    private UserSessionDto MapToDto(UserSession session)
+    {
+        return new UserSessionDto
+        {
+            Id = session.Id,
+            SessionId = session.SessionId,
+            DeviceType = session.DeviceType,
+            UserAgent = session.UserAgent,
+            IpAddress = session.IpAddress,
+            Location = session.Location,
+            CreatedAt = session.CreatedAt,
+            LastAccessedAt = session.LastAccessedAt,
+            ExpiresAt = session.ExpiresAt,
+            IsActive = session.IsActive,
+            IsCurrent = session.SessionId == HttpContext.Items["SessionId"]?.ToString()
+        };
+    }
+}</code></pre>
+
+                <h2>Background Services</h2>
+
+                <h3>SessionCleanupService</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.BackgroundServices
+{
+    public class SessionCleanupService : BackgroundService
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger&lt;SessionCleanupService&gt; _logger;
+        private readonly TimeSpan _interval = TimeSpan.FromMinutes(30);
+
+        public SessionCleanupService(
+            IServiceProvider serviceProvider,
+            ILogger&lt;SessionCleanupService&gt; logger)
+        {
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Session cleanup service started");
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var sessionService = scope.ServiceProvider.GetRequiredService&lt;ISessionService&gt;();
+                    
+                    await sessionService.CleanupExpiredSessionsAsync();
+                    
+                    _logger.LogDebug("Session cleanup completed");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during session cleanup");
+                }
+
+                await Task.Delay(_interval, stoppingToken);
+            }
+
+            _logger.LogInformation("Session cleanup service stopped");
+        }
+    }
+}</code></pre>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">⚡ Middleware</h3>
+                        <p class="text-sm text-green-600 mb-3">Middlewares de autenticação e autorização</p>
+                        <a href="middleware.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Middleware →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🔧 Services</h3>
+                        <p class="text-sm text-purple-600 mb-3">Serviços e implementações do framework</p>
+                        <a href="services.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Ver Services →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
