@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTOs - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">📦 DTOs (Data Transfer Objects)</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Visão Geral</h2>
+                <p>Os DTOs (Data Transfer Objects) do GrydAuthentication Framework são responsáveis por transferir dados entre as camadas da aplicação e para comunicação externa via API. Eles fornecem uma interface limpa e tipada para operações de entrada e saída.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">💡 Conceito</h3>
+                    <p class="text-blue-700 mb-0">DTOs isolam a estrutura interna das entidades de domínio da interface externa, permitindo evolução independente e controle sobre quais dados são expostos.</p>
+                </div>
+
+                <h2>Categorias de DTOs</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800">Request DTOs</h3>
+                        <p class="text-sm text-green-600">Para entrada de dados</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800">Response DTOs</h3>
+                        <p class="text-sm text-blue-600">Para saída de dados</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800">Shared DTOs</h3>
+                        <p class="text-sm text-purple-600">Para uso geral</p>
+                    </div>
+                </div>
+
+                <h2>1. Authentication DTOs</h2>
+
+                <h3>LoginRequestDto</h3>
+                <p>DTO para requisições de login.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Authentication
+{
+    public class LoginRequestDto
+    {
+        [Required(ErrorMessage = "Email é obrigatório")]
+        [EmailAddress(ErrorMessage = "Email deve ter formato válido")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Senha é obrigatória")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Senha deve ter entre 6 e 100 caracteres")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; } = false;
+    }
+}</code></pre>
+
+                <h3>SocialLoginRequestDto</h3>
+                <p>DTO para login através de provedores sociais.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Authentication
+{
+    public class SocialLoginRequestDto
+    {
+        [Required(ErrorMessage = "Provider é obrigatório")]
+        public string Provider { get; set; } = string.Empty; // "google", "facebook", "github"
+
+        [Required(ErrorMessage = "Access token é obrigatório")]
+        public string AccessToken { get; set; } = string.Empty;
+
+        public string? IdToken { get; set; }
+        
+        public Dictionary&lt;string, object&gt; AdditionalData { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>AuthenticationResultDto</h3>
+                <p>DTO de resposta para operações de autenticação.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Authentication
+{
+    public class AuthenticationResultDto
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public string TokenType { get; set; } = "Bearer";
+        public DateTime ExpiresAt { get; set; }
+        public int ExpiresIn { get; set; } // em segundos
+        public UserDto User { get; set; } = new();
+        public List&lt;string&gt; Roles { get; set; } = new();
+        public List&lt;string&gt; Permissions { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>RefreshTokenRequestDto</h3>
+                <p>DTO para renovação de tokens.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Authentication
+{
+    public class RefreshTokenRequestDto
+    {
+        [Required(ErrorMessage = "Refresh token é obrigatório")]
+        public string RefreshToken { get; set; } = string.Empty;
+
+        public string? AccessToken { get; set; }
+    }
+}</code></pre>
+
+                <h3>TokenValidationDto</h3>
+                <p>DTO para validação de tokens.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Authentication
+{
+    public class TokenValidationDto
+    {
+        public bool IsValid { get; set; }
+        public string? UserId { get; set; }
+        public List&lt;string&gt; Roles { get; set; } = new();
+        public List&lt;string&gt; Permissions { get; set; } = new();
+        public DateTime? ExpiresAt { get; set; }
+        public string? ErrorMessage { get; set; }
+        public Dictionary&lt;string, object&gt; Claims { get; set; } = new();
+    }
+}</code></pre>
+
+                <h2>2. User DTOs</h2>
+
+                <h3>UserDto</h3>
+                <p>DTO principal para representação de usuários.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Users
+{
+    public class UserDto
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string FullName =&gt; $"{FirstName} {LastName}".Trim();
+        public string? PhoneNumber { get; set; }
+        public bool EmailConfirmed { get; set; }
+        public bool PhoneNumberConfirmed { get; set; }
+        public bool IsActive { get; set; }
+        public bool TwoFactorEnabled { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+        public string? Avatar { get; set; }
+        public Dictionary&lt;string, object&gt; Metadata { get; set; } = new();
+        public List&lt;RoleDto&gt; Roles { get; set; } = new();
+        public List&lt;string&gt; Permissions { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>CreateUserDto</h3>
+                <p>DTO para criação de novos usuários.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Users
+{
+    public class CreateUserDto
+    {
+        [Required(ErrorMessage = "Email é obrigatório")]
+        [EmailAddress(ErrorMessage = "Email deve ter formato válido")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Senha é obrigatória")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Senha deve ter entre 6 e 100 caracteres")]
+        public string Password { get; set; } = string.Empty;
+
+        [Compare("Password", ErrorMessage = "Confirmação de senha não confere")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        [StringLength(50, ErrorMessage = "Nome deve ter no máximo 50 caracteres")]
+        public string? FirstName { get; set; }
+
+        [StringLength(50, ErrorMessage = "Sobrenome deve ter no máximo 50 caracteres")]
+        public string? LastName { get; set; }
+
+        [Phone(ErrorMessage = "Telefone deve ter formato válido")]
+        public string? PhoneNumber { get; set; }
+
+        public bool IsActive { get; set; } = true;
+        public bool SendWelcomeEmail { get; set; } = true;
+        public List&lt;Guid&gt; RoleIds { get; set; } = new();
+        public Dictionary&lt;string, object&gt; Metadata { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>UpdateUserDto</h3>
+                <p>DTO para atualização de usuários existentes.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Users
+{
+    public class UpdateUserDto
+    {
+        public Guid Id { get; set; }
+
+        [Required(ErrorMessage = "Email é obrigatório")]
+        [EmailAddress(ErrorMessage = "Email deve ter formato válido")]
+        public string Email { get; set; } = string.Empty;
+
+        [StringLength(50, ErrorMessage = "Nome deve ter no máximo 50 caracteres")]
+        public string? FirstName { get; set; }
+
+        [StringLength(50, ErrorMessage = "Sobrenome deve ter no máximo 50 caracteres")]
+        public string? LastName { get; set; }
+
+        [Phone(ErrorMessage = "Telefone deve ter formato válido")]
+        public string? PhoneNumber { get; set; }
+
+        public bool IsActive { get; set; }
+        public bool TwoFactorEnabled { get; set; }
+        public List&lt;Guid&gt; RoleIds { get; set; } = new();
+        public Dictionary&lt;string, object&gt; Metadata { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>ChangePasswordDto</h3>
+                <p>DTO para alteração de senha.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Users
+{
+    public class ChangePasswordDto
+    {
+        public Guid UserId { get; set; }
+
+        [Required(ErrorMessage = "Senha atual é obrigatória")]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Nova senha é obrigatória")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Nova senha deve ter entre 6 e 100 caracteres")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Compare("NewPassword", ErrorMessage = "Confirmação de nova senha não confere")]
+        public string ConfirmNewPassword { get; set; } = string.Empty;
+    }
+}</code></pre>
+
+                <h3>UserFilterDto</h3>
+                <p>DTO para filtros na listagem de usuários.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Users
+{
+    public class UserFilterDto : PaginationDto
+    {
+        public string? Email { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public bool? IsActive { get; set; }
+        public bool? EmailConfirmed { get; set; }
+        public bool? TwoFactorEnabled { get; set; }
+        public List&lt;Guid&gt; RoleIds { get; set; } = new();
+        public DateTime? CreatedAfter { get; set; }
+        public DateTime? CreatedBefore { get; set; }
+        public DateTime? LastLoginAfter { get; set; }
+        public DateTime? LastLoginBefore { get; set; }
+        public string? SearchTerm { get; set; }
+        public string? SortBy { get; set; } = "CreatedAt";
+        public string? SortDirection { get; set; } = "desc";
+    }
+}</code></pre>
+
+                <h2>3. Role DTOs</h2>
+
+                <h3>RoleDto</h3>
+                <p>DTO principal para representação de roles.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Roles
+{
+    public class RoleDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsSystemRole { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public List&lt;PermissionDto&gt; Permissions { get; set; } = new();
+        public int UserCount { get; set; }
+    }
+}</code></pre>
+
+                <h3>CreateRoleDto</h3>
+                <p>DTO para criação de novas roles.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Roles
+{
+    public class CreateRoleDto
+    {
+        [Required(ErrorMessage = "Nome é obrigatório")]
+        [StringLength(50, ErrorMessage = "Nome deve ter no máximo 50 caracteres")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Nome de exibição é obrigatório")]
+        [StringLength(100, ErrorMessage = "Nome de exibição deve ter no máximo 100 caracteres")]
+        public string DisplayName { get; set; } = string.Empty;
+
+        [StringLength(500, ErrorMessage = "Descrição deve ter no máximo 500 caracteres")]
+        public string? Description { get; set; }
+
+        public bool IsActive { get; set; } = true;
+        public List&lt;Guid&gt; PermissionIds { get; set; } = new();
+    }
+}</code></pre>
+
+                <h3>UpdateRoleDto</h3>
+                <p>DTO para atualização de roles existentes.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Roles
+{
+    public class UpdateRoleDto
+    {
+        public Guid Id { get; set; }
+
+        [Required(ErrorMessage = "Nome de exibição é obrigatório")]
+        [StringLength(100, ErrorMessage = "Nome de exibição deve ter no máximo 100 caracteres")]
+        public string DisplayName { get; set; } = string.Empty;
+
+        [StringLength(500, ErrorMessage = "Descrição deve ter no máximo 500 caracteres")]
+        public string? Description { get; set; }
+
+        public bool IsActive { get; set; }
+        public List&lt;Guid&gt; PermissionIds { get; set; } = new();
+    }
+}</code></pre>
+
+                <h2>4. Permission DTOs</h2>
+
+                <h3>PermissionDto</h3>
+                <p>DTO para representação de permissões.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Permissions
+{
+    public class PermissionDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Category { get; set; } = string.Empty;
+        public string Resource { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+        public bool IsSystemPermission { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}</code></pre>
+
+                <h2>5. Common DTOs</h2>
+
+                <h3>PaginationDto</h3>
+                <p>DTO base para paginação.</p>
+                <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace GrydAuthenticationFramework.Application.DTOs.Common
+{
+    public class PaginationDto
+    {
+        [Range(1, int.MaxValue, ErrorMessage = "Página deve ser maior que 0")]
+        public int Page { get; set; } = 1;
+
+        [Range(1, 100, ErrorMessage = "Tamanho da página deve estar entre 1 e 100")]
+        public int PageSize { get; set; } = 10;
+
+        public int Skip =&gt; (Page - 1) * PageSize;
+    }
+}</code></pre>
+
+                <h3>PagedResultDto&lt;T&gt;</h3>
+                <p>DTO para resultados paginados.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Common
+{
+    public class PagedResultDto&lt;T&gt; where T : class
+    {
+        public List&lt;T&gt; Items { get; set; } = new();
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages =&gt; (int)Math.Ceiling((double)TotalCount / PageSize);
+        public bool HasPreviousPage =&gt; PageNumber &gt; 1;
+        public bool HasNextPage =&gt; PageNumber &lt; TotalPages;
+        public int StartIndex =&gt; ((PageNumber - 1) * PageSize) + 1;
+        public int EndIndex =&gt; Math.Min(StartIndex + PageSize - 1, TotalCount);
+    }
+}</code></pre>
+
+                <h3>ResultDto&lt;T&gt;</h3>
+                <p>DTO padrão para respostas da API.</p>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Common
+{
+    public class ResultDto&lt;T&gt;
+    {
+        public bool IsSuccess { get; set; }
+        public T? Data { get; set; }
+        public string? Message { get; set; }
+        public List&lt;string&gt; Errors { get; set; } = new();
+        public Dictionary&lt;string, object&gt; Metadata { get; set; } = new();
+
+        public static ResultDto&lt;T&gt; Success(T data, string? message = null)
+        {
+            return new ResultDto&lt;T&gt;
+            {
+                IsSuccess = true,
+                Data = data,
+                Message = message
+            };
+        }
+
+        public static ResultDto&lt;T&gt; Failure(string error)
+        {
+            return new ResultDto&lt;T&gt;
+            {
+                IsSuccess = false,
+                Errors = new List&lt;string&gt; { error }
+            };
+        }
+
+        public static ResultDto&lt;T&gt; Failure(List&lt;string&gt; errors)
+        {
+            return new ResultDto&lt;T&gt;
+            {
+                IsSuccess = false,
+                Errors = errors
+            };
+        }
+    }
+}</code></pre>
+
+                <h2>6. Mapping e Validação</h2>
+
+                <h3>AutoMapper Profiles</h3>
+                <p>Configuração para mapeamento automático entre entidades e DTOs.</p>
+                <pre><code class="language-csharp">using AutoMapper;
+
+namespace GrydAuthenticationFramework.Application.Mappings
+{
+    public class UserMappingProfile : Profile
+    {
+        public UserMappingProfile()
+        {
+            CreateMap&lt;User, UserDto&gt;()
+                .ForMember(dest =&gt; dest.Roles, opt =&gt; opt.MapFrom(src =&gt; src.UserRoles.Select(ur =&gt; ur.Role)))
+                .ForMember(dest =&gt; dest.Permissions, opt =&gt; opt.MapFrom(src =&gt; 
+                    src.UserRoles.SelectMany(ur =&gt; ur.Role.RolePermissions.Select(rp =&gt; rp.Permission.Name))))
+                .ForMember(dest =&gt; dest.FullName, opt =&gt; opt.MapFrom(src =&gt; $"{src.FirstName} {src.LastName}".Trim()));
+
+            CreateMap&lt;CreateUserDto, User&gt;()
+                .ForMember(dest =&gt; dest.Id, opt =&gt; opt.Ignore())
+                .ForMember(dest =&gt; dest.CreatedAt, opt =&gt; opt.Ignore())
+                .ForMember(dest =&gt; dest.UpdatedAt, opt =&gt; opt.Ignore());
+
+            CreateMap&lt;UpdateUserDto, User&gt;()
+                .ForMember(dest =&gt; dest.CreatedAt, opt =&gt; opt.Ignore())
+                .ForMember(dest =&gt; dest.UpdatedAt, opt =&gt; opt.MapFrom(_ =&gt; DateTime.UtcNow));
+        }
+    }
+}</code></pre>
+
+                <h3>FluentValidation</h3>
+                <p>Validadores customizados para DTOs complexos.</p>
+                <pre><code class="language-csharp">using FluentValidation;
+
+namespace GrydAuthenticationFramework.Application.Validators
+{
+    public class CreateUserDtoValidator : AbstractValidator&lt;CreateUserDto&gt;
+    {
+        public CreateUserDtoValidator()
+        {
+            RuleFor(x =&gt; x.Email)
+                .NotEmpty().WithMessage("Email é obrigatório")
+                .EmailAddress().WithMessage("Email deve ter formato válido")
+                .MaximumLength(255).WithMessage("Email deve ter no máximo 255 caracteres");
+
+            RuleFor(x =&gt; x.Password)
+                .NotEmpty().WithMessage("Senha é obrigatória")
+                .MinimumLength(6).WithMessage("Senha deve ter pelo menos 6 caracteres")
+                .MaximumLength(100).WithMessage("Senha deve ter no máximo 100 caracteres")
+                .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]")
+                .WithMessage("Senha deve conter pelo menos: 1 letra minúscula, 1 maiúscula, 1 número e 1 caractere especial");
+
+            RuleFor(x =&gt; x.ConfirmPassword)
+                .Equal(x =&gt; x.Password).WithMessage("Confirmação de senha deve ser igual à senha");
+
+            RuleFor(x =&gt; x.FirstName)
+                .MaximumLength(50).WithMessage("Nome deve ter no máximo 50 caracteres")
+                .When(x =&gt; !string.IsNullOrEmpty(x.FirstName));
+
+            RuleFor(x =&gt; x.LastName)
+                .MaximumLength(50).WithMessage("Sobrenome deve ter no máximo 50 caracteres")
+                .When(x =&gt; !string.IsNullOrEmpty(x.LastName));
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controllers - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🎮 Controllers</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Visão Geral</h2>
+                <p>O GrydAuthentication Framework possui três controllers principais que fornecem endpoints REST para autenticação, gerenciamento de usuários e controle de roles.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="font-semibold text-blue-800">AuthController</h3>
+                        <p class="text-sm text-blue-600">Endpoints de autenticação e autorização</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                        <h3 class="font-semibold text-green-800">UsersController</h3>
+                        <p class="text-sm text-green-600">Gerenciamento completo de usuários</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                        <h3 class="font-semibold text-purple-800">RolesController</h3>
+                        <p class="text-sm text-purple-600">Controle de roles e permissões</p>
+                    </div>
+                </div>
+
+                <h2>1. AuthController</h2>
+                <p>Controller responsável por todas as operações de autenticação e autorização.</p>
+
+                <h3>Configuração</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public AuthController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+}</code></pre>
+
+                <h3>Endpoints</h3>
+
+                <h4>POST /api/auth/login</h4>
+                <p><strong>Descrição:</strong> Autentica usuário com email e senha.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Authenticate user with email and password
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Login credentials&lt;/param&gt;
+/// &lt;returns&gt;Authentication result with JWT token and user information&lt;/returns&gt;
+[HttpPost("login")]
+public async Task&lt;ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;&gt; Login([FromBody] LoginCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/social-login</h4>
+                <p><strong>Descrição:</strong> Autentica usuário através de provedores sociais.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Authenticate user with social provider
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Social login credentials&lt;/param&gt;
+/// &lt;returns&gt;Authentication result with JWT token and user information&lt;/returns&gt;
+[HttpPost("social-login")]
+public async Task&lt;ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;&gt; SocialLogin([FromBody] SocialLoginCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/refresh-token</h4>
+                <p><strong>Descrição:</strong> Renova o token JWT.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Refresh JWT token
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Refresh token request&lt;/param&gt;
+/// &lt;returns&gt;New JWT token&lt;/returns&gt;
+[HttpPost("refresh-token")]
+public async Task&lt;ActionResult&lt;Result&lt;string&gt;&gt;&gt; RefreshToken([FromBody] RefreshTokenCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/logout</h4>
+                <p><strong>Descrição:</strong> Realiza logout e revoga tokens.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Logout user and revoke tokens
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Logout request&lt;/param&gt;
+/// &lt;returns&gt;Logout result&lt;/returns&gt;
+[HttpPost("logout")]
+[Authorize]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; Logout([FromBody] LogoutCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>GET /api/auth/me</h4>
+                <p><strong>Descrição:</strong> Retorna informações do usuário atual.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Get current authenticated user information
+/// &lt;/summary&gt;
+/// &lt;returns&gt;Current user information&lt;/returns&gt;
+[HttpGet("me")]
+[Authorize]
+public async Task&lt;ActionResult&lt;Result&lt;CurrentUserDto&gt;&gt;&gt; GetCurrentUser()
+{
+    var query = new GetCurrentUserQuery();
+    var result = await _mediator.Send(query);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/validate-token</h4>
+                <p><strong>Descrição:</strong> Valida um token JWT.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Validate JWT token
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Token validation request&lt;/param&gt;
+/// &lt;returns&gt;Token validation result&lt;/returns&gt;
+[HttpPost("validate-token")]
+public async Task&lt;ActionResult&lt;Result&lt;bool&gt;&gt;&gt; ValidateToken([FromBody] ValidateTokenCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>2. UsersController</h2>
+                <p>Controller para gerenciamento completo de usuários no sistema.</p>
+
+                <h3>Configuração</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class UsersController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public UsersController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+}</code></pre>
+
+                <h3>Endpoints Principais</h3>
+
+                <h4>GET /api/users</h4>
+                <p><strong>Descrição:</strong> Lista usuários com paginação e filtros.</p>
+                <pre><code class="language-csharp">[HttpGet]
+[RequirePermission("users:read")]
+public async Task&lt;ActionResult&lt;Result&lt;PagedResult&lt;UserDto&gt;&gt;&gt;&gt; GetUsers([FromQuery] GetUsersQuery query)
+{
+    var result = await _mediator.Send(query);
+    return Ok(result);
+}</code></pre>
+
+                <h4>GET /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Busca usuário por ID.</p>
+                <pre><code class="language-csharp">[HttpGet("{id:guid}")]
+[RequirePermission("users:read")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; GetUser(Guid id)
+{
+    var query = new GetUserByIdQuery(id);
+    var result = await _mediator.Send(query);
+    
+    if (!result.IsSuccess)
+    {
+        return NotFound(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/users</h4>
+                <p><strong>Descrição:</strong> Cria novo usuário.</p>
+                <pre><code class="language-csharp">[HttpPost]
+[RequirePermission("users:create")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; CreateUser([FromBody] CreateUserCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return CreatedAtAction(nameof(GetUser), new { id = result.Data.Id }, result);
+}</code></pre>
+
+                <h4>PUT /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Atualiza usuário existente.</p>
+                <pre><code class="language-csharp">[HttpPut("{id:guid}")]
+[RequirePermission("users:update")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; UpdateUser(Guid id, [FromBody] UpdateUserCommand command)
+{
+    if (id != command.Id)
+    {
+        return BadRequest("ID mismatch");
+    }
+
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>DELETE /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Remove usuário do sistema.</p>
+                <pre><code class="language-csharp">[HttpDelete("{id:guid}")]
+[RequirePermission("users:delete")]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; DeleteUser(Guid id)
+{
+    var command = new DeleteUserCommand(id);
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>3. RolesController</h2>
+                <p>Controller para gerenciamento de roles e permissões.</p>
+
+                <h3>Configuração</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class RolesController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public RolesController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+}</code></pre>
+
+                <h3>Endpoints Principais</h3>
+
+                <h4>GET /api/roles</h4>
+                <p><strong>Descrição:</strong> Lista todas as roles disponíveis.</p>
+                <pre><code class="language-csharp">[HttpGet]
+[RequirePermission("roles:read")]
+public async Task&lt;ActionResult&lt;Result&lt;List&lt;RoleDto&gt;&gt;&gt;&gt; GetRoles()
+{
+    var query = new GetRolesQuery();
+    var result = await _mediator.Send(query);
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/roles</h4>
+                <p><strong>Descrição:</strong> Cria nova role.</p>
+                <pre><code class="language-csharp">[HttpPost]
+[RequirePermission("roles:create")]
+public async Task&lt;ActionResult&lt;Result&lt;RoleDto&gt;&gt;&gt; CreateRole([FromBody] CreateRoleCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return CreatedAtAction(nameof(GetRole), new { id = result.Data.Id }, result);
+}</code></pre>
+
+                <h4>POST /api/roles/{roleId}/permissions</h4>
+                <p><strong>Descrição:</strong> Adiciona permissão a uma role.</p>
+                <pre><code class="language-csharp">[HttpPost("{roleId:guid}/permissions")]
+[RequirePermission("roles:update")]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; AddPermissionToRole(Guid roleId, [FromBody] AddPermissionToRoleCommand command)
+{
+    if (roleId != command.RoleId)
+    {
+        return BadRequest("Role ID mismatch");
+    }
+
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>Atributos de Autorização</h2>
+                
+                <h3>RequirePermissionAttribute</h3>
+                <p>Atributo customizado para controle granular de permissões:</p>
+                <pre><code class="language-csharp">public class RequirePermissionAttribute : Attribute, IAuthorizationFilter
+{
+    private readonly string _permission;
+
+    public RequirePermissionAttribute(string permission)
+    {
+        _permission = permission;
+    }
+
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        var user = context.HttpContext.User;
+        
+        if (!user.Identity.IsAuthenticated)
+        {
+            context.Result = new UnauthorizedResult();
+            return;
+        }
+
+        if (!user.HasClaim("permissions", _permission))
+        {
+            context.Result = new ForbidResult();
+            return;
+        }
+    }
+}</code></pre>
+
+                <h2>Modelos de Request/Response</h2>
+
+                <h3>LoginCommand</h3>
+                <pre><code class="language-csharp">public class LoginCommand : IRequest&lt;Result&lt;AuthenticationResult&gt;&gt;
+{
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool RememberMe { get; set; } = false;
+}</code></pre>
+
+                <h3>AuthenticationResult</h3>
+                <pre><code class="language-csharp">public class AuthenticationResult
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public UserDto User { get; set; }
+}</code></pre>
+
+                <h3>UserDto</h3>
+                <pre><code class="language-csharp">public class UserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public List&lt;string&gt; Roles { get; set; } = new();
+    public List&lt;string&gt; Permissions { get; set; } = new();
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
