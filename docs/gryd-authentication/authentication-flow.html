@@ -87,34 +87,84 @@
                 
                 <div class="space-y-2">
                     <div class="frontend-box">
-                        <span class="font-semibold">1. Frontend</span> → Usuário insere credenciais ou clica em social login
+                        <span class="font-semibold">1. Frontend</span> → Obtém chave pública (GET /api/auth/public-key)
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="frontend-box">
+                        <span class="font-semibold">2. Frontend</span> → Criptografa senha com chave pública RSA
                     </div>
                     <div class="arrow">↓</div>
                     
                     <div class="grydauth-box">
-                        <span class="font-semibold">2. GrydAuth</span> → Recebe requisição (POST /api/auth/login ou /api/auth/social-login)
+                        <span class="font-semibold">3. GrydAuth</span> → Recebe senha criptografada (POST /api/auth/login)
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="grydauth-box">
+                        <span class="font-semibold">4. GrydAuth</span> → Descriptografa senha com chave privada
                     </div>
                     <div class="arrow">↓</div>
                     
                     <div class="auth0-box">
-                        <span class="font-semibold">3. Auth0</span> → GrydAuth valida credenciais no Auth0
+                        <span class="font-semibold">5. Auth0</span> → GrydAuth valida credenciais no Auth0
                     </div>
                     <div class="arrow">↓</div>
                     
                     <div class="grydauth-box">
-                        <span class="font-semibold">4. GrydAuth</span> → Busca/cria usuário local, gera JWT com roles/permissions
+                        <span class="font-semibold">6. GrydAuth</span> → Busca/cria usuário local, gera JWT com roles/permissions
                     </div>
                     <div class="arrow">↓</div>
                     
                     <div class="frontend-box">
-                        <span class="font-semibold">5. Frontend</span> → Recebe JWT e dados do usuário, armazena token
+                        <span class="font-semibold">7. Frontend</span> → Recebe JWT e dados do usuário, armazena token
                     </div>
                     <div class="arrow">↓</div>
                     
                     <div class="frontend-box">
-                        <span class="font-semibold">6. Requisições</span> → Frontend usa JWT + Header X-App-Id para APIs protegidas
+                        <span class="font-semibold">8. Requisições</span> → Frontend usa JWT + Header X-App-Id para APIs protegidas
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Chave Pública -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🔑 Obtenção da Chave Pública</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📤 Requisição</h3>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">GET /api/auth/public-key</code></p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                    <div class="code-block mb-3">
+<pre>X-App-Id: seu-app-id-aqui</pre>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Sem Body</strong></p>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📥 Resposta</h3>
+                    <div class="code-block">
+<pre>{
+  "publicKey": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0K...",
+  "keyId": "a7b3c9d2",
+  "algorithm": "RSA-OAEP-SHA256",
+  "keySize": 2048,
+  "usage": "Encrypt passwords before sending to login endpoint"
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">🔐 Segurança da Chave Pública:</h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• <strong>Chave pública pode ser interceptada:</strong> Isso é normal e esperado</li>
+                    <li>• <strong>Não compromete segurança:</strong> Apenas permite criptografar, não descriptografar</li>
+                    <li>• <strong>Rotação automática:</strong> Chaves são rotacionadas periodicamente</li>
+                    <li>• <strong>KeyId para referência:</strong> Identifica qual chave foi usada</li>
+                </ul>
             </div>
         </div>
 
@@ -131,11 +181,21 @@
 <pre>Content-Type: application/json
 X-App-Id: seu-app-id-aqui</pre>
                     </div>
-                    <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Body (Versão Criptografada - Recomendada):</strong></p>
                     <div class="code-block">
 <pre>{
   "email": "usuario@exemplo.com",
-  "password": "senha123"
+  "password": "gT7$kL9@mX4pR8vN2sH6jD1qW5...", // Senha criptografada com RSA
+  "isPasswordEncrypted": true
+}</pre>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mb-2 mt-4"><strong>Body (Versão Texto Plano - Não Recomendada):</strong></p>
+                    <div class="code-block">
+<pre>{
+  "email": "usuario@exemplo.com",
+  "password": "senha123", // ⚠️ Texto plano - menos seguro
+  "isPasswordEncrypted": false
 }</pre>
                     </div>
                 </div>
@@ -171,10 +231,12 @@ X-App-Id: seu-app-id-aqui</pre>
                 <h4 class="font-semibold text-yellow-800 mb-2">⚠️ Validações Importantes:</h4>
                 <ul class="text-sm text-yellow-700 space-y-1">
                     <li>• <strong>Email obrigatório:</strong> Deve ser um email válido</li>
-                    <li>• <strong>Password obrigatório:</strong> Será validado no Auth0</li>
+                    <li>• <strong>Password obrigatório:</strong> Texto plano (min 6 chars) OU base64 válido se criptografado</li>
+                    <li>• <strong>IsPasswordEncrypted:</strong> true para senha criptografada, false para texto plano</li>
                     <li>• <strong>X-App-Id obrigatório:</strong> Header necessário para autorização</li>
                     <li>• <strong>Usuário deve existir:</strong> Precisa estar criado no GrydAuth local</li>
                     <li>• <strong>Usuário ativo:</strong> IsActive deve ser true</li>
+                    <li>• <strong>Chave pública:</strong> Obtenha sempre a mais recente antes de criptografar</li>
                 </ul>
             </div>
         </div>
@@ -458,12 +520,13 @@ X-App-Id: seu-app-id-aqui</pre>
             <h2 class="text-2xl font-bold text-gray-900 mb-6">💻 Exemplo de Implementação JavaScript</h2>
             
             <div class="code-block">
-<pre>// Configuração do cliente API
+<pre>// Configuração do cliente API com suporte a criptografia
 class GrydAuthClient {
     constructor(baseUrl, appId) {
         this.baseUrl = baseUrl;
         this.appId = appId;
         this.token = localStorage.getItem('gryd_token');
+        this.publicKey = null;
     }
 
     // Headers padrão
@@ -480,12 +543,65 @@ class GrydAuthClient {
         return headers;
     }
 
-    // Login tradicional
-    async login(email, password) {
+    // Obter chave pública para criptografia
+    async getPublicKey() {
+        if (!this.publicKey) {
+            const response = await fetch(`${this.baseUrl}/api/auth/public-key`, {
+                headers: this.getHeaders()
+            });
+            
+            const data = await response.json();
+            this.publicKey = data.publicKey;
+            this.keyId = data.keyId;
+        }
+        
+        return this.publicKey;
+    }
+
+    // Criptografar senha usando JSEncrypt
+    async encryptPassword(password) {
+        // Instale: npm install jsencrypt
+        const JSEncrypt = require('jsencrypt').JSEncrypt;
+        
+        const publicKey = await this.getPublicKey();
+        const encrypt = new JSEncrypt();
+        
+        // Formatar chave pública para JSEncrypt
+        const formattedKey = `-----BEGIN PUBLIC KEY-----\n${publicKey}\n-----END PUBLIC KEY-----`;
+        encrypt.setPublicKey(formattedKey);
+        
+        const encrypted = encrypt.encrypt(password);
+        if (!encrypted) {
+            throw new Error('Failed to encrypt password');
+        }
+        
+        return encrypted;
+    }
+
+    // Login tradicional com senha criptografada
+    async login(email, password, useEncryption = true) {
+        let requestBody;
+        
+        if (useEncryption) {
+            const encryptedPassword = await this.encryptPassword(password);
+            requestBody = {
+                email,
+                password: encryptedPassword,
+                isPasswordEncrypted: true
+            };
+        } else {
+            // Modo de compatibilidade - não recomendado
+            requestBody = {
+                email,
+                password,
+                isPasswordEncrypted: false
+            };
+        }
+
         const response = await fetch(`${this.baseUrl}/api/auth/login`, {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(requestBody)
         });
         
         const result = await response.json();
@@ -500,7 +616,7 @@ class GrydAuthClient {
         throw new Error(result.errors.join(', '));
     }
 
-    // Social login
+    // Social login (sem alteração na criptografia - Auth0 handles)
     async socialLogin(provider, accessToken) {
         const response = await fetch(`${this.baseUrl}/api/auth/social-login`, {
             method: 'POST',
@@ -576,9 +692,22 @@ authClient.login('usuario@exemplo.com', 'senha123')
                     <h3 class="font-semibold text-blue-800 mb-2">🔐 Segurança</h3>
                     <ul class="text-sm text-blue-700 space-y-1">
                         <li>• Sempre use HTTPS em produção</li>
+                        <li>• Criptografia RSA 2048-bit para senhas</li>
+                        <li>• Chave pública pode ser interceptada (é seguro)</li>
                         <li>• O JWT contém roles e permissions</li>
                         <li>• AppId é obrigatório para autorização</li>
                         <li>• Tokens têm expiração definida</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">🔑 Criptografia</h3>
+                    <ul class="text-sm text-purple-700 space-y-1">
+                        <li>• RSA-OAEP-SHA256 para máxima segurança</li>
+                        <li>• Chaves rotacionadas automaticamente</li>
+                        <li>• Senhas nunca trafegam em texto plano</li>
+                        <li>• Instale jsencrypt: npm install jsencrypt</li>
+                        <li>• Fallback para texto plano se necessário</li>
                     </ul>
                 </div>
 
