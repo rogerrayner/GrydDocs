@@ -17,1340 +17,393 @@
             </div>
 
             <div class="prose max-w-none">
-                <h2>Arquitetura de Serviços</h2>
-                <p>O GrydAuthentication Framework implementa uma arquitetura em camadas com serviços especializados para cada funcionalidade, seguindo os princípios de Clean Architecture e SOLID.</p>
+                <h2>Services Implementados no GrydAuthentication Framework</h2>
+                <p>Documentação dos services realmente implementados no código fonte do framework.</p>
 
                 <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
-                    <h3 class="text-blue-800 font-semibold">🏗️ Camadas de Serviços</h3>
-                    <ul class="text-blue-700 mb-0">
-                        <li><strong>Application Services:</strong> Lógica de aplicação e casos de uso</li>
-                        <li><strong>Domain Services:</strong> Lógica de domínio e regras de negócio</li>
-                        <li><strong>Infrastructure Services:</strong> Implementações técnicas</li>
-                        <li><strong>Integration Services:</strong> Integrações externas (Auth0, Email, etc.)</li>
+                    <h3 class="text-blue-800 font-semibold">📋 Services Disponíveis</h3>
+                    <p class="text-blue-700">O framework possui as seguintes interfaces e implementações:</p>
+                </div>
+
+                <h2>🔐 Authentication Services</h2>
+
+                <h3>IAuthenticationService</h3>
+                <pre><code class="language-csharp">// IAuthenticationService.cs (implementado)
+public interface IAuthenticationService
+{
+    Task&lt;Result&lt;AuthenticationResult&gt;&gt; AuthenticateAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task&lt;Result&lt;AuthenticationResult&gt;&gt; SocialAuthenticateAsync(string provider, string accessToken, CancellationToken cancellationToken = default);
+    Task&lt;Result&lt;string&gt;&gt; GenerateJwtTokenAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task&lt;Result&lt;ClaimsPrincipal&gt;&gt; ValidateTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task&lt;Result&gt;&gt; RevokeTokenAsync(string token, CancellationToken cancellationToken = default);
+}</code></pre>
+
+                <h3>IJwtTokenService</h3>
+                <pre><code class="language-csharp">// IJwtTokenService.cs (implementado)
+public interface IJwtTokenService
+{
+    string GenerateToken(Guid userId, string email, IEnumerable&lt;string&gt; roles, IEnumerable&lt;string&gt; permissions);
+    ClaimsPrincipal? ValidateToken(string token);
+    bool IsTokenValid(string token);
+    DateTime GetTokenExpiration(string token);
+}</code></pre>
+
+                <h3>IPasswordHasher</h3>
+                <pre><code class="language-csharp">// IPasswordHasher.cs (implementado)
+public interface IPasswordHasher
+{
+    string HashPassword(string password);
+    bool VerifyPassword(string password, string hashedPassword);
+}</code></pre>
+
+                <h3>IEmailService</h3>
+                <pre><code class="language-csharp">// IEmailService.cs (implementado)
+public interface IEmailService
+{
+    Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default);
+    Task SendWelcomeEmailAsync(string to, string firstName, CancellationToken cancellationToken = default);
+    Task SendPasswordResetEmailAsync(string to, string resetToken, CancellationToken cancellationToken = default);
+}</code></pre>
+
+                <h3>ICurrentUserService</h3>
+                <pre><code class="language-csharp">// ICurrentUserService.cs (implementado)
+public interface ICurrentUserService
+{
+    Guid? UserId { get; }
+    string? Email { get; }
+    bool IsAuthenticated { get; }
+    bool IsInRole(string role);
+    bool HasPermission(string permission);
+    IEnumerable&lt;string&gt; GetRoles();
+    IEnumerable&lt;string&gt; GetPermissions();
+}</code></pre>
+
+                <h2>🏢 Auth0 Integration</h2>
+
+                <h3>IAuth0Service</h3>
+                <pre><code class="language-csharp">// IAuth0Service.cs (implementado)
+public interface IAuth0Service
+{
+    Task&lt;Result&lt;Auth0UserInfo&gt;&gt; AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task&lt;Result&lt;Auth0UserInfo&gt;&gt; AuthenticateSocialUserAsync(string provider, string accessToken, CancellationToken cancellationToken = default);
+    Task&lt;Result&lt;Auth0UserInfo&gt;&gt; CreateUserAsync(string email, string password, string? firstName = null, string? lastName = null, CancellationToken cancellationToken = default);
+}</code></pre>
+
+                <h3>Auth0Service Implementation</h3>
+                <pre><code class="language-csharp">// Auth0Service.cs (implementado)
+public class Auth0Service : IAuth0Service
+{
+    private readonly IAuthenticationApiClient _authenticationClient;
+    private readonly IManagementApiClient _managementClient;
+    private readonly Auth0Settings _auth0Settings;
+    private readonly ILogger&lt;Auth0Service&gt; _logger;
+
+    public Auth0Service(
+        IAuthenticationApiClient authenticationClient,
+        IManagementApiClient managementClient,
+        IConfiguration configuration,
+        ILogger&lt;Auth0Service&gt; logger)
+    {
+        // Implementation available in codebase
+    }
+
+    public async Task&lt;Result&lt;Auth0UserInfo&gt;&gt; AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken = default)
+    {
+        // Real implementation for Auth0 authentication
+    }
+
+    public async Task&lt;Result&lt;Auth0UserInfo&gt;&gt; AuthenticateSocialUserAsync(string provider, string accessToken, CancellationToken cancellationToken = default)
+    {
+        // Real implementation for social authentication
+    }
+}</code></pre>
+
+                <h2>🗃️ Data Transfer Objects</h2>
+
+                <h3>UserDto</h3>
+                <pre><code class="language-csharp">// UserDto.cs (implementado)
+public class UserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Auth0UserId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public string? ProfilePictureUrl { get; set; }
+    public string? PhoneNumber { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public List&lt;RoleDto&gt; Roles { get; set; } = new();
+    public List&lt;PermissionDto&gt; DirectPermissions { get; set; } = new();
+    public List&lt;string&gt; AllPermissions { get; set; } = new();
+}</code></pre>
+
+                <h3>RoleDto</h3>
+                <pre><code class="language-csharp">// RoleDto.cs (implementado)
+public class RoleDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public bool IsSystemRole { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public List&lt;PermissionDto&gt; Permissions { get; set; } = new();
+}</code></pre>
+
+                <h3>PermissionDto</h3>
+                <pre><code class="language-csharp">// PermissionDto.cs (implementado)
+public class PermissionDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? Category { get; set; }
+    public bool IsSystemPermission { get; set; }
+    public DateTime CreatedAt { get; set; }
+}</code></pre>
+
+                <h3>Auth0UserInfo</h3>
+                <pre><code class="language-csharp">// Auth0UserInfo.cs (implementado)
+public class Auth0UserInfo
+{
+    public string UserId { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Picture { get; set; }
+    public bool EmailVerified { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}</code></pre>
+
+                <h2>📋 CQRS Commands & Queries</h2>
+
+                <h3>Authentication Commands</h3>
+                <pre><code class="language-csharp">// AuthenticationCommands.cs (implementado)
+public class LoginCommand : IRequest&lt;Result&lt;AuthenticationResult&gt;&gt;
+{
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+}
+
+public class SocialLoginCommand : IRequest&lt;Result&lt;AuthenticationResult&gt;&gt;
+{
+    public string Provider { get; set; } = string.Empty;
+    public string AccessToken { get; set; } = string.Empty;
+}
+
+public class RefreshTokenCommand : IRequest&lt;Result&lt;AuthenticationResult&gt;&gt;
+{
+    public string RefreshToken { get; set; } = string.Empty;
+}
+
+public class LogoutCommand : IRequest&lt;Result&gt;
+{
+    public string Token { get; set; } = string.Empty;
+}</code></pre>
+
+                <h3>User Queries</h3>
+                <pre><code class="language-csharp">// User Queries (implementado)
+public class GetUsersQuery : IRequest&lt;Result&lt;PagedResult&lt;UserDto&gt;&gt;&gt;
+{
+    public int Page { get; set; } = 1;
+    public int Size { get; set; } = 10;
+    public string? Search { get; set; }
+    public string? SortBy { get; set; }
+    public string? SortDirection { get; set; }
+}
+
+public class GetUserByIdQuery : IRequest&lt;Result&lt;UserDto&gt;&gt;
+{
+    public Guid Id { get; set; }
+}</code></pre>
+
+                <h3>Role Queries</h3>
+                <pre><code class="language-csharp">// Role Queries (implementado)
+public class GetAllRolesQuery : IRequest&lt;Result&lt;List&lt;RoleDto&gt;&gt;&gt;
+{
+    public bool IncludeSystemRoles { get; set; } = true;
+}
+
+public class GetRoleByIdQuery : IRequest&lt;Result&lt;RoleDto&gt;&gt;
+{
+    public Guid Id { get; set; }
+}
+
+public class GetRoleByNameQuery : IRequest&lt;Result&lt;RoleDto&gt;&gt;
+{
+    public string Name { get; set; } = string.Empty;
+}</code></pre>
+
+                <h2>🏗️ Dependency Injection Setup</h2>
+                <p>Services registrados via InfrastructureServiceRegistration:</p>
+
+                <pre><code class="language-csharp">// InfrastructureServiceRegistration.cs (implementado)
+public static class InfrastructureServiceRegistration
+{
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Entity Framework
+        services.AddDbContext&lt;AuthenticationDbContext&gt;(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        // Repositories
+        services.AddScoped&lt;IUserRepository, UserRepository&gt;();
+        services.AddScoped&lt;IRoleRepository, RoleRepository&gt;();
+        services.AddScoped&lt;IPermissionRepository, PermissionRepository&gt;();
+
+        // Application Services
+        services.AddScoped&lt;IAuthenticationService, AuthenticationService&gt;();
+        services.AddScoped&lt;IJwtTokenService, JwtTokenService&gt;();
+        services.AddScoped&lt;ICurrentUserService, CurrentUserService&gt;();
+        services.AddScoped&lt;IPasswordHasher, PasswordHasher&gt;();
+        services.AddScoped&lt;IEmailService, EmailService&gt;();
+
+        // JWT Configuration
+        AddJwtAuthentication(services, configuration);
+
+        return services;
+    }
+
+    private static void AddJwtAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
+        // JWT configuration implementation
+    }
+}</code></pre>
+
+                <h3>Auth0 Services Registration</h3>
+                <pre><code class="language-csharp">// Auth0ServiceRegistration.cs (implementado)
+public static class Auth0ServiceRegistration
+{
+    public static IServiceCollection AddAuth0Services(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Auth0 configuration
+        services.Configure&lt;Auth0Settings&gt;(configuration.GetSection("Auth0"));
+
+        // Auth0 clients
+        services.AddSingleton&lt;IAuthenticationApiClient&gt;(provider =&gt;
+        {
+            var settings = provider.GetRequiredService&lt;IOptions&lt;Auth0Settings&gt;&gt;().Value;
+            return new AuthenticationApiClient(settings.Domain);
+        });
+
+        services.AddScoped&lt;IManagementApiClient&gt;(provider =&gt;
+        {
+            var settings = provider.GetRequiredService&lt;IOptions&lt;Auth0Settings&gt;&gt;().Value;
+            return new ManagementApiClient(settings.ManagementApiToken, settings.Domain);
+        });
+
+        // Auth0 service
+        services.AddScoped&lt;IAuth0Service, Auth0Service&gt;();
+
+        return services;
+    }
+}</code></pre>
+
+                <h2>🔧 Application Services Registration</h2>
+                <pre><code class="language-csharp">// ApplicationServiceRegistration.cs (implementado)
+public static class ApplicationServiceRegistration
+{
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // MediatR registration
+        services.AddMediatR(cfg =&gt;
+        {
+            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
+        });
+
+        // FluentValidation registration
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssembly(typeof(LoginCommand).Assembly);
+
+        return services;
+    }
+}</code></pre>
+
+                <h2>❌ Services NÃO Implementados</h2>
+                <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                    <h3 class="text-red-800 font-semibold mb-2">Funcionalidades Ausentes</h3>
+                    <p class="text-red-700 text-sm mb-2">Os seguintes services não estão implementados:</p>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• ISessionService / SessionService</li>
+                        <li>• ITwoFactorService / TwoFactorService</li>
+                        <li>• ICacheService / CacheService</li>
+                        <li>• IAuditService / AuditService</li>
+                        <li>• IFileStorageService / FileStorageService</li>
+                        <li>• ITemplateService / TemplateService</li>
+                        <li>• IValidationService / ValidationService</li>
+                        <li>• IEncryptionService / EncryptionService</li>
+                        <li>• IPermissionService / PermissionService</li>
+                        <li>• Background Services (cleanup, etc.)</li>
                     </ul>
                 </div>
 
-                <h2>Diagrama de Arquitetura</h2>
+                <h2>🧪 Testing</h2>
+                <p>O framework possui testes unitários para alguns controllers:</p>
 
-                <div class="bg-gray-50 p-4 rounded-lg my-6">
-                    <pre class="text-sm"><code>┌─────────────────────────────────────────────────────────────────┐
-│                        API Controllers                          │
-├─────────────────────────────────────────────────────────────────┤
-│                     Application Services                        │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐│
-│  │ AuthService  │ │ UserService  │ │ RoleService  │ │   ...   ││
-│  └──────────────┘ └──────────────┘ └──────────────┘ └─────────┘│
-├─────────────────────────────────────────────────────────────────┤
-│                      Domain Services                            │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐│
-│  │ Permission   │ │ Validation   │ │ Encryption   │ │   ...   ││
-│  │ Service      │ │ Service      │ │ Service      │ │         ││
-│  └──────────────┘ └──────────────┘ └──────────────┘ └─────────┘│
-├─────────────────────────────────────────────────────────────────┤
-│                   Infrastructure Services                       │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐│
-│  │ Email        │ │ JWT          │ │ Cache        │ │   ...   ││
-│  │ Service      │ │ Service      │ │ Service      │ │         ││
-│  └──────────────┘ └──────────────┘ └──────────────┘ └─────────┘│
-├─────────────────────────────────────────────────────────────────┤
-│                     Integration Services                        │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐│
-│  │ Auth0        │ │ SendGrid     │ │ Azure        │ │   ...   ││
-│  │ Service      │ │ Service      │ │ Service      │ │         ││
-│  └──────────────┘ └──────────────┘ └──────────────┘ └─────────┘│
-└─────────────────────────────────────────────────────────────────┘</code></pre>
+                <pre><code class="language-csharp">// AuthControllerTests.cs (implementado)
+/// &lt;summary&gt;
+/// Unit tests for AuthController
+/// Tests all authentication endpoints including login, social login, refresh token, logout, get current user, and validate token
+/// &lt;/summary&gt;
+public class AuthControllerTests
+{
+    // Test implementations available in codebase
+}</code></pre>
+
+                <div class="bg-green-50 p-6 rounded-lg border border-green-200 my-8">
+                    <h3 class="font-semibold text-green-800 mb-4">✅ Services Implementados</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-green-700">
+                        <div>
+                            <h4 class="font-semibold mb-2">🔐 Authentication:</h4>
+                            <ul class="space-y-1">
+                                <li>• IAuthenticationService</li>
+                                <li>• IJwtTokenService</li>
+                                <li>• IPasswordHasher</li>
+                                <li>• ICurrentUserService</li>
+                                <li>• IEmailService</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">🏢 Auth0 Integration:</h4>
+                            <ul class="space-y-1">
+                                <li>• IAuth0Service</li>
+                                <li>• Auth0Settings configuration</li>
+                                <li>• Social provider support</li>
+                                <li>• Management API client</li>
+                                <li>• Authentication API client</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">📋 CQRS/Data:</h4>
+                            <ul class="space-y-1">
+                                <li>• MediatR commands/queries</li>
+                                <li>• FluentValidation</li>
+                                <li>• Entity Framework repos</li>
+                                <li>• DTOs para transferência</li>
+                                <li>• Result pattern</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
-                <h2>Application Services</h2>
-
-                <h3>IAuthService Interface</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
-{
-    public interface IAuthService
-    {
-        // Authentication
-        Task&lt;AuthenticationResult&gt; LoginAsync(LoginRequest request);
-        Task&lt;AuthenticationResult&gt; RegisterAsync(RegisterRequest request);
-        Task&lt;AuthenticationResult&gt; RefreshTokenAsync(RefreshTokenRequest request);
-        Task&lt;bool&gt; LogoutAsync(LogoutRequest request);
-        Task&lt;bool&gt; LogoutAllDevicesAsync(Guid userId);
-
-        // Password Management
-        Task&lt;bool&gt; ChangePasswordAsync(ChangePasswordRequest request);
-        Task&lt;bool&gt; ForgotPasswordAsync(ForgotPasswordRequest request);
-        Task&lt;bool&gt; ResetPasswordAsync(ResetPasswordRequest request);
-        Task&lt;bool&gt; ValidateResetTokenAsync(string token);
-
-        // Email Verification
-        Task&lt;bool&gt; SendEmailVerificationAsync(Guid userId);
-        Task&lt;bool&gt; VerifyEmailAsync(VerifyEmailRequest request);
-        Task&lt;bool&gt; ResendEmailVerificationAsync(string email);
-
-        // Two-Factor Authentication
-        Task&lt;TwoFactorSetupResult&gt; SetupTwoFactorAsync(Guid userId);
-        Task&lt;bool&gt; EnableTwoFactorAsync(EnableTwoFactorRequest request);
-        Task&lt;bool&gt; DisableTwoFactorAsync(DisableTwoFactorRequest request);
-        Task&lt;bool&gt; ValidateTwoFactorCodeAsync(ValidateTwoFactorRequest request);
-        Task&lt;List&lt;string&gt;&gt; GenerateRecoveryCodesAsync(Guid userId);
-
-        // External Authentication
-        Task&lt;AuthenticationResult&gt; ExternalLoginAsync(ExternalLoginRequest request);
-        Task&lt;bool&gt; LinkExternalAccountAsync(LinkExternalAccountRequest request);
-        Task&lt;bool&gt; UnlinkExternalAccountAsync(UnlinkExternalAccountRequest request);
-    }
-}</code></pre>
-
-                <h3>AuthService Implementation</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Services
-{
-    public class AuthService : IAuthService
-    {
-        private readonly IUserRepository _userRepository;
-        private readonly IJwtService _jwtService;
-        private readonly ISessionService _sessionService;
-        private readonly IEmailService _emailService;
-        private readonly IPasswordHashingService _passwordHashingService;
-        private readonly ITwoFactorService _twoFactorService;
-        private readonly IExternalAuthService _externalAuthService;
-        private readonly ILogger&lt;AuthService&gt; _logger;
-        private readonly AuthConfiguration _config;
-
-        public AuthService(
-            IUserRepository userRepository,
-            IJwtService jwtService,
-            ISessionService sessionService,
-            IEmailService emailService,
-            IPasswordHashingService passwordHashingService,
-            ITwoFactorService twoFactorService,
-            IExternalAuthService externalAuthService,
-            ILogger&lt;AuthService&gt; logger,
-            IOptions&lt;AuthConfiguration&gt; config)
-        {
-            _userRepository = userRepository;
-            _jwtService = jwtService;
-            _sessionService = sessionService;
-            _emailService = emailService;
-            _passwordHashingService = passwordHashingService;
-            _twoFactorService = twoFactorService;
-            _externalAuthService = externalAuthService;
-            _logger = logger;
-            _config = config.Value;
-        }
-
-        public async Task&lt;AuthenticationResult&gt; LoginAsync(LoginRequest request)
-        {
-            try
-            {
-                var user = await _userRepository.GetByEmailAsync(request.Email);
-                if (user == null)
-                {
-                    _logger.LogWarning("Login attempt with non-existent email: {Email}", request.Email);
-                    return AuthenticationResult.Failed("Invalid credentials");
-                }
-
-                // Verificar se conta está ativa
-                if (!user.IsActive)
-                {
-                    _logger.LogWarning("Login attempt for inactive user: {UserId}", user.Id);
-                    return AuthenticationResult.Failed("Account is disabled");
-                }
-
-                // Verificar senha
-                if (!_passwordHashingService.VerifyPassword(request.Password, user.PasswordHash))
-                {
-                    await RecordFailedLoginAttempt(user);
-                    return AuthenticationResult.Failed("Invalid credentials");
-                }
-
-                // Verificar se email foi confirmado
-                if (_config.RequireEmailConfirmation && !user.EmailConfirmed)
-                {
-                    return AuthenticationResult.Failed("Email not confirmed", requiresEmailConfirmation: true);
-                }
-
-                // Verificar se conta está bloqueada
-                if (user.IsLockedOut)
-                {
-                    var unlockTime = user.LockoutEnd ?? DateTime.UtcNow;
-                    if (unlockTime > DateTime.UtcNow)
-                    {
-                        return AuthenticationResult.Failed($"Account is locked until {unlockTime:yyyy-MM-dd HH:mm} UTC");
-                    }
-                    else
-                    {
-                        // Desbloquear conta
-                        user.UnlockAccount();
-                        await _userRepository.UpdateAsync(user);
-                    }
-                }
-
-                // Verificar Two-Factor se habilitado
-                if (user.TwoFactorEnabled)
-                {
-                    var twoFactorToken = await _twoFactorService.GenerateTokenAsync(user.Id);
-                    return AuthenticationResult.RequiresTwoFactor(twoFactorToken, user.Email);
-                }
-
-                // Login bem-sucedido
-                await HandleSuccessfulLogin(user, request);
-                
-                // Gerar tokens
-                var tokens = await _jwtService.GenerateTokensAsync(user);
-                
-                // Criar sessão
-                var securityInfo = CreateSecurityInfo(request);
-                var session = await _sessionService.CreateSessionAsync(user.Id, securityInfo, request.DeviceType);
-
-                _logger.LogInformation("User {UserId} logged in successfully", user.Id);
-
-                return AuthenticationResult.Success(tokens, user, session);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
-                return AuthenticationResult.Failed("An error occurred during login");
-            }
-        }
-
-        public async Task&lt;AuthenticationResult&gt; RegisterAsync(RegisterRequest request)
-        {
-            try
-            {
-                // Verificar se email já existe
-                var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-                if (existingUser != null)
-                {
-                    return AuthenticationResult.Failed("Email already registered");
-                }
-
-                // Verificar se username já existe
-                if (!string.IsNullOrEmpty(request.Username))
-                {
-                    var existingUsername = await _userRepository.GetByUsernameAsync(request.Username);
-                    if (existingUsername != null)
-                    {
-                        return AuthenticationResult.Failed("Username already taken");
-                    }
-                }
-
-                // Validar política de senha
-                var passwordValidation = await ValidatePasswordPolicy(request.Password);
-                if (!passwordValidation.IsValid)
-                {
-                    return AuthenticationResult.Failed("Password does not meet policy requirements", 
-                        validationErrors: passwordValidation.Errors);
-                }
-
-                // Criar usuário
-                var passwordHash = _passwordHashingService.HashPassword(request.Password);
-                var user = User.Create(
-                    request.Email,
-                    request.Username ?? request.Email.Split('@')[0],
-                    request.FirstName,
-                    request.LastName,
-                    passwordHash,
-                    request.TenantId
-                );
-
-                // Atribuir role padrão
-                if (!string.IsNullOrEmpty(_config.DefaultRole))
-                {
-                    var defaultRole = await _userRepository.GetRoleByNameAsync(_config.DefaultRole);
-                    if (defaultRole != null)
-                    {
-                        user.AssignRole(defaultRole);
-                    }
-                }
-
-                await _userRepository.AddAsync(user);
-
-                // Enviar email de confirmação se necessário
-                if (_config.RequireEmailConfirmation)
-                {
-                    await SendEmailVerificationAsync(user.Id);
-                    
-                    return AuthenticationResult.Success(
-                        message: "Registration successful. Please check your email to confirm your account.",
-                        requiresEmailConfirmation: true
-                    );
-                }
-
-                // Se não requer confirmação, fazer login automaticamente
-                var tokens = await _jwtService.GenerateTokensAsync(user);
-                var securityInfo = CreateSecurityInfo(request);
-                var session = await _sessionService.CreateSessionAsync(user.Id, securityInfo, request.DeviceType);
-
-                _logger.LogInformation("User {UserId} registered and logged in successfully", user.Id);
-
-                return AuthenticationResult.Success(tokens, user, session);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during registration for email: {Email}", request.Email);
-                return AuthenticationResult.Failed("An error occurred during registration");
-            }
-        }
-
-        public async Task&lt;AuthenticationResult&gt; RefreshTokenAsync(RefreshTokenRequest request)
-        {
-            try
-            {
-                var tokenValidation = await _jwtService.ValidateRefreshTokenAsync(request.RefreshToken);
-                if (!tokenValidation.IsValid)
-                {
-                    return AuthenticationResult.Failed("Invalid refresh token");
-                }
-
-                var user = await _userRepository.GetByIdAsync(tokenValidation.UserId);
-                if (user == null || !user.IsActive)
-                {
-                    return AuthenticationResult.Failed("User not found or inactive");
-                }
-
-                // Gerar novos tokens
-                var newTokens = await _jwtService.GenerateTokensAsync(user);
-                
-                // Invalidar refresh token anterior
-                await _jwtService.InvalidateRefreshTokenAsync(request.RefreshToken);
-
-                _logger.LogDebug("Tokens refreshed for user {UserId}", user.Id);
-
-                return AuthenticationResult.Success(newTokens, user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during token refresh");
-                return AuthenticationResult.Failed("An error occurred during token refresh");
-            }
-        }
-
-        public async Task&lt;bool&gt; ChangePasswordAsync(ChangePasswordRequest request)
-        {
-            try
-            {
-                var user = await _userRepository.GetByIdAsync(request.UserId);
-                if (user == null)
-                {
-                    return false;
-                }
-
-                // Verificar senha atual
-                if (!_passwordHashingService.VerifyPassword(request.CurrentPassword, user.PasswordHash))
-                {
-                    _logger.LogWarning("Invalid current password for user {UserId}", user.Id);
-                    return false;
-                }
-
-                // Validar nova senha
-                var passwordValidation = await ValidatePasswordPolicy(request.NewPassword);
-                if (!passwordValidation.IsValid)
-                {
-                    return false;
-                }
-
-                // Verificar se a nova senha é diferente da atual
-                if (_passwordHashingService.VerifyPassword(request.NewPassword, user.PasswordHash))
-                {
-                    return false; // Nova senha igual à atual
-                }
-
-                // Atualizar senha
-                var newPasswordHash = _passwordHashingService.HashPassword(request.NewPassword);
-                user.ChangePassword(newPasswordHash);
-                await _userRepository.UpdateAsync(user);
-
-                // Invalidar todas as sessões exceto a atual
-                await _sessionService.TerminateAllUserSessionsAsync(user.Id, request.CurrentSessionId);
-
-                _logger.LogInformation("Password changed for user {UserId}", user.Id);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error changing password for user {UserId}", request.UserId);
-                return false;
-            }
-        }
-
-        public async Task&lt;bool&gt; ForgotPasswordAsync(ForgotPasswordRequest request)
-        {
-            try
-            {
-                var user = await _userRepository.GetByEmailAsync(request.Email);
-                if (user == null)
-                {
-                    // Não revelar se o email existe ou não
-                    _logger.LogInformation("Password reset requested for non-existent email: {Email}", request.Email);
-                    return true;
-                }
-
-                // Gerar token de reset
-                var resetToken = await _jwtService.GeneratePasswordResetTokenAsync(user.Id);
-                
-                // Salvar token no usuário
-                user.SetPasswordResetToken(resetToken, DateTime.UtcNow.AddHours(_config.PasswordResetTokenExpirationHours));
-                await _userRepository.UpdateAsync(user);
-
-                // Enviar email
-                await _emailService.SendPasswordResetEmailAsync(user.Email, user.FirstName, resetToken);
-
-                _logger.LogInformation("Password reset email sent to user {UserId}", user.Id);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending password reset email: {Email}", request.Email);
-                return false;
-            }
-        }
-
-        private async Task RecordFailedLoginAttempt(User user)
-        {
-            user.RecordFailedLoginAttempt();
-            
-            if (user.AccessFailedCount >= _config.MaxFailedLoginAttempts)
-            {
-                user.LockAccount(TimeSpan.FromMinutes(_config.LockoutDurationMinutes));
-                _logger.LogWarning("User {UserId} account locked due to failed login attempts", user.Id);
-            }
-
-            await _userRepository.UpdateAsync(user);
-        }
-
-        private async Task HandleSuccessfulLogin(User user, LoginRequest request)
-        {
-            user.ResetFailedLoginAttempts();
-            user.UpdateLastLoginInfo(request.IpAddress, request.UserAgent);
-            await _userRepository.UpdateAsync(user);
-        }
-
-        private SessionSecurityInfo CreateSecurityInfo(ISecurityRequest request)
-        {
-            return new SessionSecurityInfo(
-                request.Fingerprint,
-                request.IpAddress,
-                request.UserAgent,
-                request.Location
-            );
-        }
-
-        private async Task&lt;PasswordValidationResult&gt; ValidatePasswordPolicy(string password)
-        {
-            var errors = new List&lt;string&gt;();
-
-            if (password.Length &lt; _config.PasswordPolicy.MinLength)
-                errors.Add($"Password must be at least {_config.PasswordPolicy.MinLength} characters");
-
-            if (_config.PasswordPolicy.RequireUppercase && !password.Any(char.IsUpper))
-                errors.Add("Password must contain at least one uppercase letter");
-
-            if (_config.PasswordPolicy.RequireLowercase && !password.Any(char.IsLower))
-                errors.Add("Password must contain at least one lowercase letter");
-
-            if (_config.PasswordPolicy.RequireDigit && !password.Any(char.IsDigit))
-                errors.Add("Password must contain at least one digit");
-
-            if (_config.PasswordPolicy.RequireSpecialCharacter && !password.Any(c =&gt; !char.IsLetterOrDigit(c)))
-                errors.Add("Password must contain at least one special character");
-
-            return new PasswordValidationResult
-            {
-                IsValid = !errors.Any(),
-                Errors = errors
-            };
-        }
-    }
-}</code></pre>
-
-                <h3>IUserService Interface</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
-{
-    public interface IUserService
-    {
-        // User Management
-        Task&lt;User&gt; GetByIdAsync(Guid id);
-        Task&lt;User&gt; GetByEmailAsync(string email);
-        Task&lt;User&gt; GetByUsernameAsync(string username);
-        Task&lt;PagedResult&lt;User&gt;&gt; GetUsersAsync(GetUsersQuery query);
-        Task&lt;User&gt; CreateUserAsync(CreateUserRequest request);
-        Task&lt;User&gt; UpdateUserAsync(UpdateUserRequest request);
-        Task&lt;bool&gt; DeleteUserAsync(Guid id);
-        Task&lt;bool&gt; ActivateUserAsync(Guid id);
-        Task&lt;bool&gt; DeactivateUserAsync(Guid id);
-
-        // Profile Management
-        Task&lt;UserProfile&gt; GetUserProfileAsync(Guid userId);
-        Task&lt;UserProfile&gt; UpdateUserProfileAsync(UpdateUserProfileRequest request);
-        Task&lt;bool&gt; UploadProfilePictureAsync(Guid userId, IFormFile file);
-        Task&lt;bool&gt; RemoveProfilePictureAsync(Guid userId);
-
-        // Role Management
-        Task&lt;List&lt;Role&gt;&gt; GetUserRolesAsync(Guid userId);
-        Task&lt;bool&gt; AssignRoleAsync(Guid userId, Guid roleId);
-        Task&lt;bool&gt; RemoveRoleAsync(Guid userId, Guid roleId);
-        Task&lt;bool&gt; AssignRolesAsync(Guid userId, List&lt;Guid&gt; roleIds);
-        Task&lt;bool&gt; ReplaceUserRolesAsync(Guid userId, List&lt;Guid&gt; roleIds);
-
-        // Permission Management
-        Task&lt;List&lt;string&gt;&gt; GetUserPermissionsAsync(Guid userId);
-        Task&lt;bool&gt; HasPermissionAsync(Guid userId, string permission);
-        Task&lt;bool&gt; GrantDirectPermissionAsync(Guid userId, Guid permissionId);
-        Task&lt;bool&gt; RevokeDirectPermissionAsync(Guid userId, Guid permissionId);
-
-        // User Statistics
-        Task&lt;UserStatistics&gt; GetUserStatisticsAsync(Guid userId);
-        Task&lt;List&lt;UserActivity&gt;&gt; GetUserActivityAsync(Guid userId, int days = 30);
-        Task&lt;DashboardData&gt; GetUserDashboardAsync(Guid userId);
-
-        // Bulk Operations
-        Task&lt;BulkOperationResult&gt; BulkImportUsersAsync(List&lt;ImportUserRequest&gt; users);
-        Task&lt;BulkOperationResult&gt; BulkUpdateUsersAsync(List&lt;BulkUpdateUserRequest&gt; updates);
-        Task&lt;BulkOperationResult&gt; BulkDeleteUsersAsync(List&lt;Guid&gt; userIds);
-    }
-}</code></pre>
-
-                <h2>Domain Services</h2>
-
-                <h3>IPasswordHashingService</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Domain.Services
-{
-    public interface IPasswordHashingService
-    {
-        string HashPassword(string password);
-        bool VerifyPassword(string password, string hash);
-        bool NeedsRehash(string hash);
-        PasswordHashInfo GetHashInfo(string hash);
-    }
-
-    public class PasswordHashingService : IPasswordHashingService
-    {
-        private readonly ILogger&lt;PasswordHashingService&gt; _logger;
-        private readonly PasswordHashingConfiguration _config;
-
-        public PasswordHashingService(
-            ILogger&lt;PasswordHashingService&gt; logger,
-            IOptions&lt;PasswordHashingConfiguration&gt; config)
-        {
-            _logger = logger;
-            _config = config.Value;
-        }
-
-        public string HashPassword(string password)
-        {
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException("Password cannot be null or empty", nameof(password));
-
-            return BCrypt.Net.BCrypt.HashPassword(password, _config.WorkFactor);
-        }
-
-        public bool VerifyPassword(string password, string hash)
-        {
-            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hash))
-                return false;
-
-            try
-            {
-                return BCrypt.Net.BCrypt.Verify(password, hash);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verifying password hash");
-                return false;
-            }
-        }
-
-        public bool NeedsRehash(string hash)
-        {
-            try
-            {
-                return BCrypt.Net.BCrypt.PasswordNeedsRehash(hash, _config.WorkFactor);
-            }
-            catch
-            {
-                return true; // Se não conseguir determinar, assumir que precisa de rehash
-            }
-        }
-
-        public PasswordHashInfo GetHashInfo(string hash)
-        {
-            try
-            {
-                // Extrair informações do hash BCrypt
-                var parts = hash.Split('$');
-                if (parts.Length >= 4)
-                {
-                    return new PasswordHashInfo
-                    {
-                        Algorithm = parts[1],
-                        WorkFactor = int.Parse(parts[2]),
-                        Salt = parts[3].Substring(0, 22),
-                        Hash = parts[3].Substring(22)
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error parsing hash info");
-            }
-
-            return new PasswordHashInfo
-            {
-                Algorithm = "unknown",
-                WorkFactor = 0,
-                Salt = "",
-                Hash = ""
-            };
-        }
-    }
-
-    public class PasswordHashInfo
-    {
-        public string Algorithm { get; set; }
-        public int WorkFactor { get; set; }
-        public string Salt { get; set; }
-        public string Hash { get; set; }
-    }
-}</code></pre>
-
-                <h3>IEncryptionService</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Domain.Services
-{
-    public interface IEncryptionService
-    {
-        string Encrypt(string plaintext);
-        string Decrypt(string ciphertext);
-        string EncryptWithKey(string plaintext, string key);
-        string DecryptWithKey(string ciphertext, string key);
-        string GenerateKey();
-        byte[] GenerateRandomBytes(int length);
-        string ComputeHash(string input, string salt = null);
-        bool VerifyHash(string input, string hash, string salt = null);
-    }
-
-    public class EncryptionService : IEncryptionService
-    {
-        private readonly EncryptionConfiguration _config;
-        private readonly ILogger&lt;EncryptionService&gt; _logger;
-
-        public EncryptionService(
-            IOptions&lt;EncryptionConfiguration&gt; config,
-            ILogger&lt;EncryptionService&gt; logger)
-        {
-            _config = config.Value;
-            _logger = logger;
-        }
-
-        public string Encrypt(string plaintext)
-        {
-            return EncryptWithKey(plaintext, _config.DefaultKey);
-        }
-
-        public string Decrypt(string ciphertext)
-        {
-            return DecryptWithKey(ciphertext, _config.DefaultKey);
-        }
-
-        public string EncryptWithKey(string plaintext, string key)
-        {
-            if (string.IsNullOrEmpty(plaintext))
-                return plaintext;
-
-            try
-            {
-                using var aes = Aes.Create();
-                aes.Key = Convert.FromBase64String(key);
-                aes.IV = GenerateRandomBytes(16);
-
-                using var encryptor = aes.CreateEncryptor();
-                using var msEncrypt = new MemoryStream();
-                
-                // Escrever IV no início
-                msEncrypt.Write(aes.IV, 0, aes.IV.Length);
-                
-                using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                using (var swEncrypt = new StreamWriter(csEncrypt))
-                {
-                    swEncrypt.Write(plaintext);
-                }
-
-                return Convert.ToBase64String(msEncrypt.ToArray());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error encrypting data");
-                throw new EncryptionException("Failed to encrypt data", ex);
-            }
-        }
-
-        public string DecryptWithKey(string ciphertext, string key)
-        {
-            if (string.IsNullOrEmpty(ciphertext))
-                return ciphertext;
-
-            try
-            {
-                var cipherBytes = Convert.FromBase64String(ciphertext);
-                
-                using var aes = Aes.Create();
-                aes.Key = Convert.FromBase64String(key);
-                
-                // Extrair IV
-                var iv = new byte[16];
-                Array.Copy(cipherBytes, 0, iv, 0, 16);
-                aes.IV = iv;
-
-                using var decryptor = aes.CreateDecryptor();
-                using var msDecrypt = new MemoryStream(cipherBytes, 16, cipherBytes.Length - 16);
-                using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-                using var srDecrypt = new StreamReader(csDecrypt);
-                
-                return srDecrypt.ReadToEnd();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error decrypting data");
-                throw new EncryptionException("Failed to decrypt data", ex);
-            }
-        }
-
-        public string GenerateKey()
-        {
-            using var aes = Aes.Create();
-            aes.GenerateKey();
-            return Convert.ToBase64String(aes.Key);
-        }
-
-        public byte[] GenerateRandomBytes(int length)
-        {
-            var bytes = new byte[length];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(bytes);
-            return bytes;
-        }
-
-        public string ComputeHash(string input, string salt = null)
-        {
-            if (string.IsNullOrEmpty(input))
-                return string.Empty;
-
-            var saltBytes = string.IsNullOrEmpty(salt) 
-                ? GenerateRandomBytes(32) 
-                : Convert.FromBase64String(salt);
-
-            using var sha256 = SHA256.Create();
-            var inputBytes = Encoding.UTF8.GetBytes(input);
-            var combinedBytes = new byte[inputBytes.Length + saltBytes.Length];
-            
-            Array.Copy(inputBytes, 0, combinedBytes, 0, inputBytes.Length);
-            Array.Copy(saltBytes, 0, combinedBytes, inputBytes.Length, saltBytes.Length);
-
-            var hashBytes = sha256.ComputeHash(combinedBytes);
-            var result = new byte[hashBytes.Length + saltBytes.Length];
-            
-            Array.Copy(hashBytes, 0, result, 0, hashBytes.Length);
-            Array.Copy(saltBytes, 0, result, hashBytes.Length, saltBytes.Length);
-
-            return Convert.ToBase64String(result);
-        }
-
-        public bool VerifyHash(string input, string hash, string salt = null)
-        {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(hash))
-                return false;
-
-            try
-            {
-                if (string.IsNullOrEmpty(salt))
-                {
-                    // Salt está incluído no hash
-                    var hashWithSalt = Convert.FromBase64String(hash);
-                    var hashBytes = new byte[32]; // SHA256 = 32 bytes
-                    var saltBytes = new byte[hashWithSalt.Length - 32];
-                    
-                    Array.Copy(hashWithSalt, 0, hashBytes, 0, 32);
-                    Array.Copy(hashWithSalt, 32, saltBytes, 0, saltBytes.Length);
-                    
-                    salt = Convert.ToBase64String(saltBytes);
-                }
-
-                var computedHash = ComputeHash(input, salt);
-                return computedHash == hash;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verifying hash");
-                return false;
-            }
-        }
-    }
-
-    public class EncryptionException : Exception
-    {
-        public EncryptionException(string message) : base(message) { }
-        public EncryptionException(string message, Exception innerException) : base(message, innerException) { }
-    }
-}</code></pre>
-
-                <h2>Infrastructure Services</h2>
-
-                <h3>IEmailService</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Interfaces
-{
-    public interface IEmailService
-    {
-        Task&lt;bool&gt; SendEmailAsync(string to, string subject, string body, bool isHtml = true);
-        Task&lt;bool&gt; SendEmailAsync(EmailMessage message);
-        Task&lt;bool&gt; SendWelcomeEmailAsync(string email, string firstName, string confirmationLink = null);
-        Task&lt;bool&gt; SendEmailVerificationAsync(string email, string firstName, string verificationLink);
-        Task&lt;bool&gt; SendPasswordResetEmailAsync(string email, string firstName, string resetLink);
-        Task&lt;bool&gt; SendPasswordChangedNotificationAsync(string email, string firstName);
-        Task&lt;bool&gt; SendTwoFactorCodeAsync(string email, string firstName, string code);
-        Task&lt;bool&gt; SendSecurityAlertAsync(string email, string firstName, string alertMessage);
-        Task&lt;bool&gt; SendBulkEmailAsync(List&lt;EmailMessage&gt; messages);
-        Task&lt;EmailDeliveryStatus&gt; GetDeliveryStatusAsync(string messageId);
-    }
-
-    public class EmailService : IEmailService
-    {
-        private readonly IEmailProvider _emailProvider;
-        private readonly ITemplateService _templateService;
-        private readonly ILogger&lt;EmailService&gt; _logger;
-        private readonly EmailConfiguration _config;
-
-        public EmailService(
-            IEmailProvider emailProvider,
-            ITemplateService templateService,
-            ILogger&lt;EmailService&gt; logger,
-            IOptions&lt;EmailConfiguration&gt; config)
-        {
-            _emailProvider = emailProvider;
-            _templateService = templateService;
-            _logger = logger;
-            _config = config.Value;
-        }
-
-        public async Task&lt;bool&gt; SendWelcomeEmailAsync(string email, string firstName, string confirmationLink = null)
-        {
-            try
-            {
-                var template = await _templateService.GetTemplateAsync("welcome");
-                var body = await _templateService.RenderTemplateAsync(template, new
-                {
-                    FirstName = firstName,
-                    ConfirmationLink = confirmationLink,
-                    AppName = _config.AppName,
-                    SupportEmail = _config.SupportEmail
-                });
-
-                var message = new EmailMessage
-                {
-                    To = email,
-                    Subject = $"Welcome to {_config.AppName}!",
-                    Body = body,
-                    IsHtml = true,
-                    Priority = EmailPriority.Normal
-                };
-
-                return await SendEmailAsync(message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending welcome email to {Email}", email);
-                return false;
-            }
-        }
-
-        public async Task&lt;bool&gt; SendEmailVerificationAsync(string email, string firstName, string verificationLink)
-        {
-            try
-            {
-                var template = await _templateService.GetTemplateAsync("email-verification");
-                var body = await _templateService.RenderTemplateAsync(template, new
-                {
-                    FirstName = firstName,
-                    VerificationLink = verificationLink,
-                    AppName = _config.AppName,
-                    ExpirationHours = _config.VerificationLinkExpirationHours
-                });
-
-                var message = new EmailMessage
-                {
-                    To = email,
-                    Subject = $"Please verify your email - {_config.AppName}",
-                    Body = body,
-                    IsHtml = true,
-                    Priority = EmailPriority.High
-                };
-
-                return await SendEmailAsync(message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending email verification to {Email}", email);
-                return false;
-            }
-        }
-
-        public async Task&lt;bool&gt; SendPasswordResetEmailAsync(string email, string firstName, string resetLink)
-        {
-            try
-            {
-                var template = await _templateService.GetTemplateAsync("password-reset");
-                var body = await _templateService.RenderTemplateAsync(template, new
-                {
-                    FirstName = firstName,
-                    ResetLink = resetLink,
-                    AppName = _config.AppName,
-                    ExpirationHours = _config.PasswordResetLinkExpirationHours
-                });
-
-                var message = new EmailMessage
-                {
-                    To = email,
-                    Subject = $"Reset your password - {_config.AppName}",
-                    Body = body,
-                    IsHtml = true,
-                    Priority = EmailPriority.High
-                };
-
-                return await SendEmailAsync(message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending password reset email to {Email}", email);
-                return false;
-            }
-        }
-
-        public async Task&lt;bool&gt; SendEmailAsync(EmailMessage message)
-        {
-            try
-            {
-                // Validações
-                if (!IsValidEmail(message.To))
-                {
-                    _logger.LogWarning("Invalid email address: {Email}", message.To);
-                    return false;
-                }
-
-                // Configurar sender
-                message.From = _config.DefaultFromEmail;
-                message.FromName = _config.DefaultFromName;
-
-                // Enviar através do provider
-                var result = await _emailProvider.SendAsync(message);
-                
-                if (result.Success)
-                {
-                    _logger.LogInformation("Email sent successfully to {Email} with subject: {Subject}", 
-                        message.To, message.Subject);
-                }
-                else
-                {
-                    _logger.LogError("Failed to send email to {Email}: {Error}", 
-                        message.To, result.ErrorMessage);
-                }
-
-                return result.Success;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending email to {Email}", message.To);
-                return false;
-            }
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-    }
-}</code></pre>
-
-                <h3>ICacheService</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Interfaces
-{
-    public interface ICacheService
-    {
-        Task&lt;T&gt; GetAsync&lt;T&gt;(string key);
-        Task&lt;string&gt; GetStringAsync(string key);
-        Task SetAsync&lt;T&gt;(string key, T value, TimeSpan? expiration = null);
-        Task SetStringAsync(string key, string value, TimeSpan? expiration = null);
-        Task RemoveAsync(string key);
-        Task RemovePatternAsync(string pattern);
-        Task&lt;bool&gt; ExistsAsync(string key);
-        Task&lt;TimeSpan?&gt; GetExpirationAsync(string key);
-        Task RefreshAsync(string key);
-        Task&lt;Dictionary&lt;string, T&gt;&gt; GetManyAsync&lt;T&gt;(IEnumerable&lt;string&gt; keys);
-        Task SetManyAsync&lt;T&gt;(Dictionary&lt;string, T&gt; values, TimeSpan? expiration = null);
-    }
-
-    public class CacheService : ICacheService
-    {
-        private readonly IDistributedCache _distributedCache;
-        private readonly IConnectionMultiplexer _redis;
-        private readonly ILogger&lt;CacheService&gt; _logger;
-        private readonly CacheConfiguration _config;
-
-        public CacheService(
-            IDistributedCache distributedCache,
-            IConnectionMultiplexer redis,
-            ILogger&lt;CacheService&gt; logger,
-            IOptions&lt;CacheConfiguration&gt; config)
-        {
-            _distributedCache = distributedCache;
-            _redis = redis;
-            _logger = logger;
-            _config = config.Value;
-        }
-
-        public async Task&lt;T&gt; GetAsync&lt;T&gt;(string key)
-        {
-            try
-            {
-                var json = await _distributedCache.GetStringAsync(AddPrefix(key));
-                
-                if (string.IsNullOrEmpty(json))
-                    return default(T);
-
-                return JsonSerializer.Deserialize&lt;T&gt;(json);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting cached value for key: {Key}", key);
-                return default(T);
-            }
-        }
-
-        public async Task&lt;string&gt; GetStringAsync(string key)
-        {
-            try
-            {
-                return await _distributedCache.GetStringAsync(AddPrefix(key));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting cached string for key: {Key}", key);
-                return null;
-            }
-        }
-
-        public async Task SetAsync&lt;T&gt;(string key, T value, TimeSpan? expiration = null)
-        {
-            try
-            {
-                var json = JsonSerializer.Serialize(value);
-                var options = CreateCacheOptions(expiration);
-                
-                await _distributedCache.SetStringAsync(AddPrefix(key), json, options);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error setting cached value for key: {Key}", key);
-            }
-        }
-
-        public async Task SetStringAsync(string key, string value, TimeSpan? expiration = null)
-        {
-            try
-            {
-                var options = CreateCacheOptions(expiration);
-                await _distributedCache.SetStringAsync(AddPrefix(key), value, options);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error setting cached string for key: {Key}", key);
-            }
-        }
-
-        public async Task RemoveAsync(string key)
-        {
-            try
-            {
-                await _distributedCache.RemoveAsync(AddPrefix(key));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error removing cached value for key: {Key}", key);
-            }
-        }
-
-        public async Task RemovePatternAsync(string pattern)
-        {
-            try
-            {
-                var database = _redis.GetDatabase();
-                var server = _redis.GetServer(_redis.GetEndPoints().First());
-                
-                var keys = server.Keys(pattern: AddPrefix(pattern));
-                
-                var tasks = keys.Select(key =&gt; database.KeyDeleteAsync(key));
-                await Task.WhenAll(tasks);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error removing cached values for pattern: {Pattern}", pattern);
-            }
-        }
-
-        public async Task&lt;bool&gt; ExistsAsync(string key)
-        {
-            try
-            {
-                var value = await _distributedCache.GetStringAsync(AddPrefix(key));
-                return !string.IsNullOrEmpty(value);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error checking if key exists: {Key}", key);
-                return false;
-            }
-        }
-
-        private string AddPrefix(string key)
-        {
-            return $"{_config.KeyPrefix}:{key}";
-        }
-
-        private DistributedCacheEntryOptions CreateCacheOptions(TimeSpan? expiration)
-        {
-            var options = new DistributedCacheEntryOptions();
-            
-            if (expiration.HasValue)
-            {
-                options.AbsoluteExpirationRelativeToNow = expiration.Value;
-            }
-            else if (_config.DefaultExpiration.HasValue)
-            {
-                options.AbsoluteExpirationRelativeToNow = _config.DefaultExpiration.Value;
-            }
-
-            return options;
-        }
-    }
-}</code></pre>
-
-                <h2>Configuração dos Serviços</h2>
-
-                <h3>Dependency Injection Setup</h3>
-                <pre><code class="language-csharp">// ServiceCollectionExtensions.cs
-namespace GrydAuthenticationFramework.Extensions
-{
-    public static class ServiceCollectionExtensions
-    {
-        public static IServiceCollection AddGrydServices(
-            this IServiceCollection services, 
-            IConfiguration configuration)
-        {
-            // Application Services
-            services.AddScoped&lt;IAuthService, AuthService&gt;();
-            services.AddScoped&lt;IUserService, UserService&gt;();
-            services.AddScoped&lt;IRoleService, RoleService&gt;();
-            services.AddScoped&lt;IPermissionService, PermissionService&gt;();
-            services.AddScoped&lt;ISessionService, SessionService&gt;();
-
-            // Domain Services
-            services.AddSingleton&lt;IPasswordHashingService, PasswordHashingService&gt;();
-            services.AddSingleton&lt;IEncryptionService, EncryptionService&gt;();
-            services.AddScoped&lt;IValidationService, ValidationService&gt;();
-            services.AddScoped&lt;IAuditService, AuditService&gt;();
-
-            // Infrastructure Services
-            services.AddScoped&lt;IJwtService, JwtService&gt;();
-            services.AddScoped&lt;IEmailService, EmailService&gt;();
-            services.AddScoped&lt;ICacheService, CacheService&gt;();
-            services.AddScoped&lt;IFileStorageService, FileStorageService&gt;();
-            services.AddScoped&lt;ITemplateService, TemplateService&gt;();
-
-            // Integration Services
-            ConfigureIntegrationServices(services, configuration);
-
-            // Background Services
-            services.AddHostedService&lt;SessionCleanupService&gt;();
-            services.AddHostedService&lt;TokenCleanupService&gt;();
-            services.AddHostedService&lt;AuditLogCleanupService&gt;();
-
-            return services;
-        }
-
-        private static void ConfigureIntegrationServices(IServiceCollection services, IConfiguration configuration)
-        {
-            // Email Provider
-            var emailProvider = configuration.GetValue&lt;string&gt;("Email:Provider");
-            switch (emailProvider?.ToLower())
-            {
-                case "sendgrid":
-                    services.AddScoped&lt;IEmailProvider, SendGridEmailProvider&gt;();
-                    break;
-                case "smtp":
-                    services.AddScoped&lt;IEmailProvider, SmtpEmailProvider&gt;();
-                    break;
-                case "amazon-ses":
-                    services.AddScoped&lt;IEmailProvider, AmazonSesEmailProvider&gt;();
-                    break;
-                default:
-                    services.AddScoped&lt;IEmailProvider, ConsoleEmailProvider&gt;(); // Para desenvolvimento
-                    break;
-            }
-
-            // External Auth Providers
-            var auth0Enabled = configuration.GetValue&lt;bool&gt;("ExternalAuth:Auth0:Enabled");
-            if (auth0Enabled)
-            {
-                services.AddScoped&lt;IAuth0Service, Auth0Service&gt;();
-            }
-
-            var googleEnabled = configuration.GetValue&lt;bool&gt;("ExternalAuth:Google:Enabled");
-            if (googleEnabled)
-            {
-                services.AddScoped&lt;IGoogleAuthService, GoogleAuthService&gt;();
-            }
-
-            // File Storage
-            var storageProvider = configuration.GetValue&lt;string&gt;("FileStorage:Provider");
-            switch (storageProvider?.ToLower())
-            {
-                case "azure":
-                    services.AddScoped&lt;IFileStorageService, AzureBlobStorageService&gt;();
-                    break;
-                case "aws":
-                    services.AddScoped&lt;IFileStorageService, AwsS3StorageService&gt;();
-                    break;
-                case "local":
-                default:
-                    services.AddScoped&lt;IFileStorageService, LocalFileStorageService&gt;();
-                    break;
-            }
-        }
-    }
-}</code></pre>
-
-                <h2>Service Health Checks</h2>
-
-                <h3>Health Check Extensions</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
-{
-    public static class HealthCheckExtensions
-    {
-        public static IServiceCollection AddGrydHealthChecks(
-            this IServiceCollection services, 
-            IConfiguration configuration)
-        {
-            services.AddHealthChecks()
-                // Database
-                .AddDbContextCheck&lt;ApplicationDbContext&gt;("database")
-                
-                // Redis/Cache
-                .AddRedis(configuration.GetConnectionString("Redis"), "redis")
-                
-                // External Services
-                .AddUrlGroup(new Uri($"{configuration["Auth0:Domain"]}/api/v2/"), "auth0")
-                
-                // Email Service
-                .AddCheck&lt;EmailServiceHealthCheck&gt;("email")
-                
-                // File Storage
-                .AddCheck&lt;FileStorageHealthCheck&gt;("file-storage")
-                
-                // JWT Service
-                .AddCheck&lt;JwtServiceHealthCheck&gt;("jwt")
-                
-                // Custom Application Health
-                .AddCheck&lt;ApplicationHealthCheck&gt;("application");
-
-            return services;
-        }
-    }
-
-    public class EmailServiceHealthCheck : IHealthCheck
-    {
-        private readonly IEmailService _emailService;
-
-        public EmailServiceHealthCheck(IEmailService emailService)
-        {
-            _emailService = emailService;
-        }
-
-        public async Task&lt;HealthCheckResult&gt; CheckHealthAsync(
-            HealthCheckContext context, 
-            CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                // Testar conectividade básica (sem enviar email real)
-                // Implementar teste específico baseado no provider
-                return HealthCheckResult.Healthy("Email service is healthy");
-            }
-            catch (Exception ex)
-            {
-                return HealthCheckResult.Unhealthy("Email service is unhealthy", ex);
-            }
-        }
-    }
-
-    public class ApplicationHealthCheck : IHealthCheck
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ApplicationHealthCheck(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public async Task&lt;HealthCheckResult&gt; CheckHealthAsync(
-            HealthCheckContext context, 
-            CancellationToken cancellationToken = default)
-        {
-            var data = new Dictionary&lt;string, object&gt;();
-            
-            try
-            {
-                using var scope = _serviceProvider.CreateScope();
-                
-                // Verificar serviços críticos
-                var authService = scope.ServiceProvider.GetRequiredService&lt;IAuthService&gt;();
-                var userService = scope.ServiceProvider.GetRequiredService&lt;IUserService&gt;();
-                var jwtService = scope.ServiceProvider.GetRequiredService&lt;IJwtService&gt;();
-                
-                data["auth_service"] = "available";
-                data["user_service"] = "available";
-                data["jwt_service"] = "available";
-                data["timestamp"] = DateTime.UtcNow;
-                
-                return HealthCheckResult.Healthy("Application is healthy", data);
-            }
-            catch (Exception ex)
-            {
-                return HealthCheckResult.Unhealthy("Application is unhealthy", ex, data);
-            }
-        }
-    }
-}</code></pre>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
-                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                        <h3 class="font-semibold text-green-800 mb-2">📊 Usage Examples</h3>
-                        <p class="text-sm text-green-600 mb-3">Exemplos práticos de implementação completa</p>
-                        <a href="usage-examples.html" class="text-green-600 text-sm font-medium hover:underline">
-                            Ver Usage Examples →
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🎮 Controllers</h3>
+                        <p class="text-sm text-blue-600 mb-3">Documentação dos endpoints disponíveis</p>
+                        <a href="controllers.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Controllers →
                         </a>
                     </div>
                     
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <h3 class="font-semibold text-blue-800 mb-2">🎮 Controllers</h3>
-                        <p class="text-sm text-blue-600 mb-3">API Reference com exemplos detalhados</p>
-                        <a href="controllers.html" class="text-blue-600 text-sm font-medium hover:underline">
-                            Ver Controllers →
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🏠 Home</h3>
+                        <p class="text-sm text-purple-600 mb-3">Voltar à documentação principal</p>
+                        <a href="index.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Voltar ao Início →
                         </a>
                     </div>
                 </div>

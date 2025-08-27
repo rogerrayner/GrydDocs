@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controllers - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">🎮 API Reference - Controllers</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>API Reference Completa</h2>
+                <p>Documentação detalhada de todos os endpoints do GrydAuthentication Framework com exemplos de JSON requests/responses e URLs completas.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">📋 Base URL</h3>
+                    <p class="text-blue-700 mb-0">
+                        <strong>Desenvolvimento:</strong> <code>https://localhost:7001/api</code><br>
+                        <strong>Produção:</strong> <code>https://api.yourapp.com/api</code>
+                    </p>
+                </div>
+
+                <h2>🔐 AuthController</h2>
+                <p>Endpoints para autenticação, registro e gerenciamento de tokens.</p>
+
+                <h3>POST /api/auth/login</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Realizar login com email e senha</p>
+                    <p class="text-sm text-gray-600">Autentica usuário e retorna JWT tokens + informações de sessão</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "email": "john.doe@company.com",
+  "password": "SecurePass123!",
+  "rememberMe": true,
+  "deviceType": "Desktop",
+  "fingerprint": "browser-fingerprint-hash",
+  "userAgent": "Mozilla/5.0...",
+  "ipAddress": "192.168.1.100",
+  "location": "São Paulo, Brazil"
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gi...",
+  "expiresAt": "2024-03-15T14:30:00Z",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "email": "john.doe@company.com",
+    "username": "john.doe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "emailConfirmed": true,
+    "twoFactorEnabled": false,
+    "roles": ["Manager", "User"],
+    "permissions": ["users:read", "products:create"],
+    "tenantId": "company-123",
+    "profilePictureUrl": "https://cdn.app.com/avatars/john.jpg"
+  },
+  "session": {
+    "sessionId": "sess_abc123def456",
+    "deviceType": "Desktop",
+    "expiresAt": "2024-03-15T16:30:00Z"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 p-4 rounded-lg my-4">
+                    <h4 class="font-semibold text-red-800 mb-2">❌ Error Responses</h4>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-red-700">401 - Invalid Credentials</p>
+                            <pre class="text-xs"><code class="language-json">{
+  "error": "invalid_credentials",
+  "message": "Email or password is incorrect",
+  "timestamp": "2024-03-15T12:00:00Z"
+}</code></pre>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-red-700">423 - Account Locked</p>
+                            <pre class="text-xs"><code class="language-json">{
+  "error": "account_locked",
+  "message": "Account locked until 2024-03-15T12:15:00Z",
+  "unlockTime": "2024-03-15T12:15:00Z"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/register</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Registrar nova conta de usuário</p>
+                    <p class="text-sm text-gray-600">Cria novo usuário e opcionalmente faz login automático</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "email": "jane.smith@example.com",
+  "username": "jane.smith",
+  "password": "SecurePass123!",
+  "confirmPassword": "SecurePass123!",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "phoneNumber": "+5511999999999",
+  "acceptTerms": true,
+  "tenantId": "company-456",
+  "deviceType": "Mobile",
+  "fingerprint": "mobile-fingerprint-hash",
+  "userAgent": "Mozilla/5.0 (iPhone...)",
+  "ipAddress": "192.168.1.101"
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (201)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "requiresEmailConfirmation": true,
+  "message": "Registration successful. Please check your email.",
+  "user": {
+    "id": "456e7890-e89b-12d3-a456-426614174001",
+    "email": "jane.smith@example.com",
+    "username": "jane.smith",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "emailConfirmed": false,
+    "roles": ["User"]
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/verify-2fa</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Verificar código de autenticação de dois fatores</p>
+                    <p class="text-sm text-gray-600">Completa login quando 2FA está habilitado</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "twoFactorToken": "2fa_temp_token_abc123",
+  "code": "123456",
+  "deviceType": "Desktop",
+  "trustDevice": true
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gi...",
+  "expiresAt": "2024-03-15T14:30:00Z",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "email": "john.doe@company.com",
+    "twoFactorEnabled": true
+  },
+  "trustedDevice": true
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/refresh</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Renovar access token usando refresh token</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gi..."
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gi...",
+  "expiresAt": "2024-03-15T15:30:00Z"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/forgot-password</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Solicitar reset de senha</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "email": "john.doe@company.com"
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "message": "Password reset email sent if account exists"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/reset-password</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "token": "reset_token_abc123def456",
+  "newPassword": "NewSecurePass123!",
+  "confirmPassword": "NewSecurePass123!"
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "message": "Password reset successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/auth/logout</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gi...",
+  "logoutAllDevices": false
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "message": "Logged out successfully"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h2>👥 UsersController</h2>
+                <p>Endpoints para gerenciamento completo de usuários. <span class="text-red-600">Requer autenticação</span></p>
+
+                <h3>GET /api/users</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Listar usuários com paginação e filtros</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:read</code></p>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded mb-4">
+                    <p class="text-sm text-blue-700"><strong>URL:</strong> <code>GET /api/users?page=1&size=10&search=john&role=Manager&isActive=true</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Headers</h4>
+                        <pre><code class="language-json">{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "Content-Type": "application/json"
+}</code></pre>
+                        <h4 class="font-semibold text-gray-800 mb-2 mt-4">Query Parameters</h4>
+                        <pre><code class="language-json">{
+  "page": 1,
+  "size": 10,
+  "search": "john",
+  "role": "Manager",
+  "isActive": true,
+  "sortBy": "lastName",
+  "sortDirection": "asc"
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "items": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "email": "john.doe@company.com",
+      "username": "john.doe",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phoneNumber": "+5511999999999",
+      "emailConfirmed": true,
+      "twoFactorEnabled": false,
+      "isActive": true,
+      "lastLoginAt": "2024-03-15T10:30:00Z",
+      "createdAt": "2024-01-15T08:00:00Z",
+      "roles": ["Manager", "User"],
+      "tenantId": "company-123",
+      "profilePictureUrl": "https://cdn.app.com/avatars/john.jpg"
+    }
+  ],
+  "totalCount": 156,
+  "page": 1,
+  "size": 10,
+  "totalPages": 16,
+  "hasNextPage": true,
+  "hasPreviousPage": false
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>GET /api/users/{id}</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Obter usuário por ID</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:read</code> ou ser o próprio usuário</p>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded mb-4">
+                    <p class="text-sm text-blue-700"><strong>URL:</strong> <code>GET /api/users/123e4567-e89b-12d3-a456-426614174000</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Headers</h4>
+                        <pre><code class="language-json">{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "email": "john.doe@company.com",
+  "username": "john.doe",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phoneNumber": "+5511999999999",
+  "emailConfirmed": true,
+  "twoFactorEnabled": false,
+  "isActive": true,
+  "lastLoginAt": "2024-03-15T10:30:00Z",
+  "createdAt": "2024-01-15T08:00:00Z",
+  "updatedAt": "2024-03-15T09:20:00Z",
+  "roles": [
+    {
+      "id": "role-456",
+      "name": "Manager",
+      "description": "Team Manager"
+    }
+  ],
+  "permissions": [
+    "users:read",
+    "users:create",
+    "products:create",
+    "orders:read"
+  ],
+  "profile": {
+    "bio": "Experienced team manager",
+    "department": "Sales",
+    "location": "São Paulo, Brazil",
+    "timezone": "America/Sao_Paulo"
+  },
+  "statistics": {
+    "loginCount": 245,
+    "lastIpAddress": "192.168.1.100",
+    "accountAge": 59
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/users</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Criar novo usuário</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:create</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "email": "new.user@company.com",
+  "username": "new.user",
+  "firstName": "New",
+  "lastName": "User",
+  "phoneNumber": "+5511888888888",
+  "password": "TempPass123!",
+  "sendWelcomeEmail": true,
+  "forcePasswordChange": true,
+  "roles": ["User"],
+  "tenantId": "company-123",
+  "profile": {
+    "department": "Marketing",
+    "location": "Rio de Janeiro, Brazil",
+    "timezone": "America/Sao_Paulo"
+  }
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (201)</h4>
+                        <pre><code class="language-json">{
+  "id": "789e0123-e89b-12d3-a456-426614174002",
+  "email": "new.user@company.com",
+  "username": "new.user",
+  "firstName": "New",
+  "lastName": "User",
+  "emailConfirmed": false,
+  "isActive": true,
+  "mustChangePassword": true,
+  "createdAt": "2024-03-15T12:00:00Z",
+  "roles": ["User"],
+  "welcomeEmailSent": true
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>PUT /api/users/{id}</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Atualizar usuário existente</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:update</code> ou ser o próprio usuário</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "firstName": "John Updated",
+  "lastName": "Doe Updated",
+  "phoneNumber": "+5511777777777",
+  "profile": {
+    "bio": "Updated bio",
+    "department": "Sales & Marketing",
+    "location": "São Paulo, Brazil"
+  }
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "email": "john.doe@company.com",
+  "firstName": "John Updated",
+  "lastName": "Doe Updated",
+  "phoneNumber": "+5511777777777",
+  "updatedAt": "2024-03-15T12:30:00Z",
+  "profile": {
+    "bio": "Updated bio",
+    "department": "Sales & Marketing",
+    "location": "São Paulo, Brazil"
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>DELETE /api/users/{id}</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Desativar usuário (soft delete)</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:delete</code></p>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded mb-4">
+                    <p class="text-sm text-blue-700"><strong>URL:</strong> <code>DELETE /api/users/123e4567-e89b-12d3-a456-426614174000</code></p>
+                </div>
+
+                <h3>POST /api/users/{id}/roles</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Atribuir roles ao usuário</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>users:update</code> + <code>roles:assign</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "roleIds": [
+    "role-456-manager",
+    "role-789-supervisor"
+  ],
+  "replaceExisting": false
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "success": true,
+  "message": "Roles assigned successfully",
+  "user": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "roles": [
+      "User",
+      "Manager", 
+      "Supervisor"
+    ]
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <h2>⚙️ RolesController</h2>
+                <p>Endpoints para gerenciamento de roles e permissões. <span class="text-red-600">Requer autenticação</span></p>
+
+                <h3>GET /api/roles</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Listar todas as roles disponíveis</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>roles:read</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Headers</h4>
+                        <pre><code class="language-json">{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "items": [
+    {
+      "id": "role-super-admin",
+      "name": "SuperAdmin",
+      "displayName": "Super Administrator",
+      "description": "Full system access",
+      "isSystemRole": true,
+      "isActive": true,
+      "userCount": 2,
+      "permissions": [
+        {
+          "id": "perm-admin-system",
+          "name": "admin:system",
+          "displayName": "System Administration",
+          "category": "admin"
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "role-manager",
+      "name": "Manager",
+      "displayName": "Manager",
+      "description": "Team and project management",
+      "isSystemRole": false,
+      "isActive": true,
+      "userCount": 15,
+      "permissions": [
+        {
+          "id": "perm-users-read",
+          "name": "users:read",
+          "category": "management"
+        },
+        {
+          "id": "perm-products-create",
+          "name": "products:create",
+          "category": "business"
+        }
+      ]
+    }
+  ],
+  "totalCount": 5
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>POST /api/roles</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Criar nova role</p>
+                    <p class="text-sm text-gray-600">🔒 Requer permissão: <code>roles:create</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Request</h4>
+                        <pre><code class="language-json">{
+  "name": "TeamLead",
+  "displayName": "Team Lead", 
+  "description": "Team leadership role",
+  "permissionIds": [
+    "perm-users-read",
+    "perm-projects-manage",
+    "perm-reports-view"
+  ]
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (201)</h4>
+                        <pre><code class="language-json">{
+  "id": "role-team-lead",
+  "name": "TeamLead",
+  "displayName": "Team Lead",
+  "description": "Team leadership role",
+  "isSystemRole": false,
+  "isActive": true,
+  "permissions": [
+    {
+      "id": "perm-users-read",
+      "name": "users:read"
+    },
+    {
+      "id": "perm-projects-manage", 
+      "name": "projects:manage"
+    },
+    {
+      "id": "perm-reports-view",
+      "name": "reports:view"
+    }
+  ],
+  "createdAt": "2024-03-15T12:00:00Z"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>GET /api/roles/{id}/users</h3>
+                <div class="bg-gray-50 p-4 rounded-lg my-4">
+                    <p class="font-semibold text-gray-700">Listar usuários que possuem uma role específica</p>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded mb-4">
+                    <p class="text-sm text-blue-700"><strong>URL:</strong> <code>GET /api/roles/role-manager/users?page=1&size=20</code></p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📤 Headers</h4>
+                        <pre><code class="language-json">{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">📥 Response (200)</h4>
+                        <pre><code class="language-json">{
+  "role": {
+    "id": "role-manager",
+    "name": "Manager",
+    "displayName": "Manager"
+  },
+  "users": [
+    {
+      "id": "user-123",
+      "email": "manager1@company.com",
+      "firstName": "John",
+      "lastName": "Manager",
+      "isActive": true,
+      "assignedAt": "2024-02-15T10:00:00Z"
+    },
+    {
+      "id": "user-456", 
+      "email": "manager2@company.com",
+      "firstName": "Jane",
+      "lastName": "Lead",
+      "isActive": true,
+      "assignedAt": "2024-03-01T14:30:00Z"
+    }
+  ],
+  "totalCount": 15,
+  "page": 1,
+  "size": 20
+}</code></pre>
+                    </div>
+                </div>
+
+                <h2>🔧 Códigos de Status HTTP</h2>
+                <div class="overflow-x-auto my-6">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exemplo de Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-green-600">200</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">OK - Sucesso</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">GET, PUT operações bem-sucedidas</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-green-600">201</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Created - Recurso criado</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">POST criar usuário, role</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-green-600">204</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">No Content - Sucesso sem retorno</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">DELETE operações</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">400</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Bad Request - Dados inválidos</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Validação falhou</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">401</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Unauthorized - Não autenticado</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Token ausente/inválido</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">403</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Forbidden - Sem permissão</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Falta permissão/role necessária</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">404</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Not Found - Recurso não encontrado</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Usuário/role não existe</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">409</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Conflict - Conflito de dados</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Email já existe</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">423</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Locked - Conta bloqueada</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Muitas tentativas de login</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">429</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Too Many Requests - Rate limit</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Limite de requisições excedido</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-red-600">500</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Internal Server Error</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">Erro interno do servidor</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>🧪 Exemplos de Teste com cURL</h2>
+
+                <h3>Login</h3>
+                <pre><code class="language-bash">curl -X POST "https://api.yourapp.com/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@company.com",
+    "password": "SecurePass123!",
+    "deviceType": "Desktop"
+  }'</code></pre>
+
+                <h3>Listar Usuários (com token)</h3>
+                <pre><code class="language-bash">curl -X GET "https://api.yourapp.com/api/users?page=1&size=10" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json"</code></pre>
+
+                <h3>Criar Usuário</h3>
+                <pre><code class="language-bash">curl -X POST "https://api.yourapp.com/api/users" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "new.user@company.com",
+    "firstName": "New",
+    "lastName": "User",
+    "password": "TempPass123!",
+    "roles": ["User"]
+  }'</code></pre>
+
+                <div class="bg-green-50 p-6 rounded-lg border border-green-200 my-8">
+                    <h3 class="font-semibold text-green-800 mb-4">✅ API Reference Completa</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-green-700">
+                        <div>
+                            <h4 class="font-semibold mb-2">🔐 AuthController:</h4>
+                            <ul class="space-y-1">
+                                <li>• Login/Register</li>
+                                <li>• 2FA Verification</li>
+                                <li>• Token Refresh</li>
+                                <li>• Password Reset</li>
+                                <li>• Logout</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">👥 UsersController:</h4>
+                            <ul class="space-y-1">
+                                <li>• CRUD Usuários</li>
+                                <li>• Paginação/Filtros</li>
+                                <li>• Gerenciar Roles</li>
+                                <li>• Profile Management</li>
+                                <li>• User Statistics</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">⚙️ RolesController:</h4>
+                            <ul class="space-y-1">
+                                <li>• CRUD Roles</li>
+                                <li>• Permissions Management</li>
+                                <li>• Role Users</li>
+                                <li>• System Roles</li>
+                                <li>• Role Statistics</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">📊 Usage Examples</h3>
+                        <p class="text-sm text-blue-600 mb-3">Implementação completa com exemplos práticos</p>
+                        <a href="usage-examples.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Usage Examples →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🏠 Home</h3>
+                        <p class="text-sm text-purple-600 mb-3">Voltar à documentação principal</p>
+                        <a href="index.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Voltar ao Início →
+                        </a>
+                    </div>
+                </div>
+    }
+}</code></pre>
+
+                <h3>Endpoints</h3>
+
+                <h4>POST /api/auth/login</h4>
+                <p><strong>Descrição:</strong> Autentica usuário com email e senha.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Authenticate user with email and password
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Login credentials&lt;/param&gt;
+/// &lt;returns&gt;Authentication result with JWT token and user information&lt;/returns&gt;
+[HttpPost("login")]
+public async Task&lt;ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;&gt; Login([FromBody] LoginCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/social-login</h4>
+                <p><strong>Descrição:</strong> Autentica usuário através de provedores sociais.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Authenticate user with social provider
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Social login credentials&lt;/param&gt;
+/// &lt;returns&gt;Authentication result with JWT token and user information&lt;/returns&gt;
+[HttpPost("social-login")]
+public async Task&lt;ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;&gt; SocialLogin([FromBody] SocialLoginCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/refresh-token</h4>
+                <p><strong>Descrição:</strong> Renova o token JWT.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Refresh JWT token
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Refresh token request&lt;/param&gt;
+/// &lt;returns&gt;New JWT token&lt;/returns&gt;
+[HttpPost("refresh-token")]
+public async Task&lt;ActionResult&lt;Result&lt;string&gt;&gt;&gt; RefreshToken([FromBody] RefreshTokenCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/logout</h4>
+                <p><strong>Descrição:</strong> Realiza logout e revoga tokens.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Logout user and revoke tokens
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Logout request&lt;/param&gt;
+/// &lt;returns&gt;Logout result&lt;/returns&gt;
+[HttpPost("logout")]
+[Authorize]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; Logout([FromBody] LogoutCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>GET /api/auth/me</h4>
+                <p><strong>Descrição:</strong> Retorna informações do usuário atual.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Get current authenticated user information
+/// &lt;/summary&gt;
+/// &lt;returns&gt;Current user information&lt;/returns&gt;
+[HttpGet("me")]
+[Authorize]
+public async Task&lt;ActionResult&lt;Result&lt;CurrentUserDto&gt;&gt;&gt; GetCurrentUser()
+{
+    var query = new GetCurrentUserQuery();
+    var result = await _mediator.Send(query);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/auth/validate-token</h4>
+                <p><strong>Descrição:</strong> Valida um token JWT.</p>
+                <pre><code class="language-csharp">/// &lt;summary&gt;
+/// Validate JWT token
+/// &lt;/summary&gt;
+/// &lt;param name="command"&gt;Token validation request&lt;/param&gt;
+/// &lt;returns&gt;Token validation result&lt;/returns&gt;
+[HttpPost("validate-token")]
+public async Task&lt;ActionResult&lt;Result&lt;bool&gt;&gt;&gt; ValidateToken([FromBody] ValidateTokenCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>2. UsersController</h2>
+                <p>Controller para gerenciamento completo de usuários no sistema.</p>
+
+                <h3>Configuração</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class UsersController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public UsersController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+}</code></pre>
+
+                <h3>Endpoints Principais</h3>
+
+                <h4>GET /api/users</h4>
+                <p><strong>Descrição:</strong> Lista usuários com paginação e filtros.</p>
+                <pre><code class="language-csharp">[HttpGet]
+[RequirePermission("users:read")]
+public async Task&lt;ActionResult&lt;Result&lt;PagedResult&lt;UserDto&gt;&gt;&gt;&gt; GetUsers([FromQuery] GetUsersQuery query)
+{
+    var result = await _mediator.Send(query);
+    return Ok(result);
+}</code></pre>
+
+                <h4>GET /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Busca usuário por ID.</p>
+                <pre><code class="language-csharp">[HttpGet("{id:guid}")]
+[RequirePermission("users:read")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; GetUser(Guid id)
+{
+    var query = new GetUserByIdQuery(id);
+    var result = await _mediator.Send(query);
+    
+    if (!result.IsSuccess)
+    {
+        return NotFound(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/users</h4>
+                <p><strong>Descrição:</strong> Cria novo usuário.</p>
+                <pre><code class="language-csharp">[HttpPost]
+[RequirePermission("users:create")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; CreateUser([FromBody] CreateUserCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return CreatedAtAction(nameof(GetUser), new { id = result.Data.Id }, result);
+}</code></pre>
+
+                <h4>PUT /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Atualiza usuário existente.</p>
+                <pre><code class="language-csharp">[HttpPut("{id:guid}")]
+[RequirePermission("users:update")]
+public async Task&lt;ActionResult&lt;Result&lt;UserDto&gt;&gt;&gt; UpdateUser(Guid id, [FromBody] UpdateUserCommand command)
+{
+    if (id != command.Id)
+    {
+        return BadRequest("ID mismatch");
+    }
+
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h4>DELETE /api/users/{id}</h4>
+                <p><strong>Descrição:</strong> Remove usuário do sistema.</p>
+                <pre><code class="language-csharp">[HttpDelete("{id:guid}")]
+[RequirePermission("users:delete")]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; DeleteUser(Guid id)
+{
+    var command = new DeleteUserCommand(id);
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>3. RolesController</h2>
+                <p>Controller para gerenciamento de roles e permissões.</p>
+
+                <h3>Configuração</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class RolesController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public RolesController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+}</code></pre>
+
+                <h3>Endpoints Principais</h3>
+
+                <h4>GET /api/roles</h4>
+                <p><strong>Descrição:</strong> Lista todas as roles disponíveis.</p>
+                <pre><code class="language-csharp">[HttpGet]
+[RequirePermission("roles:read")]
+public async Task&lt;ActionResult&lt;Result&lt;List&lt;RoleDto&gt;&gt;&gt;&gt; GetRoles()
+{
+    var query = new GetRolesQuery();
+    var result = await _mediator.Send(query);
+    return Ok(result);
+}</code></pre>
+
+                <h4>POST /api/roles</h4>
+                <p><strong>Descrição:</strong> Cria nova role.</p>
+                <pre><code class="language-csharp">[HttpPost]
+[RequirePermission("roles:create")]
+public async Task&lt;ActionResult&lt;Result&lt;RoleDto&gt;&gt;&gt; CreateRole([FromBody] CreateRoleCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return CreatedAtAction(nameof(GetRole), new { id = result.Data.Id }, result);
+}</code></pre>
+
+                <h4>POST /api/roles/{roleId}/permissions</h4>
+                <p><strong>Descrição:</strong> Adiciona permissão a uma role.</p>
+                <pre><code class="language-csharp">[HttpPost("{roleId:guid}/permissions")]
+[RequirePermission("roles:update")]
+public async Task&lt;ActionResult&lt;Result&gt;&gt; AddPermissionToRole(Guid roleId, [FromBody] AddPermissionToRoleCommand command)
+{
+    if (roleId != command.RoleId)
+    {
+        return BadRequest("Role ID mismatch");
+    }
+
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</code></pre>
+
+                <h2>Atributos de Autorização</h2>
+                
+                <h3>RequirePermissionAttribute</h3>
+                <p>Atributo customizado para controle granular de permissões:</p>
+                <pre><code class="language-csharp">public class RequirePermissionAttribute : Attribute, IAuthorizationFilter
+{
+    private readonly string _permission;
+
+    public RequirePermissionAttribute(string permission)
+    {
+        _permission = permission;
+    }
+
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        var user = context.HttpContext.User;
+        
+        if (!user.Identity.IsAuthenticated)
+        {
+            context.Result = new UnauthorizedResult();
+            return;
+        }
+
+        if (!user.HasClaim("permissions", _permission))
+        {
+            context.Result = new ForbidResult();
+            return;
+        }
+    }
+}</code></pre>
+
+                <h2>Modelos de Request/Response</h2>
+
+                <h3>LoginCommand</h3>
+                <pre><code class="language-csharp">public class LoginCommand : IRequest&lt;Result&lt;AuthenticationResult&gt;&gt;
+{
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool RememberMe { get; set; } = false;
+}</code></pre>
+
+                <h3>AuthenticationResult</h3>
+                <pre><code class="language-csharp">public class AuthenticationResult
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public UserDto User { get; set; }
+}</code></pre>
+
+                <h3>UserDto</h3>
+                <pre><code class="language-csharp">public class UserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public List&lt;string&gt; Roles { get; set; } = new();
+    public List&lt;string&gt; Permissions { get; set; } = new();
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

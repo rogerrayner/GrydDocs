@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middleware - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">⚡ Middleware Pipeline</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Sistema de Middleware do GrydAuthentication</h2>
+                <p>O framework oferece uma suite completa de middlewares para autenticação, autorização, auditoria e segurança, organizados em um pipeline eficiente e configurável.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🔧 Middlewares Inclusos</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li><strong>Authentication:</strong> JWT, Session, API Key validation</li>
+                        <li><strong>Authorization:</strong> Role-based, Permission-based access control</li>
+                        <li><strong>Security:</strong> Rate limiting, IP filtering, Request validation</li>
+                        <li><strong>Audit:</strong> Request logging, User activity tracking</li>
+                        <li><strong>Error Handling:</strong> Global exception handling e response formatting</li>
+                    </ul>
+                </div>
+
+                <h2>Pipeline de Middleware</h2>
+
+                <div class="bg-gray-50 p-4 rounded-lg my-6">
+                    <pre class="text-sm"><code>┌─────────────────────────────────────────────────────────────────┐
+│                        Request Pipeline                         │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Global Exception Handler                                   │
+│  2. Security Headers                                            │
+│  3. Rate Limiting                                               │
+│  4. IP Filtering                                                │
+│  5. Request Validation                                          │
+│  6. Authentication (JWT/Session/ApiKey)                         │
+│  7. User Context                                                │
+│  8. Session Management                                          │
+│  9. Authorization (Roles/Permissions)                           │
+│ 10. Audit Logging                                               │
+│ 11. Response Formatting                                         │
+│ 12. [Your Application Logic]                                    │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+                </div>
+
+                <h2>Configuração do Pipeline</h2>
+
+                <h3>Program.cs - Setup Completo</h3>
+                <pre><code class="language-csharp">var builder = WebApplication.CreateBuilder(args);
+
+// Configurar serviços do GrydAuth
+builder.Services.AddGrydAuthentication(builder.Configuration);
+
+var app = builder.Build();
+
+// Pipeline de middlewares em ordem específica
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseGrydExceptionHandler(); // 1. Exception handling global
+}
+
+app.UseGrydSecurityHeaders();      // 2. Security headers
+app.UseGrydRateLimit();           // 3. Rate limiting
+app.UseGrydIpFilter();            // 4. IP filtering
+app.UseGrydRequestValidation();   // 5. Request validation
+
+// Middlewares ASP.NET Core padrão
+app.UseRouting();
+app.UseCors();
+
+// Middlewares de autenticação/autorização
+app.UseGrydAuthentication();      // 6. Authentication
+app.UseGrydUserContext();         // 7. User context
+app.UseGrydSessionManagement();   // 8. Session management
+app.UseGrydAuthorization();       // 9. Authorization
+
+// Middlewares de auditoria e response
+app.UseGrydAuditLogging();        // 10. Audit logging
+app.UseGrydResponseFormatting();  // 11. Response formatting
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                <h2>Middleware de Autenticação</h2>
+
+                <h3>GrydAuthenticationMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class GrydAuthenticationMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger&lt;GrydAuthenticationMiddleware&gt; _logger;
+        private readonly AuthenticationConfiguration _config;
+
+        public GrydAuthenticationMiddleware(
+            RequestDelegate next,
+            IServiceProvider serviceProvider,
+            ILogger&lt;GrydAuthenticationMiddleware&gt; logger,
+            IOptions&lt;AuthenticationConfiguration&gt; config)
+        {
+            _next = next;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _config = config.Value;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            if (ShouldSkipAuthentication(context))
+            {
+                await _next(context);
+                return;
+            }
+
+            using var scope = _serviceProvider.CreateScope();
+            
+            // Tentar autenticação via JWT
+            var jwtResult = await TryJwtAuthentication(context, scope);
+            if (jwtResult.IsAuthenticated)
+            {
+                context.User = jwtResult.Principal;
+                await _next(context);
+                return;
+            }
+
+            // Tentar autenticação via Session
+            var sessionResult = await TrySessionAuthentication(context, scope);
+            if (sessionResult.IsAuthenticated)
+            {
+                context.User = sessionResult.Principal;
+                await _next(context);
+                return;
+            }
+
+            // Tentar autenticação via API Key
+            var apiKeyResult = await TryApiKeyAuthentication(context, scope);
+            if (apiKeyResult.IsAuthenticated)
+            {
+                context.User = apiKeyResult.Principal;
+                await _next(context);
+                return;
+            }
+
+            // Nenhuma autenticação válida encontrada
+            if (RequiresAuthentication(context))
+            {
+                await HandleUnauthenticated(context);
+                return;
+            }
+
+            await _next(context);
+        }
+
+        private bool ShouldSkipAuthentication(HttpContext context)
+        {
+            var path = context.Request.Path.Value?.ToLower();
+            
+            var skipPaths = new[]
+            {
+                "/api/auth/login",
+                "/api/auth/register",
+                "/api/auth/refresh",
+                "/health",
+                "/swagger",
+                "/api/public"
+            };
+
+            return skipPaths.Any(sp =&gt; path?.StartsWith(sp) == true) ||
+                   context.Request.Method == "OPTIONS";
+        }
+
+        private bool RequiresAuthentication(HttpContext context)
+        {
+            var endpoint = context.GetEndpoint();
+            return endpoint?.Metadata.GetMetadata&lt;AuthorizeAttribute&gt;() != null ||
+                   endpoint?.Metadata.GetMetadata&lt;IAuthorizeData&gt;() != null;
+        }
+
+        private async Task&lt;AuthenticationResult&gt; TryJwtAuthentication(HttpContext context, IServiceScope scope)
+        {
+            var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return AuthenticationResult.Failed();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var jwtService = scope.ServiceProvider.GetRequiredService&lt;IJwtService&gt;();
+            
+            try
+            {
+                var principal = await jwtService.ValidateTokenAsync(token);
+                if (principal != null)
+                {
+                    context.Items["AuthMethod"] = "JWT";
+                    context.Items["AccessToken"] = token;
+                    
+                    _logger.LogDebug("JWT authentication successful for user {UserId}", 
+                        principal.GetUserId());
+                    
+                    return AuthenticationResult.Success(principal);
+                }
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                context.Response.Headers.Add("X-Token-Status", "Expired");
+            }
+            catch (SecurityTokenValidationException ex)
+            {
+                _logger.LogWarning("JWT validation failed: {Message}", ex.Message);
+            }
+
+            return AuthenticationResult.Failed();
+        }
+
+        private async Task&lt;AuthenticationResult&gt; TrySessionAuthentication(HttpContext context, IServiceScope scope)
+        {
+            var sessionId = ExtractSessionId(context);
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return AuthenticationResult.Failed();
+            }
+
+            var sessionService = scope.ServiceProvider.GetRequiredService&lt;ISessionService&gt;();
+            var userService = scope.ServiceProvider.GetRequiredService&lt;IUserService&gt;();
+
+            try
+            {
+                var session = await sessionService.GetSessionAsync(sessionId);
+                if (session?.IsActive == true &amp;&amp; !session.IsExpired)
+                {
+                    var user = await userService.GetByIdAsync(session.UserId);
+                    if (user?.IsActive == true)
+                    {
+                        var principal = await CreateUserPrincipal(user, scope);
+                        context.Items["AuthMethod"] = "Session";
+                        context.Items["SessionId"] = sessionId;
+                        context.Items["UserSession"] = session;
+                        
+                        _logger.LogDebug("Session authentication successful for user {UserId}", user.Id);
+                        
+                        return AuthenticationResult.Success(principal);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Session authentication error for session {SessionId}", sessionId);
+            }
+
+            return AuthenticationResult.Failed();
+        }
+
+        private async Task&lt;AuthenticationResult&gt; TryApiKeyAuthentication(HttpContext context, IServiceScope scope)
+        {
+            var apiKey = ExtractApiKey(context);
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                return AuthenticationResult.Failed();
+            }
+
+            var apiKeyService = scope.ServiceProvider.GetRequiredService&lt;IApiKeyService&gt;();
+
+            try
+            {
+                var keyInfo = await apiKeyService.ValidateKeyAsync(apiKey);
+                if (keyInfo?.IsActive == true &amp;&amp; !keyInfo.IsExpired)
+                {
+                    var principal = await CreateApiKeyPrincipal(keyInfo, scope);
+                    context.Items["AuthMethod"] = "ApiKey";
+                    context.Items["ApiKeyId"] = keyInfo.Id;
+                    
+                    _logger.LogDebug("API Key authentication successful for key {KeyId}", keyInfo.Id);
+                    
+                    return AuthenticationResult.Success(principal);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "API Key authentication error");
+            }
+
+            return AuthenticationResult.Failed();
+        }
+
+        private string ExtractSessionId(HttpContext context)
+        {
+            // Cookie
+            if (context.Request.Cookies.TryGetValue(_config.Session.CookieName, out var sessionId))
+            {
+                return sessionId;
+            }
+
+            // Header
+            var sessionHeader = context.Request.Headers["X-Session-ID"].FirstOrDefault();
+            return sessionHeader;
+        }
+
+        private string ExtractApiKey(HttpContext context)
+        {
+            // Header X-API-Key
+            var apiKeyHeader = context.Request.Headers["X-API-Key"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(apiKeyHeader))
+            {
+                return apiKeyHeader;
+            }
+
+            // Query parameter
+            return context.Request.Query["apikey"].FirstOrDefault();
+        }
+
+        private async Task&lt;ClaimsPrincipal&gt; CreateUserPrincipal(User user, IServiceScope scope)
+        {
+            var userService = scope.ServiceProvider.GetRequiredService&lt;IUserService&gt;();
+            var claims = new List&lt;Claim&gt;
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Name, user.Username),
+                new(ClaimTypes.Email, user.Email),
+                new("user_id", user.Id.ToString()),
+                new("tenant_id", user.TenantId?.ToString() ?? ""),
+                new("email_verified", user.EmailConfirmed.ToString().ToLower())
+            };
+
+            // Adicionar roles
+            var userRoles = await userService.GetUserRolesAsync(user.Id);
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+                claims.Add(new Claim("roles", role.Name));
+            }
+
+            // Adicionar permissões
+            var permissions = await userService.GetUserPermissionsAsync(user.Id);
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permissions", permission));
+            }
+
+            var identity = new ClaimsIdentity(claims, "GrydAuth");
+            return new ClaimsPrincipal(identity);
+        }
+
+        private async Task&lt;ClaimsPrincipal&gt; CreateApiKeyPrincipal(ApiKey apiKey, IServiceScope scope)
+        {
+            var claims = new List&lt;Claim&gt;
+            {
+                new("api_key_id", apiKey.Id.ToString()),
+                new("api_key_name", apiKey.Name),
+                new("auth_type", "ApiKey")
+            };
+
+            // Se a API Key está associada a um usuário
+            if (apiKey.UserId.HasValue)
+            {
+                var userService = scope.ServiceProvider.GetRequiredService&lt;IUserService&gt;();
+                var user = await userService.GetByIdAsync(apiKey.UserId.Value);
+                if (user != null)
+                {
+                    claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    claims.Add(new Claim("user_id", user.Id.ToString()));
+                }
+            }
+
+            // Adicionar scopes da API Key como permissions
+            foreach (var scope in apiKey.Scopes)
+            {
+                claims.Add(new Claim("permissions", scope));
+            }
+
+            var identity = new ClaimsIdentity(claims, "GrydAuthApiKey");
+            return new ClaimsPrincipal(identity);
+        }
+
+        private async Task HandleUnauthenticated(HttpContext context)
+        {
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                error = "unauthorized",
+                message = "Authentication required",
+                timestamp = DateTimeOffset.UtcNow,
+                path = context.Request.Path.Value
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+    }
+
+    public class AuthenticationResult
+    {
+        public bool IsAuthenticated { get; }
+        public ClaimsPrincipal Principal { get; }
+        public string ErrorMessage { get; }
+
+        private AuthenticationResult(bool isAuthenticated, ClaimsPrincipal principal, string errorMessage = null)
+        {
+            IsAuthenticated = isAuthenticated;
+            Principal = principal;
+            ErrorMessage = errorMessage;
+        }
+
+        public static AuthenticationResult Success(ClaimsPrincipal principal) 
+            =&gt; new(true, principal);
+
+        public static AuthenticationResult Failed(string errorMessage = null) 
+            =&gt; new(false, null, errorMessage);
+    }
+}</code></pre>
+
+                <h2>Middleware de Rate Limiting</h2>
+
+                <h3>GrydRateLimitMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class GrydRateLimitMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly IDistributedCache _cache;
+        private readonly ILogger&lt;GrydRateLimitMiddleware&gt; _logger;
+        private readonly RateLimitConfiguration _config;
+
+        public GrydRateLimitMiddleware(
+            RequestDelegate next,
+            IDistributedCache cache,
+            ILogger&lt;GrydRateLimitMiddleware&gt; logger,
+            IOptions&lt;RateLimitConfiguration&gt; config)
+        {
+            _next = next;
+            _cache = cache;
+            _logger = logger;
+            _config = config.Value;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            if (!_config.Enabled || ShouldSkipRateLimit(context))
+            {
+                await _next(context);
+                return;
+            }
+
+            var clientId = GetClientIdentifier(context);
+            var endpoint = GetEndpointIdentifier(context);
+            
+            // Verificar limite global por cliente
+            var globalLimitExceeded = await CheckGlobalRateLimit(clientId);
+            if (globalLimitExceeded.IsExceeded)
+            {
+                await HandleRateLimitExceeded(context, globalLimitExceeded);
+                return;
+            }
+
+            // Verificar limite específico por endpoint
+            var endpointLimitExceeded = await CheckEndpointRateLimit(clientId, endpoint);
+            if (endpointLimitExceeded.IsExceeded)
+            {
+                await HandleRateLimitExceeded(context, endpointLimitExceeded);
+                return;
+            }
+
+            // Adicionar headers de rate limit
+            AddRateLimitHeaders(context, globalLimitExceeded, endpointLimitExceeded);
+
+            await _next(context);
+        }
+
+        private bool ShouldSkipRateLimit(HttpContext context)
+        {
+            var path = context.Request.Path.Value?.ToLower();
+            
+            return _config.ExcludedPaths?.Any(ep =&gt; path?.StartsWith(ep.ToLower()) == true) == true ||
+                   context.Request.Method == "OPTIONS";
+        }
+
+        private string GetClientIdentifier(HttpContext context)
+        {
+            // Prioridade: UserId &gt; API Key &gt; IP Address
+            var userId = context.User?.GetUserId();
+            if (userId != Guid.Empty)
+            {
+                return $"user:{userId}";
+            }
+
+            var apiKeyId = context.Items["ApiKeyId"]?.ToString();
+            if (!string.IsNullOrEmpty(apiKeyId))
+            {
+                return $"apikey:{apiKeyId}";
+            }
+
+            var ipAddress = GetClientIpAddress(context);
+            return $"ip:{ipAddress}";
+        }
+
+        private string GetEndpointIdentifier(HttpContext context)
+        {
+            var endpoint = context.GetEndpoint();
+            var actionDescriptor = endpoint?.Metadata.GetMetadata&lt;ControllerActionDescriptor&gt;();
+            
+            if (actionDescriptor != null)
+            {
+                return $"{actionDescriptor.ControllerName}.{actionDescriptor.ActionName}";
+            }
+
+            return context.Request.Path.Value ?? "unknown";
+        }
+
+        private async Task&lt;RateLimitResult&gt; CheckGlobalRateLimit(string clientId)
+        {
+            var key = $"rate_limit:global:{clientId}";
+            var window = TimeSpan.FromMinutes(_config.GlobalLimitWindowMinutes);
+            
+            return await CheckRateLimit(key, _config.GlobalRequestsPerWindow, window);
+        }
+
+        private async Task&lt;RateLimitResult&gt; CheckEndpointRateLimit(string clientId, string endpoint)
+        {
+            // Buscar configuração específica do endpoint
+            var endpointConfig = _config.EndpointLimits?.FirstOrDefault(el =&gt; 
+                endpoint.StartsWith(el.Pattern, StringComparison.OrdinalIgnoreCase));
+
+            if (endpointConfig == null)
+            {
+                endpointConfig = new EndpointLimitConfiguration
+                {
+                    RequestsPerWindow = _config.DefaultEndpointRequestsPerWindow,
+                    WindowMinutes = _config.DefaultEndpointWindowMinutes
+                };
+            }
+
+            var key = $"rate_limit:endpoint:{endpoint}:{clientId}";
+            var window = TimeSpan.FromMinutes(endpointConfig.WindowMinutes);
+            
+            return await CheckRateLimit(key, endpointConfig.RequestsPerWindow, window);
+        }
+
+        private async Task&lt;RateLimitResult&gt; CheckRateLimit(string key, int maxRequests, TimeSpan window)
+        {
+            var currentCountStr = await _cache.GetStringAsync(key);
+            var currentCount = string.IsNullOrEmpty(currentCountStr) ? 0 : int.Parse(currentCountStr);
+
+            if (currentCount >= maxRequests)
+            {
+                var ttl = await GetCacheKeyTtl(key);
+                return new RateLimitResult
+                {
+                    IsExceeded = true,
+                    CurrentCount = currentCount,
+                    MaxRequests = maxRequests,
+                    ResetTime = DateTime.UtcNow.Add(ttl)
+                };
+            }
+
+            // Incrementar contador
+            var newCount = currentCount + 1;
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = window
+            };
+
+            await _cache.SetStringAsync(key, newCount.ToString(), cacheOptions);
+
+            return new RateLimitResult
+            {
+                IsExceeded = false,
+                CurrentCount = newCount,
+                MaxRequests = maxRequests,
+                ResetTime = DateTime.UtcNow.Add(window)
+            };
+        }
+
+        private async Task&lt;TimeSpan&gt; GetCacheKeyTtl(string key)
+        {
+            // Implementação específica do Redis para obter TTL
+            // Fallback para janela padrão
+            return TimeSpan.FromMinutes(_config.GlobalLimitWindowMinutes);
+        }
+
+        private void AddRateLimitHeaders(HttpContext context, RateLimitResult global, RateLimitResult endpoint)
+        {
+            var mostRestrictive = global.CurrentCount / (double)global.MaxRequests &gt; 
+                                 endpoint.CurrentCount / (double)endpoint.MaxRequests ? global : endpoint;
+
+            context.Response.Headers.Add("X-RateLimit-Limit", mostRestrictive.MaxRequests.ToString());
+            context.Response.Headers.Add("X-RateLimit-Remaining", (mostRestrictive.MaxRequests - mostRestrictive.CurrentCount).ToString());
+            context.Response.Headers.Add("X-RateLimit-Reset", mostRestrictive.ResetTime.ToUnixTimeSeconds().ToString());
+        }
+
+        private async Task HandleRateLimitExceeded(HttpContext context, RateLimitResult result)
+        {
+            context.Response.StatusCode = 429;
+            context.Response.ContentType = "application/json";
+            
+            context.Response.Headers.Add("X-RateLimit-Limit", result.MaxRequests.ToString());
+            context.Response.Headers.Add("X-RateLimit-Remaining", "0");
+            context.Response.Headers.Add("X-RateLimit-Reset", result.ResetTime.ToUnixTimeSeconds().ToString());
+            context.Response.Headers.Add("Retry-After", ((int)(result.ResetTime - DateTime.UtcNow).TotalSeconds).ToString());
+
+            var response = new
+            {
+                error = "rate_limit_exceeded",
+                message = "Too many requests",
+                retryAfter = (int)(result.ResetTime - DateTime.UtcNow).TotalSeconds,
+                timestamp = DateTimeOffset.UtcNow
+            };
+
+            _logger.LogWarning("Rate limit exceeded for client {ClientId}. Current: {Current}, Max: {Max}", 
+                GetClientIdentifier(context), result.CurrentCount, result.MaxRequests);
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+
+        private string GetClientIpAddress(HttpContext context)
+        {
+            var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(forwardedFor))
+            {
+                return forwardedFor.Split(',')[0].Trim();
+            }
+
+            return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        }
+    }
+
+    public class RateLimitResult
+    {
+        public bool IsExceeded { get; set; }
+        public int CurrentCount { get; set; }
+        public int MaxRequests { get; set; }
+        public DateTime ResetTime { get; set; }
+    }
+}</code></pre>
+
+                <h2>Middleware de Auditoria</h2>
+
+                <h3>GrydAuditLoggingMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class GrydAuditLoggingMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger&lt;GrydAuditLoggingMiddleware&gt; _logger;
+        private readonly AuditConfiguration _config;
+
+        public GrydAuditLoggingMiddleware(
+            RequestDelegate next,
+            IServiceProvider serviceProvider,
+            ILogger&lt;GrydAuditLoggingMiddleware&gt; logger,
+            IOptions&lt;AuditConfiguration&gt; config)
+        {
+            _next = next;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _config = config.Value;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            if (!_config.Enabled || ShouldSkipAudit(context))
+            {
+                await _next(context);
+                return;
+            }
+
+            var auditLog = CreateAuditLog(context);
+            var stopwatch = Stopwatch.StartNew();
+
+            // Capturar request body se necessário
+            if (_config.LogRequestBody &amp;&amp; ShouldLogRequestBody(context))
+            {
+                auditLog.RequestBody = await ReadRequestBodyAsync(context);
+            }
+
+            Exception exception = null;
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                throw;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                await CompleteAuditLog(auditLog, context, stopwatch.ElapsedMilliseconds, exception);
+            }
+        }
+
+        private bool ShouldSkipAudit(HttpContext context)
+        {
+            var path = context.Request.Path.Value?.ToLower();
+            
+            return _config.ExcludedPaths?.Any(ep =&gt; path?.StartsWith(ep.ToLower()) == true) == true ||
+                   context.Request.Method == "OPTIONS" ||
+                   path?.StartsWith("/health") == true;
+        }
+
+        private bool ShouldLogRequestBody(HttpContext context)
+        {
+            var contentType = context.Request.ContentType?.ToLower();
+            return (context.Request.Method == "POST" || context.Request.Method == "PUT" || context.Request.Method == "PATCH") &amp;&amp;
+                   (contentType?.Contains("application/json") == true || contentType?.Contains("application/xml") == true);
+        }
+
+        private AuditLog CreateAuditLog(HttpContext context)
+        {
+            var auditLog = new AuditLog
+            {
+                Id = Guid.NewGuid(),
+                Timestamp = DateTime.UtcNow,
+                RequestId = context.TraceIdentifier,
+                Method = context.Request.Method,
+                Path = context.Request.Path.Value,
+                QueryString = context.Request.QueryString.Value,
+                UserAgent = context.Request.Headers.UserAgent.FirstOrDefault(),
+                IpAddress = GetClientIpAddress(context),
+                AuthMethod = context.Items["AuthMethod"]?.ToString(),
+                SessionId = context.Items["SessionId"]?.ToString()
+            };
+
+            // Informações do usuário autenticado
+            if (context.User?.Identity?.IsAuthenticated == true)
+            {
+                auditLog.UserId = context.User.GetUserId();
+                auditLog.Username = context.User.GetUsername();
+                auditLog.TenantId = context.User.GetTenantId();
+            }
+
+            // Headers importantes
+            auditLog.Headers = ExtractImportantHeaders(context);
+
+            return auditLog;
+        }
+
+        private async Task&lt;string&gt; ReadRequestBodyAsync(HttpContext context)
+        {
+            context.Request.EnableBuffering();
+            
+            using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, leaveOpen: true);
+            var body = await reader.ReadToEndAsync();
+            context.Request.Body.Position = 0;
+
+            // Sanitizar dados sensíveis
+            return SanitizeRequestBody(body);
+        }
+
+        private string SanitizeRequestBody(string body)
+        {
+            if (string.IsNullOrEmpty(body)) return body;
+
+            try
+            {
+                var json = JsonDocument.Parse(body);
+                var sanitized = SanitizeJsonElement(json.RootElement);
+                return JsonSerializer.Serialize(sanitized, new JsonSerializerOptions { WriteIndented = false });
+            }
+            catch
+            {
+                return "[Invalid JSON]";
+            }
+        }
+
+        private object SanitizeJsonElement(JsonElement element)
+        {
+            var sensitiveFields = new[] { "password", "token", "secret", "key", "authorization", "apikey" };
+
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var obj = new Dictionary&lt;string, object&gt;();
+                    foreach (var property in element.EnumerateObject())
+                    {
+                        var key = property.Name.ToLower();
+                        if (sensitiveFields.Any(sf =&gt; key.Contains(sf)))
+                        {
+                            obj[property.Name] = "[REDACTED]";
+                        }
+                        else
+                        {
+                            obj[property.Name] = SanitizeJsonElement(property.Value);
+                        }
+                    }
+                    return obj;
+
+                case JsonValueKind.Array:
+                    return element.EnumerateArray().Select(SanitizeJsonElement).ToArray();
+
+                case JsonValueKind.String:
+                    return element.GetString();
+
+                case JsonValueKind.Number:
+                    return element.GetDecimal();
+
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return element.GetBoolean();
+
+                default:
+                    return null;
+            }
+        }
+
+        private async Task CompleteAuditLog(AuditLog auditLog, HttpContext context, long elapsedMs, Exception exception)
+        {
+            auditLog.StatusCode = context.Response.StatusCode;
+            auditLog.ElapsedMilliseconds = elapsedMs;
+            auditLog.Success = exception == null &amp;&amp; context.Response.StatusCode &lt; 400;
+
+            if (exception != null)
+            {
+                auditLog.ErrorMessage = exception.Message;
+                auditLog.ErrorStackTrace = _config.LogErrorDetails ? exception.StackTrace : null;
+            }
+
+            // Capturar response body se necessário (apenas para erros ou configuração específica)
+            if (_config.LogResponseBody &amp;&amp; (!auditLog.Success || _config.LogSuccessResponseBody))
+            {
+                auditLog.ResponseBody = await ReadResponseBodyAsync(context);
+            }
+
+            // Determinar nível do log
+            auditLog.LogLevel = DetermineLogLevel(auditLog);
+
+            // Salvar audit log
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var auditService = scope.ServiceProvider.GetRequiredService&lt;IAuditService&gt;();
+                await auditService.LogAsync(auditLog);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save audit log for request {RequestId}", auditLog.RequestId);
+            }
+
+            // Log structured para observabilidade
+            LogStructured(auditLog);
+        }
+
+        private async Task&lt;string&gt; ReadResponseBodyAsync(HttpContext context)
+        {
+            // Esta implementação requer configuração adicional para capturar response body
+            // Normalmente implementado através de Response wrapper
+            return null; // Implementar se necessário
+        }
+
+        private string DetermineLogLevel(AuditLog auditLog)
+        {
+            if (!auditLog.Success)
+            {
+                return auditLog.StatusCode &gt;= 500 ? "Error" : "Warning";
+            }
+
+            if (auditLog.ElapsedMilliseconds &gt; _config.SlowRequestThresholdMs)
+            {
+                return "Warning";
+            }
+
+            return "Information";
+        }
+
+        private void LogStructured(AuditLog auditLog)
+        {
+            using var scope = _logger.BeginScope(new Dictionary&lt;string, object&gt;
+            {
+                ["RequestId"] = auditLog.RequestId,
+                ["UserId"] = auditLog.UserId,
+                ["Method"] = auditLog.Method,
+                ["Path"] = auditLog.Path,
+                ["StatusCode"] = auditLog.StatusCode,
+                ["ElapsedMs"] = auditLog.ElapsedMilliseconds,
+                ["IpAddress"] = auditLog.IpAddress,
+                ["AuthMethod"] = auditLog.AuthMethod
+            });
+
+            var message = "HTTP {Method} {Path} responded {StatusCode} in {ElapsedMs}ms";
+            
+            switch (auditLog.LogLevel)
+            {
+                case "Error":
+                    _logger.LogError(message, auditLog.Method, auditLog.Path, auditLog.StatusCode, auditLog.ElapsedMilliseconds);
+                    break;
+                case "Warning":
+                    _logger.LogWarning(message, auditLog.Method, auditLog.Path, auditLog.StatusCode, auditLog.ElapsedMilliseconds);
+                    break;
+                default:
+                    _logger.LogInformation(message, auditLog.Method, auditLog.Path, auditLog.StatusCode, auditLog.ElapsedMilliseconds);
+                    break;
+            }
+        }
+
+        private Dictionary&lt;string, string&gt; ExtractImportantHeaders(HttpContext context)
+        {
+            var importantHeaders = new[] 
+            { 
+                "User-Agent", "Accept", "Accept-Language", "Accept-Encoding", 
+                "X-Forwarded-For", "X-Real-IP", "X-Requested-With",
+                "Origin", "Referer", "Authorization"
+            };
+
+            var headers = new Dictionary&lt;string, string&gt;();
+            
+            foreach (var header in importantHeaders)
+            {
+                if (context.Request.Headers.TryGetValue(header, out var value))
+                {
+                    headers[header] = header.ToLower().Contains("authorization") ? "[REDACTED]" : value.ToString();
+                }
+            }
+
+            return headers;
+        }
+
+        private string GetClientIpAddress(HttpContext context)
+        {
+            var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(forwardedFor))
+            {
+                return forwardedFor.Split(',')[0].Trim();
+            }
+
+            var realIp = context.Request.Headers["X-Real-IP"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(realIp))
+            {
+                return realIp;
+            }
+
+            return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        }
+    }
+}</code></pre>
+
+                <h2>Middleware de Error Handling</h2>
+
+                <h3>GrydExceptionHandlerMiddleware</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+{
+    public class GrydExceptionHandlerMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly ILogger&lt;GrydExceptionHandlerMiddleware&gt; _logger;
+        private readonly IHostEnvironment _environment;
+        private readonly ErrorHandlingConfiguration _config;
+
+        public GrydExceptionHandlerMiddleware(
+            RequestDelegate next,
+            ILogger&lt;GrydExceptionHandlerMiddleware&gt; logger,
+            IHostEnvironment environment,
+            IOptions&lt;ErrorHandlingConfiguration&gt; config)
+        {
+            _next = next;
+            _logger = logger;
+            _environment = environment;
+            _config = config.Value;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception occurred. RequestId: {RequestId}", context.TraceIdentifier);
+                await HandleExceptionAsync(context, ex);
+            }
+        }
+
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        {
+            var errorResponse = CreateErrorResponse(exception, context);
+            
+            context.Response.Clear();
+            context.Response.StatusCode = errorResponse.StatusCode;
+            context.Response.ContentType = "application/json";
+
+            // Headers de segurança
+            if (!context.Response.Headers.ContainsKey("X-Content-Type-Options"))
+            {
+                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            }
+
+            var json = JsonSerializer.Serialize(errorResponse.Body, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = _environment.IsDevelopment()
+            });
+
+            await context.Response.WriteAsync(json);
+        }
+
+        private ErrorResponse CreateErrorResponse(Exception exception, HttpContext context)
+        {
+            var requestId = context.TraceIdentifier;
+            var timestamp = DateTimeOffset.UtcNow;
+
+            return exception switch
+            {
+                ValidationException validationEx =&gt; new ErrorResponse
+                {
+                    StatusCode = 400,
+                    Body = new
+                    {
+                        error = "validation_failed",
+                        message = "Validation failed",
+                        details = validationEx.Errors,
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                UnauthorizedAccessException _ =&gt; new ErrorResponse
+                {
+                    StatusCode = 403,
+                    Body = new
+                    {
+                        error = "access_denied",
+                        message = "Access denied",
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                NotFoundException notFoundEx =&gt; new ErrorResponse
+                {
+                    StatusCode = 404,
+                    Body = new
+                    {
+                        error = "not_found",
+                        message = notFoundEx.Message,
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                ConflictException conflictEx =&gt; new ErrorResponse
+                {
+                    StatusCode = 409,
+                    Body = new
+                    {
+                        error = "conflict",
+                        message = conflictEx.Message,
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                RateLimitExceededException rateLimitEx =&gt; new ErrorResponse
+                {
+                    StatusCode = 429,
+                    Body = new
+                    {
+                        error = "rate_limit_exceeded",
+                        message = "Too many requests",
+                        retryAfter = rateLimitEx.RetryAfter,
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                SecurityTokenExpiredException _ =&gt; new ErrorResponse
+                {
+                    StatusCode = 401,
+                    Body = new
+                    {
+                        error = "token_expired",
+                        message = "Token has expired",
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                SecurityTokenValidationException _ =&gt; new ErrorResponse
+                {
+                    StatusCode = 401,
+                    Body = new
+                    {
+                        error = "invalid_token",
+                        message = "Token is invalid",
+                        requestId,
+                        timestamp
+                    }
+                },
+
+                _ =&gt; new ErrorResponse
+                {
+                    StatusCode = 500,
+                    Body = CreateInternalServerErrorResponse(exception, requestId, timestamp)
+                }
+            };
+        }
+
+        private object CreateInternalServerErrorResponse(Exception exception, string requestId, DateTimeOffset timestamp)
+        {
+            var response = new
+            {
+                error = "internal_server_error",
+                message = _config.ExposeInternalErrors ? exception.Message : "An internal server error occurred",
+                requestId,
+                timestamp
+            };
+
+            // Adicionar detalhes em ambiente de desenvolvimento
+            if (_environment.IsDevelopment() &amp;&amp; _config.IncludeStackTrace)
+            {
+                return new
+                {
+                    response.error,
+                    response.message,
+                    response.requestId,
+                    response.timestamp,
+                    details = new
+                    {
+                        type = exception.GetType().Name,
+                        stackTrace = exception.StackTrace,
+                        innerException = exception.InnerException?.Message
+                    }
+                };
+            }
+
+            return response;
+        }
+
+        private class ErrorResponse
+        {
+            public int StatusCode { get; set; }
+            public object Body { get; set; }
+        }
+    }
+}</code></pre>
+
+                <h2>Extensões de Configuração</h2>
+
+                <h3>Middleware Extension Methods</h3>
+                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
+{
+    public static class MiddlewareExtensions
+    {
+        public static IApplicationBuilder UseGrydExceptionHandler(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;GrydExceptionHandlerMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydAuthentication(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;GrydAuthenticationMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydSessionManagement(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;SessionManagementMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydRateLimit(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;GrydRateLimitMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydAuditLogging(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;GrydAuditLoggingMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydSecurityHeaders(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;SecurityHeadersMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydIpFilter(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;IpFilterMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydRequestValidation(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;RequestValidationMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydResponseFormatting(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;ResponseFormattingMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydUserContext(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;UserContextMiddleware&gt;();
+        }
+
+        public static IApplicationBuilder UseGrydAuthorization(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware&lt;AuthorizationMiddleware&gt;();
+        }
+
+        /// &lt;summary&gt;
+        /// Configura todo o pipeline de middlewares do GrydAuth na ordem correta
+        /// &lt;/summary&gt;
+        public static IApplicationBuilder UseGrydAuthenticationPipeline(this IApplicationBuilder app, bool isDevelopment = false)
+        {
+            if (isDevelopment)
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseGrydExceptionHandler();
+            }
+
+            return app
+                .UseGrydSecurityHeaders()
+                .UseGrydRateLimit()
+                .UseGrydIpFilter()
+                .UseGrydRequestValidation()
+                .UseRouting()
+                .UseCors()
+                .UseGrydAuthentication()
+                .UseGrydUserContext()
+                .UseGrydSessionManagement()
+                .UseGrydAuthorization()
+                .UseGrydAuditLogging()
+                .UseGrydResponseFormatting();
+        }
+    }
+}</code></pre>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-800 mb-2">🔐 Session Management</h3>
+                        <p class="text-sm text-green-600 mb-3">Gerenciamento avançado de sessões distribuídas</p>
+                        <a href="session-management.html" class="text-green-600 text-sm font-medium hover:underline">
+                            Ver Session Management →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🔧 Services</h3>
+                        <p class="text-sm text-purple-600 mb-3">Serviços e implementações do framework</p>
+                        <a href="services.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Ver Services →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

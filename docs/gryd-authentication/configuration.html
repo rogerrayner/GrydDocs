@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">⚙️ Configuração</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Configuração Básica do GrydAuthentication Framework</h2>
+                <p>Configuração baseada no código real do framework, incluindo JWT e Auth0.</p>
+
+                <h2>📦 Instalação</h2>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Via Package Manager Console</h3>
+                    <pre><code class="language-bash">Install-Package GrydAuthenticationFramework.Infrastructure
+Install-Package GrydAuthenticationFramework.Infrastructure.Auth0</code></pre>
+                </div>
+
+                <h2>🔧 Program.cs Configuration</h2>
+                <p>Configuração no Program.cs conforme implementado:</p>
+
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Application;
+using GrydAuthenticationFramework.Infrastructure;
+using GrydAuthenticationFramework.Infrastructure.Auth0;
+using GrydAuthenticationFramework.API.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog (implementado)
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/gryd-auth-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+// Add Swagger with JWT support (implementado)
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Gryd Authentication Framework API", Version = "v1" });
+    
+    // JWT Authentication for Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter JWT Bearer token"
+    });
+});
+
+// Add Framework services (implementado)
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddAuth0Services(builder.Configuration);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+// Authentication/Authorization (implementado)
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Custom middleware (implementado)
+app.UseMiddleware&lt;ExceptionHandlingMiddleware&gt;();
+app.UseMiddleware&lt;AppIdAuthorizationMiddleware&gt;();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                <h2>📋 appsettings.json</h2>
+                <p>Configuração baseada no arquivo real do projeto:</p>
+
+                <pre><code class="language-json">{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=GrydAuthenticationFramework;Trusted_Connection=true;MultipleActiveResultSets=true"
+  },
+  "JwtSettings": {
+    "SecretKey": "YourSuperSecretKeyThatShouldBeAtLeast32CharactersLong",
+    "Issuer": "GrydAuthenticationFramework",
+    "Audience": "GrydAuthenticationFramework",
+    "ExpirationMinutes": 60
+  },
+  "Auth0": {
+    "Domain": "your-auth0-domain.auth0.com",
+    "ClientId": "your-auth0-client-id",
+    "ClientSecret": "your-auth0-client-secret",
+    "Audience": "your-auth0-api-audience",
+    "ManagementApiAudience": "https://your-auth0-domain.auth0.com/api/v2/",
+    "ConnectionName": "Username-Password-Authentication",
+    "SocialProviders": {
+      "google": {
+        "Name": "Google",
+        "ConnectionName": "google-oauth2",
+        "Enabled": true
+      },
+      "facebook": {
+        "Name": "Facebook",
+        "ConnectionName": "facebook",
+        "Enabled": true
+      },
+      "github": {
+        "Name": "GitHub",
+        "ConnectionName": "github",
+        "Enabled": true
+      }
+    }
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/gryd-auth-.txt",
+          "rollingInterval": "Day",
+          "rollOnFileSizeLimit": true,
+          "fileSizeLimitBytes": 10485760
+        }
+      }
+    ],
+    "Enrich": ["FromLogContext"]
+  }
+}</code></pre>
+
+                <h2>🗃️ Database Configuration</h2>
+                <p>Entity Framework Core está configurado via AuthenticationDbContext:</p>
+
+                <pre><code class="language-csharp">// AuthenticationDbContext implementado
+public class AuthenticationDbContext : DbContext
+{
+    public DbSet&lt;User&gt; Users { get; set; }
+    public DbSet&lt;Role&gt; Roles { get; set; }
+    public DbSet&lt;Permission&gt; Permissions { get; set; }
+    
+    // Configuração via InfrastructureServiceRegistration
+}</code></pre>
+
+                <h2>🔐 JWT Configuration</h2>
+                <p>Configuração JWT implementada via InfrastructureServiceRegistration:</p>
+
+                <pre><code class="language-csharp">// Configuração JWT real do código
+services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // Set to true in production
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"] ?? "GrydAuthenticationFramework",
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"] ?? "GrydAuthenticationFramework",
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});</code></pre>
+
+                <h2>🏢 AppId Authorization Middleware</h2>
+                <p>Middleware implementado para validação de AppId:</p>
+
+                <pre><code class="language-csharp">// AppIdAuthorizationMiddleware implementado
+public class AppIdAuthorizationMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly string _appIdHeader = "X-App-Id";
+
+    public async Task InvokeAsync(HttpContext context, AuthenticationDbContext dbContext)
+    {
+        // Extrai appId do header ou claim do JWT
+        var appId = context.Request.Headers[_appIdHeader].FirstOrDefault();
+        if (string.IsNullOrEmpty(appId))
+        {
+            appId = context.User.FindFirst("appId")?.Value;
+        }
+
+        // Valida se usuário tem acesso ao AppId
+        var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+        var user = await dbContext.Users.Include(u => u.AppIds)
+            .FirstOrDefaultAsync(u => u.Email == email);
+        
+        if (user == null || !user.AppIds.Contains(appId))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync("AppId não autorizado.");
+            return;
+        }
+
+        await _next(context);
+    }
+}</code></pre>
+
+                <h2>🔧 Dependency Injection</h2>
+                <p>Services implementados no framework:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">Application Services</h3>
+                        <ul class="text-sm text-blue-700">
+                            <li>• IAuthenticationService</li>
+                            <li>• IJwtTokenService</li>
+                            <li>• ICurrentUserService</li>
+                            <li>• IPasswordHasher</li>
+                            <li>• IEmailService</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800 mb-2">Infrastructure Services</h3>
+                        <ul class="text-sm text-green-700">
+                            <li>• UserRepository</li>
+                            <li>• RoleRepository</li>
+                            <li>• PermissionRepository</li>
+                            <li>• AuthenticationDbContext</li>
+                            <li>• Auth0Service</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>📝 CQRS Commands/Queries</h2>
+                <p>Implementado via MediatR:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-yellow-800 mb-2">Authentication Commands</h3>
+                        <ul class="text-sm text-yellow-700">
+                            <li>• LoginCommand</li>
+                            <li>• SocialLoginCommand</li>
+                            <li>• RefreshTokenCommand</li>
+                            <li>• LogoutCommand</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-purple-800 mb-2">User/Role Queries</h3>
+                        <ul class="text-sm text-purple-700">
+                            <li>• GetUsersQuery</li>
+                            <li>• GetUserByIdQuery</li>
+                            <li>• GetAllRolesQuery</li>
+                            <li>• GetRoleByNameQuery</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>🔍 Features Não Implementadas</h2>
+                <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                    <h3 class="text-red-800 font-semibold mb-2">❌ Funcionalidades Ausentes</h3>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• Session Management</li>
+                        <li>• Two-Factor Authentication (2FA)</li>
+                        <li>• Password Reset Flow</li>
+                        <li>• Account Lockout</li>
+                        <li>• Rate Limiting</li>
+                        <li>• Redis Caching</li>
+                        <li>• Email Templates</li>
+                        <li>• Audit Logging</li>
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 p-6 rounded-lg border border-green-200 my-8">
+                    <h3 class="font-semibold text-green-800 mb-4">✅ Configuração Mínima Funcional</h3>
+                    <p class="text-sm text-green-700 mb-4">O framework requer apenas estas configurações essenciais:</p>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• Connection String para Entity Framework</li>
+                        <li>• JWT Settings (SecretKey, Issuer, Audience)</li>
+                        <li>• Auth0 Settings (Domain, ClientId, ClientSecret)</li>
+                        <li>• Registro dos services via DI</li>
+                        <li>• Middleware pipeline básico</li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🎮 Controllers</h3>
+                        <p class="text-sm text-blue-600 mb-3">Documentação real dos endpoints</p>
+                        <a href="controllers.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Controllers →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🏠 Home</h3>
+                        <p class="text-sm text-purple-600 mb-3">Voltar à documentação principal</p>
+                        <a href="index.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Voltar ao Início →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
