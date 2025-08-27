@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de Autenticação - GrydAuth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        .flow-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        .frontend-box { border-color: #3b82f6; background-color: #eff6ff; }
+        .auth0-box { border-color: #f59e0b; background-color: #fffbeb; }
+        .grydauth-box { border-color: #10b981; background-color: #ecfdf5; }
+        .arrow {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #6b7280;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-8">🔐 Fluxo de Autenticação GrydAuth</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <p class="text-lg text-gray-700 mb-4">
+                Este documento apresenta o fluxo completo de autenticação do GrydAuthenticationFramework, 
+                baseado na análise do código real. Aqui você encontrará como integrar um frontend 
+                com o GrydAuth para autenticação e autorização.
+            </p>
+        </div>
+
+        <!-- Diagrama de Fluxo -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 Diagrama do Fluxo de Integração</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Frontend -->
+                <div class="frontend-box">
+                    <h3 class="font-bold text-blue-800 mb-2">💻 Frontend</h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Formulário de Login</li>
+                        <li>• Botões Social Login</li>
+                        <li>• Headers X-App-Id</li>
+                        <li>• Gerenciamento Token</li>
+                    </ul>
+                </div>
+
+                <!-- Auth0 -->
+                <div class="auth0-box">
+                    <h3 class="font-bold text-amber-800 mb-2">🔐 Auth0</h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Validação Credenciais</li>
+                        <li>• Social Providers</li>
+                        <li>• User Profile</li>
+                        <li>• OAuth Tokens</li>
+                    </ul>
+                </div>
+
+                <!-- GrydAuth -->
+                <div class="grydauth-box">
+                    <h3 class="font-bold text-green-800 mb-2">🛡️ GrydAuth</h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• User Management</li>
+                        <li>• JWT Generation</li>
+                        <li>• Role/Permission</li>
+                        <li>• AppId Validation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h4 class="font-bold text-gray-800 mb-4">Fluxo de Comunicação:</h4>
+                
+                <div class="space-y-2">
+                    <div class="frontend-box">
+                        <span class="font-semibold">1. Frontend</span> → Usuário insere credenciais ou clica em social login
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="grydauth-box">
+                        <span class="font-semibold">2. GrydAuth</span> → Recebe requisição (POST /api/auth/login ou /api/auth/social-login)
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="auth0-box">
+                        <span class="font-semibold">3. Auth0</span> → GrydAuth valida credenciais no Auth0
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="grydauth-box">
+                        <span class="font-semibold">4. GrydAuth</span> → Busca/cria usuário local, gera JWT com roles/permissions
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="frontend-box">
+                        <span class="font-semibold">5. Frontend</span> → Recebe JWT e dados do usuário, armazena token
+                    </div>
+                    <div class="arrow">↓</div>
+                    
+                    <div class="frontend-box">
+                        <span class="font-semibold">6. Requisições</span> → Frontend usa JWT + Header X-App-Id para APIs protegidas
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Tradicional -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🔑 Login Tradicional (Email/Senha)</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📤 Requisição</h3>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">POST /api/auth/login</code></p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                    <div class="code-block mb-3">
+<pre>Content-Type: application/json
+X-App-Id: seu-app-id-aqui</pre>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
+                    <div class="code-block">
+<pre>{
+  "email": "usuario@exemplo.com",
+  "password": "senha123"
+}</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📥 Resposta (Sucesso)</h3>
+                    <div class="code-block">
+<pre>{
+  "isSuccess": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "guid-refresh-token",
+    "expiresAt": "2025-08-26T15:30:00Z",
+    "user": {
+      "id": "user-guid",
+      "email": "usuario@exemplo.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "isActive": true,
+      "lastLoginAt": "2025-08-26T12:30:00Z",
+      "roles": ["User"],
+      "allPermissions": ["read:users", "create:posts"]
+    },
+    "permissions": ["read:users", "create:posts"]
+  },
+  "errors": []
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 class="font-semibold text-yellow-800 mb-2">⚠️ Validações Importantes:</h4>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• <strong>Email obrigatório:</strong> Deve ser um email válido</li>
+                    <li>• <strong>Password obrigatório:</strong> Será validado no Auth0</li>
+                    <li>• <strong>X-App-Id obrigatório:</strong> Header necessário para autorização</li>
+                    <li>• <strong>Usuário deve existir:</strong> Precisa estar criado no GrydAuth local</li>
+                    <li>• <strong>Usuário ativo:</strong> IsActive deve ser true</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Social Login -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🌐 Social Login</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📤 Requisição</h3>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">POST /api/auth/social-login</code></p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                    <div class="code-block mb-3">
+<pre>Content-Type: application/json
+X-App-Id: seu-app-id-aqui</pre>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
+                    <div class="code-block">
+<pre>{
+  "provider": "google",
+  "accessToken": "google-access-token-here"
+}</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📥 Resposta (Sucesso)</h3>
+                    <div class="code-block">
+<pre>{
+  "isSuccess": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "guid-refresh-token",
+    "expiresAt": "2025-08-26T15:30:00Z",
+    "user": {
+      "id": "user-guid",
+      "email": "usuario@gmail.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "isActive": true,
+      "lastLoginAt": "2025-08-26T12:30:00Z",
+      "auth0UserId": "google|123456789"
+    },
+    "permissions": ["read:users"]
+  },
+  "errors": []
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">💡 Comportamento do Social Login:</h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• <strong>Usuário novo:</strong> Cria automaticamente no GrydAuth com role "User"</li>
+                    <li>• <strong>Usuário existente:</strong> Atualiza Auth0UserId se necessário</li>
+                    <li>• <strong>Providers suportados:</strong> Depende da configuração do Auth0</li>
+                    <li>• <strong>Access Token:</strong> Obtido do provider social via frontend</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Usando o Token -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🎫 Usando o JWT Token</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">🔍 Validar Token</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">GET /api/auth/validate</code></p>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                            <div class="code-block">
+<pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+X-App-Id: seu-app-id-aqui</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Resposta:</strong></p>
+                            <div class="code-block">
+<pre>{
+  "valid": true,
+  "message": "Token is valid"
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">👤 Obter Dados do Usuário</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">GET /api/auth/me</code></p>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                            <div class="code-block">
+<pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+X-App-Id: seu-app-id-aqui</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Resposta:</strong></p>
+                            <div class="code-block">
+<pre>{
+  "id": "user-guid",
+  "email": "usuario@exemplo.com",
+  "roles": ["User", "Admin"],
+  "permissions": ["read:users", "write:posts"]
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">🔄 Refresh Token</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">POST /api/auth/refresh</code></p>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
+                            <div class="code-block">
+<pre>{
+  "refreshToken": "guid-refresh-token"
+}</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Resposta:</strong></p>
+                            <div class="code-block">
+<pre>{
+  "isSuccess": true,
+  "data": {
+    "token": "new-jwt-token",
+    "refreshToken": "new-refresh-token",
+    "expiresAt": "2025-08-26T16:30:00Z"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🚪 Logout</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📤 Requisição</h3>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Endpoint:</strong> <code class="bg-gray-100 px-2 py-1 rounded">POST /api/auth/logout</code></p>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Headers:</strong></p>
+                    <div class="code-block mb-3">
+<pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+X-App-Id: seu-app-id-aqui</pre>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
+                    <div class="code-block">
+<pre>{
+  "token": "jwt-token-to-revoke"
+}</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">📥 Resposta</h3>
+                    <div class="code-block">
+<pre>{
+  "isSuccess": true,
+  "errors": []
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sequência de Integração -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🚀 Sequência de Integração Frontend</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">1. Configuração Inicial</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Configure a base URL da API GrydAuth</li>
+                        <li>• Defina o App-Id que será usado nas requisições</li>
+                        <li>• Implemente interceptor para adicionar headers automaticamente</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-l-4 border-green-500 rounded-r-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">2. Tela de Login</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Formulário com email/senha + botão de login tradicional</li>
+                        <li>• Botões para social login (Google, Facebook, etc.)</li>
+                        <li>• Ao clicar login: chame POST /api/auth/login</li>
+                        <li>• Ao clicar social: obtenha access token do provider, depois chame POST /api/auth/social-login</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-l-4 border-yellow-500 rounded-r-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">3. Pós-Login</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Armazene o JWT token no localStorage/sessionStorage</li>
+                        <li>• Salve os dados do usuário (id, email, roles, permissions)</li>
+                        <li>• Redirecione para a área autenticada da aplicação</li>
+                        <li>• Configure interceptor para incluir token em todas as requisições</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">4. Requisições Autenticadas</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Sempre inclua: Authorization: Bearer [token]</li>
+                        <li>• Sempre inclua: X-App-Id: [seu-app-id]</li>
+                        <li>• Trate erros 401 (token expirado) → fazer refresh ou re-login</li>
+                        <li>• Trate erros 403 (sem permissão) → mostrar mensagem adequada</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-lg">
+                    <h3 class="font-semibold text-red-800 mb-2">5. Gerenciamento de Token</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Monitore a expiração do token (campo expiresAt)</li>
+                        <li>• Implemente refresh automático quando próximo do vencimento</li>
+                        <li>• Use GET /api/auth/validate para verificar se token ainda é válido</li>
+                        <li>• Ao fazer logout: chame POST /api/auth/logout e limpe localStorage</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tratamento de Erros -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">⚠️ Tratamento de Erros</h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 border border-red-200 bg-red-50 rounded-lg">
+                    <h3 class="font-semibold text-red-800 mb-2">🚫 Erros Comuns de Login</h3>
+                    <div class="code-block">
+<pre>{
+  "isSuccess": false,
+  "data": null,
+  "errors": ["Invalid email or password"]
+}</pre>
+                    </div>
+                    <p class="text-sm text-red-700 mt-2">
+                        <strong>Possíveis causas:</strong> Credenciais incorretas no Auth0, usuário não existe no GrydAuth, usuário inativo
+                    </p>
+                </div>
+
+                <div class="p-4 border border-amber-200 bg-amber-50 rounded-lg">
+                    <h3 class="font-semibold text-amber-800 mb-2">🔒 Erro de Autorização (403)</h3>
+                    <div class="code-block">
+<pre>HTTP 403 Forbidden
+"AppId não informado."</pre>
+                    </div>
+                    <p class="text-sm text-amber-700 mt-2">
+                        <strong>Solução:</strong> Verificar se o header X-App-Id está sendo enviado corretamente
+                    </p>
+                </div>
+
+                <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">🔑 Token Expirado (401)</h3>
+                    <div class="code-block">
+<pre>HTTP 401 Unauthorized</pre>
+                    </div>
+                    <p class="text-sm text-blue-700 mt-2">
+                        <strong>Solução:</strong> Fazer refresh do token ou solicitar novo login
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Código de Exemplo -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">💻 Exemplo de Implementação JavaScript</h2>
+            
+            <div class="code-block">
+<pre>// Configuração do cliente API
+class GrydAuthClient {
+    constructor(baseUrl, appId) {
+        this.baseUrl = baseUrl;
+        this.appId = appId;
+        this.token = localStorage.getItem('gryd_token');
+    }
+
+    // Headers padrão
+    getHeaders() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-App-Id': this.appId
+        };
+        
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
+        }
+        
+        return headers;
+    }
+
+    // Login tradicional
+    async login(email, password) {
+        const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ email, password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.isSuccess) {
+            this.token = result.data.token;
+            localStorage.setItem('gryd_token', this.token);
+            localStorage.setItem('gryd_user', JSON.stringify(result.data.user));
+            return result.data;
+        }
+        
+        throw new Error(result.errors.join(', '));
+    }
+
+    // Social login
+    async socialLogin(provider, accessToken) {
+        const response = await fetch(`${this.baseUrl}/api/auth/social-login`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ provider, accessToken })
+        });
+        
+        const result = await response.json();
+        
+        if (result.isSuccess) {
+            this.token = result.data.token;
+            localStorage.setItem('gryd_token', this.token);
+            localStorage.setItem('gryd_user', JSON.stringify(result.data.user));
+            return result.data;
+        }
+        
+        throw new Error(result.errors.join(', '));
+    }
+
+    // Validar token
+    async validateToken() {
+        const response = await fetch(`${this.baseUrl}/api/auth/validate`, {
+            headers: this.getHeaders()
+        });
+        
+        return response.ok;
+    }
+
+    // Logout
+    async logout() {
+        if (this.token) {
+            await fetch(`${this.baseUrl}/api/auth/logout`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify({ token: this.token })
+            });
+        }
+        
+        this.token = null;
+        localStorage.removeItem('gryd_token');
+        localStorage.removeItem('gryd_user');
+    }
+
+    // Obter usuário atual
+    getCurrentUser() {
+        const user = localStorage.getItem('gryd_user');
+        return user ? JSON.parse(user) : null;
+    }
+}
+
+// Uso do cliente
+const authClient = new GrydAuthClient('https://api.exemplo.com', 'meu-app-id');
+
+// Login
+authClient.login('usuario@exemplo.com', 'senha123')
+    .then(data => {
+        console.log('Login realizado:', data);
+        // Redirecionar para área autenticada
+    })
+    .catch(error => {
+        console.error('Erro no login:', error.message);
+    });
+</pre>
+            </div>
+        </div>
+
+        <!-- Considerações Importantes -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">📝 Considerações Importantes</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">🔐 Segurança</h3>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Sempre use HTTPS em produção</li>
+                        <li>• O JWT contém roles e permissions</li>
+                        <li>• AppId é obrigatório para autorização</li>
+                        <li>• Tokens têm expiração definida</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">⚡ Performance</h3>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• Cache dados do usuário localmente</li>
+                        <li>• Implemente refresh automático</li>
+                        <li>• Use interceptors para headers</li>
+                        <li>• Monitore expiração do token</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">🔄 Estados</h3>
+                    <ul class="text-sm text-yellow-700 space-y-1">
+                        <li>• Não autenticado: mostrar login</li>
+                        <li>• Autenticando: mostrar loading</li>
+                        <li>• Autenticado: mostrar aplicação</li>
+                        <li>• Erro: mostrar mensagem adequada</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">🛠️ Desenvolvimento</h3>
+                    <ul class="text-sm text-purple-700 space-y-1">
+                        <li>• Teste todos os cenários de erro</li>
+                        <li>• Implemente logs adequados</li>
+                        <li>• Valide permissões no frontend</li>
+                        <li>• Configure environment variables</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
