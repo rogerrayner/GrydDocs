@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage Examples - GrydAuthentication Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">📊 Usage Examples</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Implementação Completa</h2>
+                <p>Este guia demonstra a implementação completa de um sistema de e-commerce usando o GrydAuthentication Framework, incluindo configuração, autenticação, autorização e funcionalidades avançadas.</p>
+
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
+                    <h3 class="text-blue-800 font-semibold">🎯 Cenário: E-commerce Platform</h3>
+                    <ul class="text-blue-700 mb-0">
+                        <li><strong>Frontend:</strong> React SPA + Mobile App</li>
+                        <li><strong>Backend:</strong> ASP.NET Core Web API</li>
+                        <li><strong>Usuários:</strong> Customers, Vendors, Admins</li>
+                        <li><strong>Features:</strong> Multi-tenant, External Auth, 2FA</li>
+                    </ul>
+                </div>
+
+                <h2>1. Configuração Inicial</h2>
+
+                <h3>Project Structure</h3>
+                <pre><code class="text">ECommerceApi/
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── UsersController.cs
+│   ├── ProductsController.cs
+│   └── OrdersController.cs
+├── Models/
+│   ├── Requests/
+│   ├── Responses/
+│   └── DTOs/
+├── Configuration/
+│   ├── AuthConfiguration.cs
+│   └── DatabaseConfiguration.cs
+├── Middleware/
+│   └── ExceptionHandlingMiddleware.cs
+├── Program.cs
+├── appsettings.json
+└── appsettings.Development.json</code></pre>
+
+                <h3>appsettings.json</h3>
+                <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=ECommerceDb;Trusted_Connection=true;MultipleActiveResultSets=true",
+    "Redis": "localhost:6379"
+  },
+  "GrydAuthentication": {
+    "JwtConfiguration": {
+      "SecretKey": "your-super-secret-key-that-is-at-least-32-characters-long",
+      "Issuer": "ECommerceApi",
+      "Audience": "ECommerceFrontend",
+      "AccessTokenExpirationMinutes": 60,
+      "RefreshTokenExpirationDays": 30,
+      "RequireHttpsMetadata": false,
+      "ValidateIssuerSigningKey": true
+    },
+    "AuthConfiguration": {
+      "RequireEmailConfirmation": true,
+      "DefaultRole": "Customer",
+      "MaxFailedLoginAttempts": 5,
+      "LockoutDurationMinutes": 15,
+      "PasswordResetTokenExpirationHours": 2,
+      "EmailVerificationTokenExpirationHours": 24
+    },
+    "SessionConfiguration": {
+      "CookieName": "ECommerce.Session",
+      "TimeoutMinutes": 120,
+      "SlidingExpiration": true,
+      "MaxConcurrentSessions": 3,
+      "EnableDeviceTracking": true
+    },
+    "RateLimitConfiguration": {
+      "Enabled": true,
+      "GlobalRequestsPerWindow": 1000,
+      "GlobalLimitWindowMinutes": 15,
+      "DefaultEndpointRequestsPerWindow": 100,
+      "DefaultEndpointWindowMinutes": 15,
+      "EndpointLimits": [
+        {
+          "Pattern": "auth/login",
+          "RequestsPerWindow": 5,
+          "WindowMinutes": 15
+        },
+        {
+          "Pattern": "auth/register",
+          "RequestsPerWindow": 3,
+          "WindowMinutes": 60
+        }
+      ]
+    }
+  },
+  "ExternalAuth": {
+    "Auth0": {
+      "Enabled": true,
+      "Domain": "your-tenant.auth0.com",
+      "ClientId": "your-auth0-client-id",
+      "ClientSecret": "your-auth0-client-secret"
+    },
+    "Google": {
+      "Enabled": true,
+      "ClientId": "your-google-client-id",
+      "ClientSecret": "your-google-client-secret"
+    }
+  },
+  "Email": {
+    "Provider": "SendGrid",
+    "SendGrid": {
+      "ApiKey": "your-sendgrid-api-key"
+    },
+    "DefaultFromEmail": "noreply@ecommerce.com",
+    "DefaultFromName": "E-Commerce Platform"
+  }
+}</code></pre>
+
+                <h3>Program.cs</h3>
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000", "https://ecommerce.app.com")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
+// Add GrydAuthentication Framework
+builder.Services.AddGrydAuthentication(builder.Configuration);
+
+// Add Health Checks
+builder.Services.AddGrydHealthChecks(builder.Configuration);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Use GrydAuthentication Pipeline
+app.UseGrydAuthenticationPipeline(app.Environment.IsDevelopment());
+
+app.UseCors("AllowFrontend");
+
+// Health checks
+app.MapHealthChecks("/health");
+
+app.MapControllers();
+
+// Seed initial data
+await app.SeedDataAsync();
+
+app.Run();
+
+// Extension for seeding
+public static class WebApplicationExtensions
+{
+    public static async Task SeedDataAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        
+        await PermissionSeeder.SeedPermissionsAsync(scope);
+        await RoleSeeder.SeedRolesAsync(scope);
+        await UserSeeder.SeedUsersAsync(scope);
+    }
+}</code></pre>
+
+                <h2>2. Controllers Implementation</h2>
+
+                <h3>AuthController.cs</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
+    private readonly ILogger&lt;AuthController&gt; _logger;
+
+    public AuthController(IAuthService authService, ILogger&lt;AuthController&gt; logger)
+    {
+        _authService = authService;
+        _logger = logger;
+    }
+
+    /// &lt;summary&gt;
+    /// Login with email and password
+    /// &lt;/summary&gt;
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthenticationResponse), 200)]
+    [ProducesResponseType(typeof(ErrorResponse), 400)]
+    public async Task&lt;ActionResult&lt;AuthenticationResponse&gt;&gt; Login([FromBody] LoginRequest request)
+    {
+        request.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        request.UserAgent = HttpContext.Request.Headers.UserAgent.ToString();
+        
+        var result = await _authService.LoginAsync(request);
+        
+        if (result.Success)
+        {
+            // Set session cookie if using session authentication
+            if (result.Session != null)
+            {
+                HttpContext.Response.Cookies.Append("ECommerce.Session", result.Session.SessionId, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = result.Session.ExpiresAt
+                });
+            }
+
+            return Ok(new AuthenticationResponse
+            {
+                Success = true,
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                ExpiresAt = result.ExpiresAt,
+                User = new UserDto
+                {
+                    Id = result.User.Id,
+                    Email = result.User.Email,
+                    FirstName = result.User.FirstName,
+                    LastName = result.User.LastName,
+                    Roles = result.User.UserRoles.Select(ur =&gt; ur.Role.Name).ToList()
+                }
+            });
+        }
+
+        if (result.RequiresTwoFactor)
+        {
+            return Ok(new AuthenticationResponse
+            {
+                RequiresTwoFactor = true,
+                TwoFactorToken = result.TwoFactorToken,
+                Message = "Two-factor authentication required"
+            });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "login_failed",
+            Message = result.ErrorMessage,
+            Details = result.ValidationErrors
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Register new customer account
+    /// &lt;/summary&gt;
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(AuthenticationResponse), 200)]
+    [ProducesResponseType(typeof(ErrorResponse), 400)]
+    public async Task&lt;ActionResult&lt;AuthenticationResponse&gt;&gt; Register([FromBody] RegisterRequest request)
+    {
+        request.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        request.UserAgent = HttpContext.Request.Headers.UserAgent.ToString();
+        request.DeviceType = DetermineDeviceType(request.UserAgent);
+        
+        var result = await _authService.RegisterAsync(request);
+        
+        if (result.Success)
+        {
+            if (result.RequiresEmailConfirmation)
+            {
+                return Ok(new AuthenticationResponse
+                {
+                    Success = true,
+                    RequiresEmailConfirmation = true,
+                    Message = "Registration successful. Please check your email to verify your account."
+                });
+            }
+
+            return Ok(new AuthenticationResponse
+            {
+                Success = true,
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                ExpiresAt = result.ExpiresAt,
+                User = MapToUserDto(result.User)
+            });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "registration_failed",
+            Message = result.ErrorMessage,
+            Details = result.ValidationErrors
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Verify two-factor authentication code
+    /// &lt;/summary&gt;
+    [HttpPost("verify-2fa")]
+    public async Task&lt;ActionResult&lt;AuthenticationResponse&gt;&gt; VerifyTwoFactor([FromBody] VerifyTwoFactorRequest request)
+    {
+        var result = await _authService.ValidateTwoFactorCodeAsync(request);
+        
+        if (result.Success)
+        {
+            return Ok(new AuthenticationResponse
+            {
+                Success = true,
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                ExpiresAt = result.ExpiresAt,
+                User = MapToUserDto(result.User)
+            });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "invalid_2fa_code",
+            Message = "Invalid two-factor authentication code"
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Refresh access token
+    /// &lt;/summary&gt;
+    [HttpPost("refresh")]
+    public async Task&lt;ActionResult&lt;TokenResponse&gt;&gt; RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        var result = await _authService.RefreshTokenAsync(request);
+        
+        if (result.Success)
+        {
+            return Ok(new TokenResponse
+            {
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                ExpiresAt = result.ExpiresAt
+            });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "invalid_refresh_token",
+            Message = "Invalid or expired refresh token"
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Logout current session
+    /// &lt;/summary&gt;
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task&lt;ActionResult&gt; Logout([FromBody] LogoutRequest request)
+    {
+        request.UserId = User.GetUserId();
+        request.SessionId = HttpContext.Items["SessionId"]?.ToString();
+        
+        var success = await _authService.LogoutAsync(request);
+        
+        if (success)
+        {
+            // Clear session cookie
+            HttpContext.Response.Cookies.Delete("ECommerce.Session");
+            
+            return Ok(new { message = "Logged out successfully" });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "logout_failed",
+            Message = "Failed to logout"
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// External authentication with Google
+    /// &lt;/summary&gt;
+    [HttpPost("external/google")]
+    public async Task&lt;ActionResult&lt;AuthenticationResponse&gt;&gt; GoogleAuth([FromBody] ExternalAuthRequest request)
+    {
+        var externalLoginRequest = new ExternalLoginRequest
+        {
+            Provider = "Google",
+            ExternalToken = request.Token,
+            IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            UserAgent = HttpContext.Request.Headers.UserAgent.ToString(),
+            DeviceType = DetermineDeviceType(HttpContext.Request.Headers.UserAgent.ToString())
+        };
+
+        var result = await _authService.ExternalLoginAsync(externalLoginRequest);
+        
+        if (result.Success)
+        {
+            return Ok(new AuthenticationResponse
+            {
+                Success = true,
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                ExpiresAt = result.ExpiresAt,
+                User = MapToUserDto(result.User)
+            });
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "external_auth_failed",
+            Message = result.ErrorMessage
+        });
+    }
+
+    private string DetermineDeviceType(string userAgent)
+    {
+        userAgent = userAgent?.ToLower() ?? "";
+        
+        if (userAgent.Contains("mobile") || userAgent.Contains("android") || userAgent.Contains("iphone"))
+            return "Mobile";
+        if (userAgent.Contains("tablet") || userAgent.Contains("ipad"))
+            return "Tablet";
+        
+        return "Desktop";
+    }
+
+    private UserDto MapToUserDto(User user)
+    {
+        return new UserDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            EmailConfirmed = user.EmailConfirmed,
+            TwoFactorEnabled = user.TwoFactorEnabled,
+            Roles = user.UserRoles?.Select(ur =&gt; ur.Role.Name).ToList() ?? new List&lt;string&gt;()
+        };
+    }
+}</code></pre>
+
+                <h3>ProductsController.cs</h3>
+                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    private readonly IPermissionService _permissionService;
+    private readonly ILogger&lt;ProductsController&gt; _logger;
+
+    public ProductsController(
+        IProductService productService,
+        IPermissionService permissionService,
+        ILogger&lt;ProductsController&gt; logger)
+    {
+        _productService = productService;
+        _permissionService = permissionService;
+        _logger = logger;
+    }
+
+    /// &lt;summary&gt;
+    /// Get products with pagination and filtering
+    /// &lt;/summary&gt;
+    [HttpGet]
+    [AllowAnonymous] // Public endpoint
+    [ProducesResponseType(typeof(PagedResult&lt;ProductDto&gt;), 200)]
+    public async Task&lt;ActionResult&lt;PagedResult&lt;ProductDto&gt;&gt;&gt; GetProducts([FromQuery] GetProductsQuery query)
+    {
+        // Usuários autenticados podem ver produtos inativos
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            query.IncludeInactive = await _permissionService.HasPermissionAsync(User, "products:view-inactive");
+        }
+
+        var result = await _productService.GetProductsAsync(query);
+        return Ok(result);
+    }
+
+    /// &lt;summary&gt;
+    /// Get product by ID
+    /// &lt;/summary&gt;
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ProductDto), 200)]
+    [ProducesResponseType(404)]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; GetProduct(Guid id)
+    {
+        var product = await _productService.GetProductByIdAsync(id);
+        
+        if (product == null)
+            return NotFound();
+
+        // Verificar se usuário pode ver produto inativo
+        if (!product.IsActive)
+        {
+            if (!User.Identity?.IsAuthenticated == true)
+                return NotFound();
+
+            var canViewInactive = await _permissionService.HasPermissionAsync(User, "products:view-inactive") ||
+                                   product.VendorId == User.GetUserId() ||
+                                   User.IsInRole("Admin");
+            
+            if (!canViewInactive)
+                return NotFound();
+        }
+
+        return Ok(product);
+    }
+
+    /// &lt;summary&gt;
+    /// Create new product (Vendors and Admins only)
+    /// &lt;/summary&gt;
+    [HttpPost]
+    [RequirePermission("products:create")]
+    [ProducesResponseType(typeof(ProductDto), 201)]
+    [ProducesResponseType(typeof(ErrorResponse), 400)]
+    [ProducesResponseType(403)]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; CreateProduct([FromBody] CreateProductRequest request)
+    {
+        // Vendors só podem criar produtos para si mesmos
+        if (User.IsInRole("Vendor"))
+        {
+            request.VendorId = User.GetUserId();
+        }
+
+        // Verificar limite de produtos para vendors
+        if (User.IsInRole("Vendor"))
+        {
+            var vendorProductCount = await _productService.GetVendorProductCountAsync(User.GetUserId());
+            var maxProducts = User.GetClaimValue("max_products", 100);
+            
+            if (vendorProductCount &gt;= maxProducts)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    Error = "product_limit_exceeded",
+                    Message = $"You have reached the maximum limit of {maxProducts} products"
+                });
+            }
+        }
+
+        var result = await _productService.CreateProductAsync(request);
+        
+        if (result.Success)
+        {
+            return CreatedAtAction(nameof(GetProduct), new { id = result.Product.Id }, result.Product);
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "create_failed",
+            Message = result.ErrorMessage,
+            Details = result.ValidationErrors
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Update product
+    /// &lt;/summary&gt;
+    [HttpPut("{id}")]
+    [RequirePermission("products:update")]
+    [ProducesResponseType(typeof(ProductDto), 200)]
+    [ProducesResponseType(typeof(ErrorResponse), 400)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; UpdateProduct(Guid id, [FromBody] UpdateProductRequest request)
+    {
+        var product = await _productService.GetProductByIdAsync(id);
+        if (product == null)
+            return NotFound();
+
+        // Vendors só podem atualizar seus próprios produtos
+        if (User.IsInRole("Vendor") && product.VendorId != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        request.Id = id;
+        var result = await _productService.UpdateProductAsync(request);
+        
+        if (result.Success)
+        {
+            return Ok(result.Product);
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "update_failed",
+            Message = result.ErrorMessage,
+            Details = result.ValidationErrors
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Delete product (Soft delete)
+    /// &lt;/summary&gt;
+    [HttpDelete("{id}")]
+    [RequirePermission("products:delete")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task&lt;ActionResult&gt; DeleteProduct(Guid id)
+    {
+        var product = await _productService.GetProductByIdAsync(id);
+        if (product == null)
+            return NotFound();
+
+        // Vendors só podem deletar seus próprios produtos
+        if (User.IsInRole("Vendor") && product.VendorId != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        var success = await _productService.DeleteProductAsync(id);
+        
+        if (success)
+        {
+            return NoContent();
+        }
+
+        return BadRequest(new ErrorResponse
+        {
+            Error = "delete_failed",
+            Message = "Failed to delete product"
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Get vendor's products
+    /// &lt;/summary&gt;
+    [HttpGet("vendor/{vendorId}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PagedResult&lt;ProductDto&gt;), 200)]
+    public async Task&lt;ActionResult&lt;PagedResult&lt;ProductDto&gt;&gt;&gt; GetVendorProducts(
+        Guid vendorId, 
+        [FromQuery] GetVendorProductsQuery query)
+    {
+        query.VendorId = vendorId;
+        
+        // Somente vendor ou admin pode ver produtos inativos
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            query.IncludeInactive = vendorId == User.GetUserId() || 
+                                   await _permissionService.HasPermissionAsync(User, "products:view-inactive");
+        }
+
+        var result = await _productService.GetVendorProductsAsync(query);
+        return Ok(result);
+    }
+
+    /// &lt;summary&gt;
+    /// Bulk update product status (Admin only)
+    /// &lt;/summary&gt;
+    [HttpPatch("bulk-status")]
+    [RequireRole("Admin")]
+    [ProducesResponseType(typeof(BulkOperationResult), 200)]
+    public async Task&lt;ActionResult&lt;BulkOperationResult&gt;&gt; BulkUpdateStatus([FromBody] BulkUpdateStatusRequest request)
+    {
+        var result = await _productService.BulkUpdateStatusAsync(request.ProductIds, request.IsActive);
+        return Ok(result);
+    }
+}</code></pre>
+
+                <h2>3. Frontend Integration</h2>
+
+                <h3>React Authentication Hook</h3>
+                <pre><code class="language-javascript">// hooks/useAuth.js
+import { useState, useEffect, useContext, createContext } from 'react';
+import axios from 'axios';
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within AuthProvider');
+    }
+    return context;
+};
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [tokens, setTokens] = useState({
+        accessToken: localStorage.getItem('accessToken'),
+        refreshToken: localStorage.getItem('refreshToken')
+    });
+
+    // Configure axios interceptors
+    useEffect(() => {
+        const requestInterceptor = axios.interceptors.request.use(
+            (config) => {
+                if (tokens.accessToken) {
+                    config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+                }
+                return config;
+            },
+            (error) => Promise.reject(error)
+        );
+
+        const responseInterceptor = axios.interceptors.response.use(
+            (response) => response,
+            async (error) => {
+                if (error.response?.status === 401 && tokens.refreshToken) {
+                    try {
+                        const result = await refreshToken();
+                        if (result.success) {
+                            // Retry original request
+                            error.config.headers.Authorization = `Bearer ${result.accessToken}`;
+                            return axios.request(error.config);
+                        }
+                    } catch (refreshError) {
+                        logout();
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axios.interceptors.request.eject(requestInterceptor);
+            axios.interceptors.response.eject(responseInterceptor);
+        };
+    }, [tokens.accessToken, tokens.refreshToken]);
+
+    const login = async (email, password, rememberMe = false) => {
+        try {
+            const response = await axios.post('/api/auth/login', {
+                email,
+                password,
+                deviceType: getDeviceType(),
+                fingerprint: await generateFingerprint(),
+                ipAddress: null, // Set by server
+                userAgent: navigator.userAgent,
+                location: await getLocationInfo()
+            });
+
+            const { data } = response;
+
+            if (data.requiresTwoFactor) {
+                return {
+                    success: false,
+                    requiresTwoFactor: true,
+                    twoFactorToken: data.twoFactorToken
+                };
+            }
+
+            if (data.success) {
+                const newTokens = {
+                    accessToken: data.accessToken,
+                    refreshToken: data.refreshToken
+                };
+
+                setTokens(newTokens);
+                setUser(data.user);
+
+                // Store tokens
+                if (rememberMe) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                } else {
+                    sessionStorage.setItem('accessToken', data.accessToken);
+                    sessionStorage.setItem('refreshToken', data.refreshToken);
+                }
+
+                return { success: true, user: data.user };
+            }
+
+            return { success: false, message: data.message };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Login failed'
+            };
+        }
+    };
+
+    const verifyTwoFactor = async (twoFactorToken, code) => {
+        try {
+            const response = await axios.post('/api/auth/verify-2fa', {
+                twoFactorToken,
+                code
+            });
+
+            const { data } = response;
+
+            if (data.success) {
+                const newTokens = {
+                    accessToken: data.accessToken,
+                    refreshToken: data.refreshToken
+                };
+
+                setTokens(newTokens);
+                setUser(data.user);
+
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+
+                return { success: true, user: data.user };
+            }
+
+            return { success: false, message: data.message };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || '2FA verification failed'
+            };
+        }
+    };
+
+    const register = async (userData) => {
+        try {
+            const response = await axios.post('/api/auth/register', {
+                ...userData,
+                deviceType: getDeviceType(),
+                fingerprint: await generateFingerprint(),
+                userAgent: navigator.userAgent
+            });
+
+            const { data } = response;
+
+            if (data.success) {
+                if (data.requiresEmailConfirmation) {
+                    return {
+                        success: true,
+                        requiresEmailConfirmation: true,
+                        message: data.message
+                    };
+                }
+
+                const newTokens = {
+                    accessToken: data.accessToken,
+                    refreshToken: data.refreshToken
+                };
+
+                setTokens(newTokens);
+                setUser(data.user);
+
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+
+                return { success: true, user: data.user };
+            }
+
+            return { success: false, message: data.message };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Registration failed',
+                errors: error.response?.data?.details
+            };
+        }
+    };
+
+    const logout = async () => {
+        try {
+            if (tokens.refreshToken) {
+                await axios.post('/api/auth/logout', {
+                    refreshToken: tokens.refreshToken
+                });
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setTokens({ accessToken: null, refreshToken: null });
+            setUser(null);
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            sessionStorage.removeItem('accessToken');
+            sessionStorage.removeItem('refreshToken');
+        }
+    };
+
+    const refreshToken = async () => {
+        try {
+            if (!tokens.refreshToken) {
+                throw new Error('No refresh token available');
+            }
+
+            const response = await axios.post('/api/auth/refresh', {
+                refreshToken: tokens.refreshToken
+            });
+
+            const { data } = response;
+            const newTokens = {
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken
+            };
+
+            setTokens(newTokens);
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            return { success: true, accessToken: data.accessToken };
+        } catch (error) {
+            logout();
+            return { success: false };
+        }
+    };
+
+    const hasPermission = (permission) => {
+        return user?.permissions?.includes(permission) || false;
+    };
+
+    const hasRole = (role) => {
+        return user?.roles?.includes(role) || false;
+    };
+
+    const hasAnyRole = (roles) => {
+        return roles.some(role => hasRole(role));
+    };
+
+    // Utility functions
+    const getDeviceType = () => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (/mobile|android|iphone/.test(userAgent)) return 'Mobile';
+        if (/tablet|ipad/.test(userAgent)) return 'Tablet';
+        return 'Desktop';
+    };
+
+    const generateFingerprint = async () => {
+        // Simple fingerprinting - in production use more sophisticated methods
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Browser fingerprint', 2, 2);
+        
+        const fingerprint = [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + 'x' + screen.height,
+            new Date().getTimezoneOffset(),
+            canvas.toDataURL()
+        ].join('|');
+        
+        return btoa(fingerprint);
+    };
+
+    const getLocationInfo = async () => {
+        try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            return `${data.city}, ${data.country_name}`;
+        } catch {
+            return null;
+        }
+    };
+
+    // Initialize user from token
+    useEffect(() => {
+        const initializeAuth = async () => {
+            const storedAccessToken = localStorage.getItem('accessToken') || 
+                                     sessionStorage.getItem('accessToken');
+            
+            if (storedAccessToken) {
+                try {
+                    // Verify token and get user info
+                    const response = await axios.get('/api/auth/me', {
+                        headers: { Authorization: `Bearer ${storedAccessToken}` }
+                    });
+                    
+                    setUser(response.data);
+                } catch (error) {
+                    // Token is invalid, try refresh
+                    const storedRefreshToken = localStorage.getItem('refreshToken') || 
+                                              sessionStorage.getItem('refreshToken');
+                    
+                    if (storedRefreshToken) {
+                        setTokens({
+                            accessToken: storedAccessToken,
+                            refreshToken: storedRefreshToken
+                        });
+                        
+                        const refreshResult = await refreshToken();
+                        if (!refreshResult.success) {
+                            logout();
+                        }
+                    } else {
+                        logout();
+                    }
+                }
+            }
+            
+            setLoading(false);
+        };
+
+        initializeAuth();
+    }, []);
+
+    const value = {
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+        verifyTwoFactor,
+        refreshToken,
+        hasPermission,
+        hasRole,
+        hasAnyRole
+    };
+
+    return (
+        &lt;AuthContext.Provider value={value}&gt;
+            {children}
+        &lt;/AuthContext.Provider&gt;
+    );
+};</code></pre>
+
+                <h3>Protected Route Component</h3>
+                <pre><code class="language-javascript">// components/ProtectedRoute.js
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+
+const ProtectedRoute = ({ 
+    children, 
+    requiredRole, 
+    requiredPermission, 
+    requiredRoles = [], 
+    requiredPermissions = [],
+    requireAll = false 
+}) => {
+    const { user, loading, isAuthenticated, hasRole, hasPermission } = useAuth();
+    const location = useLocation();
+
+    if (loading) {
+        return &lt;div&gt;Loading...&lt;/div&gt;;
+    }
+
+    if (!isAuthenticated) {
+        return &lt;Navigate to="/login" state={{ from: location }} replace /&gt;;
+    }
+
+    // Check single role
+    if (requiredRole && !hasRole(requiredRole)) {
+        return &lt;Navigate to="/unauthorized" replace /&gt;;
+    }
+
+    // Check single permission
+    if (requiredPermission && !hasPermission(requiredPermission)) {
+        return &lt;Navigate to="/unauthorized" replace /&gt;;
+    }
+
+    // Check multiple roles
+    if (requiredRoles.length > 0) {
+        const hasRequiredRoles = requireAll
+            ? requiredRoles.every(role => hasRole(role))
+            : requiredRoles.some(role => hasRole(role));
+            
+        if (!hasRequiredRoles) {
+            return &lt;Navigate to="/unauthorized" replace /&gt;;
+        }
+    }
+
+    // Check multiple permissions
+    if (requiredPermissions.length > 0) {
+        const hasRequiredPermissions = requireAll
+            ? requiredPermissions.every(permission => hasPermission(permission))
+            : requiredPermissions.some(permission => hasPermission(permission));
+            
+        if (!hasRequiredPermissions) {
+            return &lt;Navigate to="/unauthorized" replace /&gt;;
+        }
+    }
+
+    return children;
+};
+
+export default ProtectedRoute;</code></pre>
+
+                <h3>Usage in App.js</h3>
+                <pre><code class="language-javascript">// App.js
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './hooks/useAuth';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Products from './pages/Products';
+import AdminPanel from './pages/AdminPanel';
+import VendorPanel from './pages/VendorPanel';
+
+function App() {
+    return (
+        &lt;AuthProvider&gt;
+            &lt;Router&gt;
+                &lt;Routes&gt;
+                    {/* Public routes */}
+                    &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+                    &lt;Route path="/register" element={&lt;Register /&gt;} /&gt;
+                    &lt;Route path="/products" element={&lt;Products /&gt;} /&gt;
+                    
+                    {/* Protected routes */}
+                    &lt;Route path="/dashboard" element={
+                        &lt;ProtectedRoute&gt;
+                            &lt;Dashboard /&gt;
+                        &lt;/ProtectedRoute&gt;
+                    } /&gt;
+                    
+                    {/* Admin only */}
+                    &lt;Route path="/admin" element={
+                        &lt;ProtectedRoute requiredRole="Admin"&gt;
+                            &lt;AdminPanel /&gt;
+                        &lt;/ProtectedRoute&gt;
+                    } /&gt;
+                    
+                    {/* Vendor panel */}
+                    &lt;Route path="/vendor" element={
+                        &lt;ProtectedRoute requiredRoles={["Vendor", "Admin"]}&gt;
+                            &lt;VendorPanel /&gt;
+                        &lt;/ProtectedRoute&gt;
+                    } /&gt;
+                    
+                    {/* Permission-based route */}
+                    &lt;Route path="/reports" element={
+                        &lt;ProtectedRoute requiredPermission="reports:view"&gt;
+                            &lt;Reports /&gt;
+                        &lt;/ProtectedRoute&gt;
+                    } /&gt;
+                &lt;/Routes&gt;
+            &lt;/Router&gt;
+        &lt;/AuthProvider&gt;
+    );
+}
+
+export default App;</code></pre>
+
+                <h2>4. Testing Examples</h2>
+
+                <h3>Unit Tests</h3>
+                <pre><code class="language-csharp">// Tests/Services/AuthServiceTests.cs
+[TestClass]
+public class AuthServiceTests
+{
+    private Mock&lt;IUserRepository&gt; _mockUserRepository;
+    private Mock&lt;IJwtService&gt; _mockJwtService;
+    private Mock&lt;ISessionService&gt; _mockSessionService;
+    private Mock&lt;IPasswordHashingService&gt; _mockPasswordHashingService;
+    private AuthService _authService;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _mockUserRepository = new Mock&lt;IUserRepository&gt;();
+        _mockJwtService = new Mock&lt;IJwtService&gt;();
+        _mockSessionService = new Mock&lt;ISessionService&gt;();
+        _mockPasswordHashingService = new Mock&lt;IPasswordHashingService&gt;();
+        
+        var mockLogger = new Mock&lt;ILogger&lt;AuthService&gt;&gt;();
+        var mockConfig = new Mock&lt;IOptions&lt;AuthConfiguration&gt;&gt;();
+        mockConfig.Setup(x =&gt; x.Value).Returns(new AuthConfiguration());
+
+        _authService = new AuthService(
+            _mockUserRepository.Object,
+            _mockJwtService.Object,
+            _mockSessionService.Object,
+            Mock.Of&lt;IEmailService&gt;(),
+            _mockPasswordHashingService.Object,
+            Mock.Of&lt;ITwoFactorService&gt;(),
+            Mock.Of&lt;IExternalAuthService&gt;(),
+            mockLogger.Object,
+            mockConfig.Object
+        );
+    }
+
+    [TestMethod]
+    public async Task LoginAsync_ValidCredentials_ReturnsSuccess()
+    {
+        // Arrange
+        var user = User.Create("test@example.com", "testuser", "Test", "User", "hashedpassword");
+        var request = new LoginRequest
+        {
+            Email = "test@example.com",
+            Password = "password123",
+            IpAddress = "127.0.0.1",
+            UserAgent = "Mozilla/5.0"
+        };
+
+        _mockUserRepository.Setup(x =&gt; x.GetByEmailAsync(request.Email))
+            .ReturnsAsync(user);
+        _mockPasswordHashingService.Setup(x =&gt; x.VerifyPassword(request.Password, user.PasswordHash))
+            .Returns(true);
+        _mockJwtService.Setup(x =&gt; x.GenerateTokensAsync(user))
+            .ReturnsAsync(new TokenResult { AccessToken = "access-token", RefreshToken = "refresh-token" });
+        _mockSessionService.Setup(x =&gt; x.CreateSessionAsync(It.IsAny&lt;Guid&gt;(), It.IsAny&lt;SessionSecurityInfo&gt;(), It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(new UserSession());
+
+        // Act
+        var result = await _authService.LoginAsync(request);
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(result.AccessToken);
+        Assert.IsNotNull(result.RefreshToken);
+        Assert.AreEqual(user.Id, result.User.Id);
+    }
+
+    [TestMethod]
+    public async Task LoginAsync_InvalidCredentials_ReturnsFailed()
+    {
+        // Arrange
+        var user = User.Create("test@example.com", "testuser", "Test", "User", "hashedpassword");
+        var request = new LoginRequest
+        {
+            Email = "test@example.com",
+            Password = "wrongpassword",
+            IpAddress = "127.0.0.1",
+            UserAgent = "Mozilla/5.0"
+        };
+
+        _mockUserRepository.Setup(x =&gt; x.GetByEmailAsync(request.Email))
+            .ReturnsAsync(user);
+        _mockPasswordHashingService.Setup(x =&gt; x.VerifyPassword(request.Password, user.PasswordHash))
+            .Returns(false);
+
+        // Act
+        var result = await _authService.LoginAsync(request);
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("Invalid credentials", result.ErrorMessage);
+    }
+}</code></pre>
+
+                <h3>Integration Tests</h3>
+                <pre><code class="language-csharp">// Tests/Integration/AuthControllerTests.cs
+[TestClass]
+public class AuthControllerIntegrationTests
+{
+    private WebApplicationFactory&lt;Program&gt; _factory;
+    private HttpClient _client;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _factory = new WebApplicationFactory&lt;Program&gt;()
+            .WithWebHostBuilder(builder =&gt;
+            {
+                builder.ConfigureServices(services =&gt;
+                {
+                    // Use in-memory database for testing
+                    services.RemoveAll(typeof(DbContextOptions&lt;ApplicationDbContext&gt;));
+                    services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+                    {
+                        options.UseInMemoryDatabase("TestDb");
+                    });
+                });
+            });
+
+        _client = _factory.CreateClient();
+    }
+
+    [TestMethod]
+    public async Task Login_ValidCredentials_ReturnsToken()
+    {
+        // Arrange
+        var request = new LoginRequest
+        {
+            Email = "admin@test.com",
+            Password = "Admin123!"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync&lt;AuthenticationResponse&gt;();
+        
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(result.AccessToken);
+        Assert.IsNotNull(result.User);
+    }
+
+    [TestMethod]
+    public async Task GetProducts_WithoutAuth_ReturnsUnauthorized()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/products/admin");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetProducts_WithValidToken_ReturnsProducts()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        var response = await _client.GetAsync("/api/products");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync&lt;PagedResult&lt;ProductDto&gt;&gt;();
+        
+        Assert.IsNotNull(result);
+        Assert.IsNotNull(result.Items);
+    }
+
+    private async Task&lt;string&gt; GetAuthTokenAsync()
+    {
+        var loginRequest = new LoginRequest
+        {
+            Email = "admin@test.com",
+            Password = "Admin123!"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        var result = await response.Content.ReadFromJsonAsync&lt;AuthenticationResponse&gt;();
+        
+        return result.AccessToken;
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        _client?.Dispose();
+        _factory?.Dispose();
+    }
+}</code></pre>
+
+                <div class="bg-green-50 p-6 rounded-lg border border-green-200 my-8">
+                    <h3 class="font-semibold text-green-800 mb-4">✅ Exemplo Completo Implementado</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-700">
+                        <div>
+                            <h4 class="font-semibold mb-2">Backend Features:</h4>
+                            <ul class="space-y-1">
+                                <li>• JWT + Session Authentication</li>
+                                <li>• Role-Based Access Control</li>
+                                <li>• Multi-tenant Support</li>
+                                <li>• Rate Limiting</li>
+                                <li>• Audit Logging</li>
+                                <li>• External Auth (Google, Auth0)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">Frontend Features:</h4>
+                            <ul class="space-y-1">
+                                <li>• Automatic Token Refresh</li>
+                                <li>• Protected Routes</li>
+                                <li>• Permission-based UI</li>
+                                <li>• Device Fingerprinting</li>
+                                <li>• Session Management</li>
+                                <li>• Error Handling</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">🎮 Controllers</h3>
+                        <p class="text-sm text-blue-600 mb-3">API Reference com JSON examples e URLs</p>
+                        <a href="controllers.html" class="text-blue-600 text-sm font-medium hover:underline">
+                            Ver Controllers →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 class="font-semibold text-purple-800 mb-2">🏠 Home</h3>
+                        <p class="text-sm text-purple-600 mb-3">Voltar à página principal</p>
+                        <a href="index.html" class="text-purple-600 text-sm font-medium hover:underline">
+                            Voltar ao Início →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
