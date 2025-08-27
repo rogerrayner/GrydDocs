@@ -38,9 +38,20 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <p class="text-lg text-gray-700 mb-4">
                 Este documento apresenta o fluxo completo de autenticação do GrydAuthenticationFramework, 
-                baseado na análise do código real. Aqui você encontrará como integrar um frontend 
-                com o GrydAuth para autenticação e autorização.
+                incluindo a estratégia híbrida de refresh tokens para máxima segurança e experiência do usuário.
+                Baseado na análise do código real, você encontrará como integrar um frontend 
+                com o GrydAuth para autenticação, autorização e gestão de tokens.
             </p>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+                <h3 class="font-semibold text-blue-800 mb-2">🆕 Novidades da Implementação</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>✅ <strong>Refresh Token Seguro:</strong> Implementação completa com rotação automática</li>
+                    <li>✅ <strong>Estratégia Híbrida:</strong> Renovação preventiva + reativa para melhor UX</li>
+                    <li>✅ <strong>Rastreamento de Segurança:</strong> IP tracking, device fingerprinting e audit trail</li>
+                    <li>✅ <strong>Revogação Granular:</strong> Revogação individual ou em massa de tokens</li>
+                </ul>
+            </div>
         </div>
 
         <!-- Diagrama de Fluxo -->
@@ -361,7 +372,7 @@ X-App-Id: seu-app-id-aqui</pre>
                             <p class="text-sm text-gray-600 mb-2"><strong>Body:</strong></p>
                             <div class="code-block">
 <pre>{
-  "refreshToken": "guid-refresh-token"
+  "refreshToken": "base64-secure-token-here"
 }</pre>
                             </div>
                         </div>
@@ -372,12 +383,268 @@ X-App-Id: seu-app-id-aqui</pre>
   "isSuccess": true,
   "data": {
     "token": "new-jwt-token",
-    "refreshToken": "new-refresh-token",
-    "expiresAt": "2025-08-26T16:30:00Z"
+    "refreshToken": "new-rotated-refresh-token",
+    "expiresAt": "2025-08-26T16:30:00Z",
+    "user": { /* dados completos do usuário */ },
+    "permissions": ["read:users", "write:posts"]
   }
 }</pre>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estratégia de Refresh Tokens -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">🔄 Gestão de Refresh Tokens - Estratégia Híbrida</h2>
+            
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+                <h3 class="font-semibold text-green-800 mb-2">✅ Estratégia Implementada</h3>
+                <p class="text-sm text-green-700">
+                    O GrydAuth implementa uma <strong>estratégia híbrida</strong> que combina renovação preventiva 
+                    (antes da expiração) com tratamento reativo (quando 401 é recebido) para garantir a melhor 
+                    experiência do usuário com máxima segurança. O framework oferece <strong>duas estratégias configuráveis</strong> 
+                    para atender diferentes necessidades de aplicação.
+                </p>
+            </div>
+
+            <!-- Estratégias Configuráveis -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                <h3 class="font-semibold text-blue-800 mb-4">⚙️ Estratégias de Armazenamento Configuráveis</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-4 rounded-lg border border-blue-200">
+                        <h4 class="font-semibold text-blue-700 mb-2 flex items-center">
+                            🚀 <span class="ml-2">Stateless (Padrão)</span>
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-3">
+                            Refresh tokens são <strong>JWT válidos</strong> validados apenas por assinatura. 
+                            Sem persistência no banco de dados.
+                        </p>
+                        <div class="space-y-1 text-sm">
+                            <div class="text-green-600">✓ Performance máxima</div>
+                            <div class="text-green-600">✓ Escalabilidade infinita</div>
+                            <div class="text-green-600">✓ Zero queries extras</div>
+                            <div class="text-red-600">✗ Não revoga tokens individuais</div>
+                        </div>
+                        <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
+                            <strong>Ideal para:</strong> APIs alta performance, microserviços, MVPs
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-green-200">
+                        <h4 class="font-semibold text-green-700 mb-2 flex items-center">
+                            💾 <span class="ml-2">Database (Enterprise)</span>
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-3">
+                            Refresh tokens são armazenados no banco com <strong>controle total</strong> 
+                            sobre revogação e auditoria.
+                        </p>
+                        <div class="space-y-1 text-sm">
+                            <div class="text-green-600">✓ Revogação instantânea</div>
+                            <div class="text-green-600">✓ Auditoria completa</div>
+                            <div class="text-green-600">✓ Controle de sessões</div>
+                            <div class="text-yellow-600">⚠ Queries extras</div>
+                        </div>
+                        <div class="mt-3 p-2 bg-gray-100 rounded text-xs">
+                            <strong>Ideal para:</strong> Enterprise, compliance, segurança crítica
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <h5 class="font-semibold text-yellow-800 mb-2">🔧 Como Configurar</h5>
+                    <div class="text-sm text-yellow-700">
+                        <p class="mb-2">Configure a estratégia no <code>appsettings.json</code>:</p>
+                        <div class="code-block text-xs">
+<pre>{
+  "GrydAuth": {
+    "RefreshToken": {
+      "Strategy": "Stateless",  // ou "Database"
+      "ExpirationDays": 7,
+      "TrackIpAddresses": true
+    }
+  }
+}</pre>
+                        </div>
+                        <p class="mt-2"><strong>Migração:</strong> Apenas necessária se usar "Database". Frontend funciona igual para ambas!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">🛡️ Características de Segurança</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">✓</span>
+                            <span><strong>Rotação Automática:</strong> Cada refresh gera um novo token (ambas estratégias)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">📊</span>
+                            <span><strong>Rastreamento de IP:</strong> Disponível nas duas estratégias (Database = persistido, Stateless = no JWT)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">📊</span>
+                            <span><strong>Device Fingerprinting:</strong> User-Agent salvo (Database = banco, Stateless = claim JWT)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-600 mr-2">✓</span>
+                            <span><strong>Expiração Configurável:</strong> Padrão de 7 dias, customizável via appsettings</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-600 mr-2">🏢</span>
+                            <span><strong>Revogação Granular:</strong> Individual ou em massa (apenas Database strategy)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-600 mr-2">🏢</span>
+                            <span><strong>Auditoria Completa:</strong> Log de uso e padrões (apenas Database strategy)</span>
+                        </li>
+                    </ul>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <span class="text-green-600">✓</span> = Todas estratégias | 
+                        <span class="text-blue-600">📊</span> = Funciona diferente | 
+                        <span class="text-orange-600">🏢</span> = Apenas Database
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">⚡ Características de UX</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">✓</span>
+                            <span><strong>Renovação Transparente:</strong> Usuário não percebe a troca</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">✓</span>
+                            <span><strong>Verificação Preventiva:</strong> Renova 5 min antes de expirar</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">✓</span>
+                            <span><strong>Fallback Reativo:</strong> Se preventiva falhar, tenta no 401</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">✓</span>
+                            <span><strong>Fila de Requisições:</strong> Enfileira calls durante refresh</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-600 mr-2">✓</span>
+                            <span><strong>Cleanup Automático:</strong> Remove tokens expirados</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Fluxo Detalhado -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 Fluxo de Refresh Token</h3>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                        <div>
+                            <strong>Login Inicial:</strong> User recebe JWT (30 min) + RefreshToken (7 dias)
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                        <div>
+                            <strong>Monitoramento:</strong> Frontend verifica expiração a cada 1 minuto
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                        <div>
+                            <strong>Refresh Preventivo:</strong> 5 min antes de expirar, chama <code>/api/auth/refresh</code>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                        <div>
+                            <strong>Rotação:</strong> Backend revoga token antigo e gera novo par JWT+RefreshToken
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                        <div>
+                            <strong>Fallback:</strong> Se preventivo falhar, interceptor trata 401 e tenta refresh
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
+                        <div>
+                            <strong>Falha Total:</strong> Se refresh falhar, redireciona para login
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Códigos de Implementação -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3">📤 Requisição de Refresh</h4>
+                    <div class="code-block">
+<pre>POST /api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "base64-secure-token-here"
+}</pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3">📥 Resposta de Sucesso</h4>
+                    <div class="code-block">
+<pre>{
+  "isSuccess": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "new-rotated-base64-token",
+    "expiresAt": "2025-08-26T16:00:00Z",
+    "user": {
+      "id": "user-guid",
+      "email": "user@example.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      // ... dados completos
+    },
+    "permissions": ["read:users", "create:posts"]
+  },
+  "errors": []
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <h4 class="font-semibold text-amber-800 mb-2">⚡ Configurações Recomendadas</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-amber-700">
+                    <div>
+                        <strong>JWT Token:</strong>
+                        <ul class="ml-4 list-disc">
+                            <li>Expiração: 15-60 minutos</li>
+                            <li>Refresh Threshold: 5 minutos antes</li>
+                            <li>Check Interval: 1 minuto</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>Refresh Token:</strong>
+                        <ul class="ml-4 list-disc">
+                            <li>Expiração: 7 dias (configurável)</li>
+                            <li>Rotação: A cada uso</li>
+                            <li>Cleanup: Diário (apenas Database)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>Estratégia:</strong>
+                        <ul class="ml-4 list-disc">
+                            <li>Padrão: "Stateless"</li>
+                            <li>Enterprise: "Database"</li>
+                            <li>Configurável via appsettings.json</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -412,6 +679,91 @@ X-App-Id: seu-app-id-aqui</pre>
   "isSuccess": true,
   "errors": []
 }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuração Backend -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">⚙️ Configuração Backend - Estratégias</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-3">📋 Configuração via appsettings.json</h3>
+                    <div class="code-block mb-4">
+<pre>{
+  "GrydAuth": {
+    "RefreshToken": {
+      "Strategy": "Stateless",        // "Stateless" ou "Database"
+      "ExpirationDays": 7,            // Dias até expiração
+      "MaxTokensPerUser": 5,          // Máximo por usuário (Database only)
+      "TrackIpAddresses": true,       // Rastrear IPs
+      "TrackDeviceInfo": true,        // Rastrear dispositivos
+      "CleanupIntervalHours": 24      // Limpeza automática (Database only)
+    },
+    "Jwt": {
+      "ExpirationMinutes": 30,        // JWT expira em 30 min
+      "RefreshBeforeExpirationMinutes": 5  // Renova 5 min antes
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-3">🚀 Setup Stateless (Recomendado)</h4>
+                        <ol class="text-sm text-green-700 space-y-2 list-decimal list-inside">
+                            <li>Configure <code>"Strategy": "Stateless"</code></li>
+                            <li>Adicione <code>services.AddGrydAuthentication(Configuration);</code></li>
+                            <li>Restart da aplicação</li>
+                            <li>✅ <strong>Pronto!</strong> Sem migrações necessárias</li>
+                        </ol>
+                        <div class="mt-3 p-2 bg-white border border-green-300 rounded text-xs">
+                            <strong>Vantagem:</strong> Zero configuração adicional, performance máxima
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                        <h4 class="font-semibold text-orange-800 mb-3">💾 Setup Database (Enterprise)</h4>
+                        <ol class="text-sm text-orange-700 space-y-2 list-decimal list-inside">
+                            <li>Configure <code>"Strategy": "Database"</code></li>
+                            <li>Adicione <code>services.AddGrydAuthentication(Configuration);</code></li>
+                            <li>Execute migração: <code>dotnet ef migrations add RefreshTokens</code></li>
+                            <li>Atualize banco: <code>dotnet ef database update</code></li>
+                            <li>✅ <strong>Pronto!</strong> Com controle total</li>
+                        </ol>
+                        <div class="mt-3 p-2 bg-white border border-orange-300 rounded text-xs">
+                            <strong>Vantagem:</strong> Auditoria, revogação granular, controle de sessões
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h4 class="font-semibold text-purple-800 mb-3">🔄 Migração Entre Estratégias</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-purple-700">
+                        <div>
+                            <strong>Stateless → Database:</strong>
+                            <ol class="list-decimal list-inside mt-1 space-y-1">
+                                <li>Altere Strategy para "Database"</li>
+                                <li>Execute migração EF</li>
+                                <li>Restart aplicação</li>
+                                <li>Usuários fazem novo login</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <strong>Database → Stateless:</strong>
+                            <ol class="list-decimal list-inside mt-1 space-y-1">
+                                <li>Altere Strategy para "Stateless"</li>
+                                <li>Restart aplicação</li>
+                                <li>(Opcional) Drop tabela RefreshTokens</li>
+                                <li>Performance melhorada!</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-white border border-purple-300 rounded text-xs">
+                        <strong>Importante:</strong> Frontend funciona igual para ambas - zero mudanças no código cliente!
                     </div>
                 </div>
             </div>
@@ -462,7 +814,317 @@ X-App-Id: seu-app-id-aqui</pre>
                 </div>
 
                 <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-lg">
-                    <h3 class="font-semibold text-red-800 mb-2">5. Gerenciamento de Token</h3>
+                    <h3 class="font-semibold text-red-800 mb-2">5. Gerenciamento de Token (Estratégia Híbrida)</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• <strong>Armazenamento:</strong> localStorage para JWT + RefreshToken</li>
+                        <li>• <strong>Monitoramento:</strong> Timer verifica expiração a cada 1 minuto</li>
+                        <li>• <strong>Refresh Preventivo:</strong> Renova 5 min antes de expirar automaticamente</li>
+                        <li>• <strong>Interceptor Reativo:</strong> Intercepta 401, tenta refresh, re-executa requisição</li>
+                        <li>• <strong>Fila de Requisições:</strong> Enfileira chamadas durante refresh em andamento</li>
+                        <li>• <strong>Fallback:</strong> Se refresh falhar, limpa tokens e redireciona para login</li>
+                        <li>• <strong>Eventos:</strong> Dispara eventos customizados para notificar componentes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementação Frontend Híbrida -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">💻 Implementação Frontend - Estratégia Híbrida</h2>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">🎯 AuthService Completo</h3>
+                <div class="code-block">
+<pre>class AuthService {
+    constructor() {
+        this.refreshThreshold = 5 * 60 * 1000; // 5 minutos
+        this.checkInterval = 60 * 1000; // 1 minuto
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+        this.failedQueue = [];
+        
+        this.init();
+    }
+    
+    init() {
+        this.startTokenMonitoring();
+        this.setupApiInterceptors();
+        this.setupEventListeners();
+    }
+    
+    // Monitoramento Preventivo
+    startTokenMonitoring() {
+        setInterval(() => {
+            this.checkTokenStatus();
+        }, this.checkInterval);
+        
+        this.checkTokenStatus(); // Verificar imediatamente
+    }
+    
+    async checkTokenStatus() {
+        const tokenData = this.getStoredToken();
+        if (this.shouldRefreshToken(tokenData)) {
+            await this.refreshTokenSilently();
+        }
+    }
+    
+    shouldRefreshToken(tokenData) {
+        if (!tokenData?.expiresAt) return false;
+        
+        const expiryTime = new Date(tokenData.expiresAt).getTime();
+        const now = Date.now();
+        const timeUntilExpiry = expiryTime - now;
+        
+        return timeUntilExpiry <= this.refreshThreshold && timeUntilExpiry > 0;
+    }
+    
+    // Estratégia Híbrida
+    async makeAuthenticatedRequest(config) {
+        // 1. Verificação preventiva
+        const tokenData = this.getStoredToken();
+        if (this.shouldRefreshToken(tokenData)) {
+            await this.refreshTokenSilently();
+        }
+        
+        try {
+            return await this.apiCall(config);
+        } catch (error) {
+            // 2. Tratamento reativo para 401
+            if (error.response?.status === 401) {
+                return this.handleUnauthorized(config);
+            }
+            throw error;
+        }
+    }
+    
+    async handleUnauthorized(originalConfig) {
+        if (this.isRefreshing) {
+            return new Promise((resolve, reject) => {
+                this.failedQueue.push({ resolve, reject, config: originalConfig });
+            });
+        }
+        
+        try {
+            await this.refreshTokenSilently();
+            return this.apiCall(originalConfig);
+        } catch (error) {
+            this.handleAuthFailure();
+            throw error;
+        }
+    }
+    
+    // Refresh Token Logic
+    async refreshTokenSilently() {
+        if (this.isRefreshing) {
+            return this.refreshPromise;
+        }
+        
+        this.isRefreshing = true;
+        this.refreshPromise = this.performRefresh();
+        
+        try {
+            await this.refreshPromise;
+            this.processFailedQueue(null);
+        } catch (error) {
+            this.processFailedQueue(error);
+            throw error;
+        } finally {
+            this.isRefreshing = false;
+            this.refreshPromise = null;
+        }
+    }
+    
+    async performRefresh() {
+        const tokenData = this.getStoredToken();
+        if (!tokenData?.refreshToken) {
+            throw new Error('No refresh token available');
+        }
+        
+        try {
+            const response = await fetch('/api/auth/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken: tokenData.refreshToken })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok || !data.isSuccess) {
+                throw new Error(data.message || 'Token refresh failed');
+            }
+            
+            this.storeTokens(data.data);
+            this.notifyTokenRefreshed();
+            
+        } catch (error) {
+            console.error('Token refresh failed:', error);
+            throw error;
+        }
+    }
+    
+    processFailedQueue(error) {
+        this.failedQueue.forEach(({ resolve, reject, config }) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(this.apiCall(config));
+            }
+        });
+        
+        this.failedQueue = [];
+    }
+    
+    // Utilitários
+    getStoredToken() {
+        try {
+            return JSON.parse(localStorage.getItem('gryd_auth_token'));
+        } catch {
+            return null;
+        }
+    }
+    
+    storeTokens(authResult) {
+        localStorage.setItem('gryd_auth_token', JSON.stringify(authResult));
+    }
+    
+    clearTokens() {
+        localStorage.removeItem('gryd_auth_token');
+    }
+    
+    notifyTokenRefreshed() {
+        window.dispatchEvent(new CustomEvent('tokenRefreshed', {
+            detail: this.getStoredToken()
+        }));
+    }
+    
+    handleAuthFailure() {
+        this.clearTokens();
+        this.showSessionExpiredMessage();
+        setTimeout(() => {
+            window.location.href = '/login?reason=session_expired';
+        }, 2000);
+    }
+}
+
+// Instância global
+const authService = new AuthService();</pre>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">⚛️ React Hook</h3>
+                    <div class="code-block">
+<pre>// useAuth.js
+import { useState, useEffect } from 'react';
+
+export const useAuth = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        const checkAuth = () => {
+            const tokenData = authService.getStoredToken();
+            if (tokenData?.token) {
+                setIsAuthenticated(true);
+                setUser(tokenData.user);
+            }
+            setLoading(false);
+        };
+        
+        checkAuth();
+        
+        const handleTokenRefreshed = (event) => {
+            setUser(event.detail.user);
+        };
+        
+        const handleAuthFailed = () => {
+            setIsAuthenticated(false);
+            setUser(null);
+        };
+        
+        window.addEventListener('tokenRefreshed', handleTokenRefreshed);
+        window.addEventListener('authenticationFailed', handleAuthFailed);
+        
+        return () => {
+            window.removeEventListener('tokenRefreshed', handleTokenRefreshed);
+            window.removeEventListener('authenticationFailed', handleAuthFailed);
+        };
+    }, []);
+    
+    return { isAuthenticated, user, loading };
+};</pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">🍃 Vue Composable</h3>
+                    <div class="code-block">
+<pre>// useAuth.js
+import { ref, onMounted, onUnmounted } from 'vue';
+
+export const useAuth = () => {
+    const isAuthenticated = ref(false);
+    const user = ref(null);
+    const loading = ref(true);
+    
+    const checkAuth = () => {
+        const tokenData = authService.getStoredToken();
+        if (tokenData?.token) {
+            isAuthenticated.value = true;
+            user.value = tokenData.user;
+        }
+        loading.value = false;
+    };
+    
+    const handleTokenRefreshed = (event) => {
+        user.value = event.detail.user;
+    };
+    
+    const handleAuthFailed = () => {
+        isAuthenticated.value = false;
+        user.value = null;
+    };
+    
+    onMounted(() => {
+        checkAuth();
+        window.addEventListener('tokenRefreshed', handleTokenRefreshed);
+        window.addEventListener('authenticationFailed', handleAuthFailed);
+    });
+    
+    onUnmounted(() => {
+        window.removeEventListener('tokenRefreshed', handleTokenRefreshed);
+        window.removeEventListener('authenticationFailed', handleAuthFailed);
+    });
+    
+    return { isAuthenticated, user, loading };
+};</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 class="font-semibold text-green-800 mb-2">✅ Vantagens da Implementação</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-700">
+                    <div>
+                        <strong>Para o Usuário:</strong>
+                        <ul class="ml-4 list-disc">
+                            <li>Sessão nunca expira inesperadamente</li>
+                            <li>Navegação sem interrupções</li>
+                            <li>Experiência fluida e transparente</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>Para a Segurança:</strong>
+                        <ul class="ml-4 list-disc">
+                            <li>Tokens sempre atualizados</li>
+                            <li>Rotação automática de refresh tokens</li>
+                            <li>Rastreamento completo de atividades</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
                     <ul class="text-sm text-gray-700 space-y-1">
                         <li>• Monitore a expiração do token (campo expiresAt)</li>
                         <li>• Implemente refresh automático quando próximo do vencimento</li>
@@ -740,6 +1402,51 @@ authClient.login('usuario@exemplo.com', 'senha123')
                         <li>• Configure environment variables</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+
+        <!-- Referências -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">📚 Documentação Adicional</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-3">📖 Documentos Relacionados</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• <a href="../REFRESH-TOKEN-STRATEGIES.html" class="text-blue-600 hover:underline">
+                            🔄 Guia Completo de Estratégias de Refresh Token
+                        </a></li>
+                        <li>• <a href="../CONFIGURATION-GUIDE.html" class="text-blue-600 hover:underline">
+                            ⚙️ Guia de Configuração do GrydAuth
+                        </a></li>
+                        <li>• <a href="../TROUBLESHOOTING-GUIDE.html" class="text-blue-600 hover:underline">
+                            🔧 Troubleshooting e Solução de Problemas
+                        </a></li>
+                        <li>• <a href="../MIGRATION-GUIDE.html" class="text-blue-600 hover:underline">
+                            📦 Guia de Migração entre Versões
+                        </a></li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-3">💡 Próximos Passos</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Escolha a estratégia adequada para seu projeto</li>
+                        <li>• Configure o appsettings.json conforme necessário</li>
+                        <li>• Implemente o frontend seguindo os exemplos</li>
+                        <li>• Teste todos os cenários de autenticação</li>
+                        <li>• Configure monitoramento em produção</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500">
+                <h4 class="font-semibold text-blue-800 mb-2">💬 Suporte e Feedback</h4>
+                <p class="text-sm text-blue-700">
+                    Para dúvidas específicas sobre implementação das estratégias de refresh token, 
+                    consulte o documento <strong>REFRESH-TOKEN-STRATEGIES.md</strong> que contém 
+                    comparações detalhadas, exemplos de código e orientações de migração.
+                </p>
             </div>
         </div>
     </div>
