@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração - GrydUserTenant Framework</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <div class="flex items-center mb-6">
+                <a href="index.html" class="text-green-600 hover:text-green-800 mr-4">← Voltar</a>
+                <h1 class="text-3xl font-bold text-gray-800">⚙️ Configuração</h1>
+            </div>
+
+            <div class="prose max-w-none">
+                <h2>Configuração do GrydUserTenant Framework</h2>
+                <p>Framework para gerenciamento de relacionamentos entre usuários e tenants, integrando com GrydAuthentication e GrydCrud.</p>
+
+                <h2>📦 Instalação</h2>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Via Package Manager Console</h3>
+                    <pre><code class="language-bash">Install-Package GrydUserTenantFramework.Infrastructure</code></pre>
+                </div>
+
+                <h2>🚀 Configuração Automática de DbContext</h2>
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                    <p class="text-blue-800"><strong>⚡ Novo:</strong> O framework agora oferece configuração automática dos DbSets para simplificar a integração!</p>
+                </div>
+
+                <h3>✨ Benefícios da Configuração Automática</h3>
+                <ul class="list-disc pl-6 mb-4">
+                    <li><strong>Configuração Automática:</strong> DbSets de UserTenant são configurados automaticamente</li>
+                    <li><strong>Redução de Código:</strong> Não é necessário declarar manualmente cada DbSet</li>
+                    <li><strong>Configurações Corretas:</strong> As configurações do framework são aplicadas automaticamente</li>
+                    <li><strong>Facilidade de Manutenção:</strong> Atualizações no framework se propagam automaticamente</li>
+                </ul>
+
+                <h3>🛠️ Opção 1: Interface IUserTenantDbContext (Mais Flexível)</h3>
+                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Common.Interfaces;
+using GrydUserTenantFramework.Infrastructure.Extensions;
+
+public class ApplicationDbContext : BaseDbContext, IUserTenantDbContext
+{
+    // DbSets de UserTenant implementados automaticamente via interface
+    public DbSet&lt;UserTenant&gt; UserTenants =&gt; Set&lt;UserTenant&gt;();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        // Configuração automática das entidades de UserTenant
+        modelBuilder.ConfigureUserTenantEntities(this);
+        
+        // Configure suas entidades específicas...
+    }
+}</code></pre>
+
+                <h3>🎯 Opção 2: BaseDbContextWithUserTenant (Mais Simples - RECOMENDADO)</h3>
+                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Data;
+
+public class ApplicationDbContext : BaseDbContextWithUserTenant
+{
+    public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options) 
+        : base(options)
+    {
+    }
+
+    // Apenas suas entidades específicas
+    public DbSet&lt;MyEntity&gt; MyEntities { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Chama base que já configura tudo automaticamente
+        base.OnModelCreating(modelBuilder);
+
+        // Configure apenas suas entidades específicas
+        modelBuilder.ApplyConfiguration(new MyEntityConfiguration());
+    }
+}</code></pre>
+
+                <h3>⚙️ Opção 3: Apenas o Método de Extensão (Máxima Flexibilidade)</h3>
+                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Extensions;
+
+public class ApplicationDbContext : DbContext
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        // Aplica apenas as configurações do framework
+        modelBuilder.ApplyUserTenantConfigurations();
+        
+        // Você ainda precisa declarar os DbSets manualmente
+    }
+}</code></pre>
+
+                <h2>🔄 Integração com Múltiplos Frameworks</h2>
+                <p>Para projetos que usam GrydAuthentication + GrydCrud + GrydUserTenant simultaneamente:</p>
+
+                <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using GrydCrudFramework.Infrastructure.EntityFramework.Context;
+using GrydAuthenticationFramework.Infrastructure.Common.Interfaces;
+using GrydAuthenticationFramework.Infrastructure.Extensions;
+using GrydUserTenantFramework.Infrastructure.Common.Interfaces;
+using GrydUserTenantFramework.Infrastructure.Extensions;
+
+public class ApplicationDbContext : BaseDbContext, 
+                                   IAuthenticationDbContext, 
+                                   IUserTenantDbContext
+{
+    // GrydAuthenticationFramework entities
+    public DbSet&lt;User&gt; Users =&gt; Set&lt;User&gt;();
+    public DbSet&lt;Role&gt; Roles =&gt; Set&lt;Role&gt;();
+    public DbSet&lt;Permission&gt; Permissions =&gt; Set&lt;Permission&gt;();
+    public DbSet&lt;UserRole&gt; UserRoles =&gt; Set&lt;UserRole&gt;();
+    public DbSet&lt;UserPermission&gt; UserPermissions =&gt; Set&lt;UserPermission&gt;();
+    public DbSet&lt;RolePermission&gt; RolePermissions =&gt; Set&lt;RolePermission&gt;();
+    public DbSet&lt;RefreshToken&gt; RefreshTokens =&gt; Set&lt;RefreshToken&gt;();
+    
+    // GrydUserTenantFramework entities
+    public DbSet&lt;UserTenant&gt; UserTenants =&gt; Set&lt;UserTenant&gt;();
+    
+    // Suas entidades específicas
+    public DbSet&lt;MyEntity&gt; MyEntities { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // GrydCrudFramework configurações (multi-tenancy, audit, etc.)
+        base.OnModelCreating(modelBuilder);
+
+        // Configurações automáticas dos frameworks
+        modelBuilder.ConfigureAuthenticationEntities(this);
+        modelBuilder.ConfigureUserTenantEntities(this);
+
+        // Suas configurações específicas
+        modelBuilder.ApplyConfiguration(new MyEntityConfiguration());
+    }
+}</code></pre>
+
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 my-6">
+                    <p class="text-green-800"><strong>💡 Dica:</strong> A integração entre os frameworks é automática - as relacionamentos entre User (GrydAuth) e UserTenant são configurados automaticamente!</p>
+                </div>
+
+                <h2>📋 Checklist de Configuração</h2>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <ul class="space-y-2">
+                        <li>✅ Adicionar referência ao <code>GrydUserTenantFramework.Infrastructure</code></li>
+                        <li>✅ Implementar <code>IUserTenantDbContext</code> OU herdar de <code>BaseDbContextWithUserTenant</code></li>
+                        <li>✅ Atualizar <code>OnModelCreating</code> para usar <code>ConfigureUserTenantEntities()</code></li>
+                        <li>✅ Testar migration e funcionamento</li>
+                        <li>✅ Verificar se os relacionamentos com User estão funcionando</li>
+                    </ul>
+                </div>
+
+                <h2>🔧 Configurações Automáticas Incluídas</h2>
+                <ul class="list-disc pl-6 mb-4">
+                    <li><strong>UserTenantConfiguration:</strong> Configuração completa da entidade UserTenant</li>
+                    <li><strong>Relacionamentos:</strong> FK para User (GrydAuth) configurada automaticamente</li>
+                    <li><strong>Índices:</strong> Índices de performance para consultas frequentes</li>
+                    <li><strong>Validações:</strong> Constraints e validações de domínio</li>
+                    <li><strong>Soft Delete:</strong> Filtros globais para exclusão lógica</li>
+                    <li><strong>Multi-tenancy:</strong> Suporte completo para multi-tenancy</li>
+                </ul>
+
+                <h2>🚀 Para Novos Projetos</h2>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p><strong>Recomendação:</strong> Use as classes base combinadas para máxima simplicidade:</p>
+                    <ol class="list-decimal pl-6 mt-2">
+                        <li>Herde de <code>BaseDbContext</code> (GrydCrud)</li>
+                        <li>Implemente <code>IAuthenticationDbContext</code> + <code>IUserTenantDbContext</code></li>
+                        <li>Use os métodos de extensão <code>ConfigureAuthenticationEntities()</code> + <code>ConfigureUserTenantEntities()</code></li>
+                        <li>Declare apenas suas entidades específicas</li>
+                        <li>Pronto! Auth + CRUD + UserTenant + Multi-tenancy funcionando</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>

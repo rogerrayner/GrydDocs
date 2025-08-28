@@ -27,6 +27,88 @@
 Install-Package GrydAuthenticationFramework.Infrastructure.Auth0</code></pre>
                 </div>
 
+                <h2>🚀 Configuração Automática de DbContext (NOVO)</h2>
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                    <p class="text-blue-800"><strong>⚡ Novidade:</strong> O framework agora oferece configuração automática dos DbSets para simplificar a integração em novos projetos!</p>
+                </div>
+
+                <h3>✨ Benefícios da Configuração Automática</h3>
+                <ul class="list-disc pl-6 mb-4">
+                    <li><strong>Configuração Automática:</strong> DbSets de autenticação são configurados automaticamente</li>
+                    <li><strong>Redução de Código:</strong> Não é necessário declarar manualmente cada DbSet</li>
+                    <li><strong>Nomes de Tabela Corretos:</strong> As configurações do framework são aplicadas automaticamente</li>
+                    <li><strong>Facilidade de Manutenção:</strong> Atualizações no framework se propagam automaticamente</li>
+                </ul>
+
+                <h3>🛠️ Opção 1: Interface IAuthenticationDbContext (Mais Flexível)</h3>
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Common.Interfaces;
+using GrydAuthenticationFramework.Infrastructure.Extensions;
+
+public class ApplicationDbContext : BaseDbContext, IAuthenticationDbContext
+{
+    // DbSets de autenticação implementados automaticamente via interface
+    public DbSet&lt;User&gt; Users =&gt; Set&lt;User&gt;();
+    public DbSet&lt;Role&gt; Roles =&gt; Set&lt;Role&gt;();
+    public DbSet&lt;Permission&gt; Permissions =&gt; Set&lt;Permission&gt;();
+    public DbSet&lt;UserRole&gt; UserRoles =&gt; Set&lt;UserRole&gt;();
+    public DbSet&lt;UserPermission&gt; UserPermissions =&gt; Set&lt;UserPermission&gt;();
+    public DbSet&lt;RolePermission&gt; RolePermissions =&gt; Set&lt;RolePermission&gt;();
+    public DbSet&lt;RefreshToken&gt; RefreshTokens =&gt; Set&lt;RefreshToken&gt;();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        // Configuração automática das entidades de autenticação
+        modelBuilder.ConfigureAuthenticationEntities(this);
+        
+        // Configure suas entidades específicas...
+    }
+}</code></pre>
+
+                <h3>🎯 Opção 2: BaseDbContextWithAuthentication (Mais Simples - RECOMENDADO)</h3>
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Data;
+
+public class ApplicationDbContext : BaseDbContextWithAuthentication
+{
+    public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options) 
+        : base(options)
+    {
+    }
+
+    // Apenas suas entidades específicas
+    public DbSet&lt;MyEntity&gt; MyEntities { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Chama base que já configura tudo automaticamente
+        base.OnModelCreating(modelBuilder);
+
+        // Configure apenas suas entidades específicas
+        modelBuilder.ApplyConfiguration(new MyEntityConfiguration());
+    }
+}</code></pre>
+
+                <h3>⚙️ Opção 3: Apenas o Método de Extensão (Máxima Flexibilidade)</h3>
+                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Extensions;
+
+public class ApplicationDbContext : DbContext
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        // Aplica apenas as configurações do framework
+        modelBuilder.ApplyAuthenticationConfigurations();
+        
+        // Você ainda precisa declarar os DbSets manualmente
+    }
+}</code></pre>
+
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 my-6">
+                    <p class="text-green-800"><strong>💡 Recomendação:</strong> Use a <strong>Opção 2</strong> (BaseDbContextWithAuthentication) para máxima simplicidade em novos projetos!</p>
+                </div>
+
                 <h2>🔧 Program.cs Configuration</h2>
                 <p>Configuração no Program.cs conforme implementado:</p>
 
