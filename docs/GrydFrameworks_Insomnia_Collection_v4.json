@@ -12,16 +12,6 @@
       "scope": "collection"
     },
     {
-      "_id": "env_base_environment",
-      "_type": "environment",
-      "name": "Base Environment",
-      "data": {},
-      "dataPropertyOrder": null,
-      "color": null,
-      "isPrivate": false,
-      "parentId": "wrk_gryd_frameworks_collection"
-    },
-    {
       "_id": "env_development",
       "_type": "environment",
       "name": "🟢 Development",
