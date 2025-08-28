@@ -8,7 +8,7 @@
       "_id": "wrk_gryd_frameworks_collection",
       "_type": "workspace",
       "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4",
-      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados",
+      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados\n\n� CONFIGURAÇÃO POR AMBIENTE:\n🟢 Development: HTTP localhost:5222 (sem SSL para testes locais)\n🟡 Testing: HTTPS com certificados válidos\n🔴 Production: HTTPS com certificados válidos\n\n📋 Payload Login configurado com isPasswordEncrypted: false para desenvolvimento local",
       "scope": "collection"
     },
     {
@@ -17,10 +17,10 @@
       "name": "🟢 Development",
       "data": {
         "environment": "development",
-        "protocol": "https",
+        "protocol": "http",
         "app_host": "localhost",
-        "app_port": "7085",
-        "app_id": "requisition-control-ccb",
+        "app_port": "5222",
+        "app_id": "dev-req-control-Q1b0j4rXHf0v3XQHlDzCyrRynZVyqnHR9",
         "auth_token": "",
         "refresh_token": "",
         "user_email": "admin@local.com",
@@ -166,7 +166,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"appIds\": [\"{{ _.app_id }}\"]\n}"
+        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"isPasswordEncrypted\": false\n}"
       },
       "parameters": [],
       "headers": [

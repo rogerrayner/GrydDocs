@@ -10,7 +10,7 @@
       "created": 1756056187509,
       "modified": 1756056187509,
       "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v6",
-      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados (Kong/Insomnia v6 format)",
+      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados (Kong/Insomnia v6 format)\n\n� CONFIGURAÇÃO POR AMBIENTE:\n🟢 Development: HTTP localhost:5222 (sem SSL para testes locais)\n🟡 Testing: HTTPS com certificados válidos\n🔴 Production: HTTPS com certificados válidos\n\n📋 Payload Login configurado com isPasswordEncrypted: false para desenvolvimento local",
       "scope": "collection"
     },
     {
@@ -21,7 +21,7 @@
       "name": "Base Environment",
       "data": {
         "_": {
-          "app_id": "requisition-control-ccb",
+          "app_id": "dev-req-control-Q1b0j4rXHf0v3XQHlDzCyrRynZVyqnHR9",
           "auth_token": "",
           "refresh_token": "",
           "user_email": "admin@local.com",
@@ -67,9 +67,9 @@
       "name": "🟢 Development",
       "data": {
         "environment": "development",
-        "protocol": "https",
+        "protocol": "http",
         "app_host": "localhost",
-        "app_port": "7085"
+        "app_port": "5222"
       },
       "dataPropertyOrder": {
         "&": ["environment", "protocol", "app_host", "app_port"]
@@ -141,7 +141,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"appIds\": [\"{{ _.app_id }}\"]\n}"
+        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"isPasswordEncrypted\": false\n}"
       },
       "parameters": [],
       "headers": [

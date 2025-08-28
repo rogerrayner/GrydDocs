@@ -1,0 +1,64 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-08-28T15:15:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_debug_collection",
+      "_type": "workspace",
+      "name": "🔧 DEBUG - RequisitionControl HTTP Only",
+      "description": "Collection simplificada para debug do erro 522",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_debug",
+      "_type": "environment",
+      "name": "🟢 Local HTTP",
+      "data": {
+        "base_url": "http://localhost:5222",
+        "app_id": "dev-req-control-Q1b0j4rXHf0v3XQHlDzCyrRynZVyqnHR9",
+        "user_email": "admin@local.com",
+        "user_password": "admin@123"
+      },
+      "dataPropertyOrder": null,
+      "color": "#22c55e",
+      "isPrivate": false,
+      "parentId": "wrk_debug_collection"
+    },
+    {
+      "_id": "req_debug_login",
+      "_type": "request",
+      "name": "🔐 DEBUG - Login HTTP",
+      "description": "Teste simples de login em HTTP",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"isPasswordEncrypted\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692888000000,
+      "isPrivate": false,
+      "parentId": "wrk_debug_collection",
+      "settingFollowRedirects": "off",
+      "settingRebuildPath": true,
+      "settingSendCookies": true,
+      "settingStoreCookies": true,
+      "settingEncodeUrl": true,
+      "settingDisableRenderRequestBody": false,
+      "settingMaxTimelineDataSize": 1000
+    }
+  ]
+}

@@ -301,6 +301,78 @@
                 </div>
             </div>
         </div>
+
+        <!-- Downloads Section -->
+        <div class="mt-16 bg-gray-50 rounded-xl p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">📥 Insomnia Collections</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <h4 class="font-semibold text-gray-800 mb-2">v4 Collection (2020.x-2023.x)</h4>
+                    <p class="text-sm text-gray-600 mb-4">Compatible with classic Insomnia versions</p>
+                    <a href="docs/GrydFrameworks_Insomnia_Collection_v4.json" download class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        Download v4
+                    </a>
+                </div>
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <h4 class="font-semibold text-gray-800 mb-2">v6 Collection (2024.x+)</h4>
+                    <p class="text-sm text-gray-600 mb-4">Compatible with modern Kong/Insomnia versions</p>
+                    <a href="docs/GrydFrameworks_Insomnia_Collection_v6.json" download class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                        Download v6
+                    </a>
+                </div>
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <h4 class="font-semibold text-gray-800 mb-2">Debug Collection</h4>
+                    <p class="text-sm text-gray-600 mb-4">Simplified for troubleshooting</p>
+                    <a href="docs/GrydFrameworks_Debug_HTTP_Collection.json" download class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+                        Download Debug
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting Section -->
+        <div class="mt-16 bg-red-50 border border-red-200 rounded-xl p-8">
+            <h3 class="text-2xl font-bold text-red-800 mb-6 text-center">🚨 Insomnia Error 522 - Troubleshooting</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg p-6">
+                    <h4 class="font-semibold text-red-800 mb-4">🔧 Insomnia Settings</h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><strong>1.</strong> Preferences → General → "Validate certificates" = <span class="bg-red-100 px-2 py-1 rounded">OFF</span></li>
+                        <li><strong>2.</strong> Preferences → General → "Request timeout" = <span class="bg-red-100 px-2 py-1 rounded">30000ms</span></li>
+                        <li><strong>3.</strong> Preferences → General → "Follow redirects" = <span class="bg-red-100 px-2 py-1 rounded">OFF</span></li>
+                        <li><strong>4.</strong> Clear workspace cache: File → Preferences → Data → "Clear All Data"</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-6">
+                    <h4 class="font-semibold text-red-800 mb-4">🌐 Environment Configuration</h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><strong>Development:</strong> <code class="bg-gray-100 px-2 py-1 rounded">http://localhost:5222</code></li>
+                        <li><strong>Testing:</strong> <code class="bg-gray-100 px-2 py-1 rounded">https://auth-test.gryd.com:443</code></li>
+                        <li><strong>Production:</strong> <code class="bg-gray-100 px-2 py-1 rounded">https://api.gryd.com:443</code></li>
+                        <li><strong>Debug:</strong> Use the simplified debug collection first</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h5 class="font-semibold text-yellow-800 mb-2">💡 Quick Fix Steps:</h5>
+                <ol class="text-sm text-yellow-700 space-y-1">
+                    <li><strong>1.</strong> Download and import the debug collection</li>
+                    <li><strong>2.</strong> Select "🟢 Local HTTP" environment</li>
+                    <li><strong>3.</strong> Test with "🔐 DEBUG - Login HTTP" request</li>
+                    <li><strong>4.</strong> If it works, the issue is with the main collection cache</li>
+                    <li><strong>5.</strong> Clear Insomnia data and re-import main collection</li>
+                </ol>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Still having issues? Test with cURL: <code class="bg-gray-100 px-2 py-1 rounded">curl -X POST http://localhost:5222/api/auth/login</code>
+                </p>
+            </div>
+        </div>
     </main>
 
     <!-- Footer -->
