@@ -1,0 +1,747 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-08-28T14:40:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_gryd_frameworks_collection",
+      "_type": "workspace",
+      "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4",
+      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_development",
+      "_type": "environment",
+      "name": "🟢 Development",
+      "data": {
+        "environment": "development",
+        "protocol": "https",
+        "app_host": "localhost",
+        "app_port": "7085",
+        "app_id": "requisition-control-ccb",
+        "auth_token": "",
+        "refresh_token": "",
+        "user_email": "admin@local.com",
+        "user_password": "admin@123",
+        "user_first_name": "Admin",
+        "user_last_name": "User",
+        "user_phone": "+5511999999999",
+        "user_id": "00000000-0000-0000-0000-000000000001",
+        "new_user_email": "newuser@local.com",
+        "new_user_first_name": "New",
+        "new_user_last_name": "User",
+        "new_user_phone": "+5511888888888",
+        "new_user_is_active": true,
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "user_tenant_role": "Admin",
+        "user_department": "IT",
+        "user_position": "Manager",
+        "role_id": "00000000-0000-0000-0000-000000000002",
+        "role_name": "Manager",
+        "role_description": "Manager role with specific permissions",
+        "permission_id": "00000000-0000-0000-0000-000000000003",
+        "permission_name": "users.read",
+        "permission_category": "users",
+        "permission_description": "Permission to read users",
+        "social_provider": "google",
+        "social_access_token": "GOOGLE_ACCESS_TOKEN_AQUI",
+        "page_number": "1",
+        "page_size": "10",
+        "is_active": true,
+        "is_default": false
+      },
+      "dataPropertyOrder": null,
+      "color": "#22c55e",
+      "isPrivate": false,
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "env_testing",
+      "_type": "environment",
+      "name": "🟡 Testing",
+      "data": {
+        "environment": "testing",
+        "protocol": "https",
+        "app_host": "auth-test.gryd.com",
+        "app_port": "443",
+        "app_id": "requisition-control-ccb",
+        "auth_token": "",
+        "refresh_token": "",
+        "user_email": "test@gryd.com",
+        "user_password": "Test@123456",
+        "user_first_name": "Test",
+        "user_last_name": "User",
+        "user_phone": "+5511888888888",
+        "user_id": "00000000-0000-0000-0000-000000000002",
+        "new_user_email": "newtest@gryd.com",
+        "new_user_first_name": "New Test",
+        "new_user_last_name": "User",
+        "new_user_phone": "+5511777777777",
+        "new_user_is_active": true,
+        "tenant_id": "00000000-0000-0000-0000-000000000002",
+        "user_tenant_role": "User",
+        "user_department": "Testing",
+        "user_position": "Tester",
+        "role_id": "00000000-0000-0000-0000-000000000004",
+        "role_name": "Tester",
+        "role_description": "Testing role with limited permissions",
+        "permission_id": "00000000-0000-0000-0000-000000000005",
+        "permission_name": "users.read",
+        "permission_category": "testing",
+        "permission_description": "Testing permission",
+        "social_provider": "google",
+        "social_access_token": "GOOGLE_TEST_TOKEN_AQUI",
+        "page_number": "1",
+        "page_size": "20",
+        "is_active": true,
+        "is_default": false
+      },
+      "dataPropertyOrder": null,
+      "color": "#eab308",
+      "isPrivate": false,
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "env_production",
+      "_type": "environment",
+      "name": "🔴 Production",
+      "data": {
+        "environment": "production",
+        "protocol": "https",
+        "app_host": "api.gryd.com",
+        "app_port": "443",
+        "app_id": "requisition-control-ccb",
+        "auth_token": "",
+        "refresh_token": "",
+        "user_email": "admin@gryd.com",
+        "user_password": "SecurePassword@123",
+        "user_first_name": "Admin",
+        "user_last_name": "Production",
+        "user_phone": "+5511666666666",
+        "user_id": "00000000-0000-0000-0000-000000000003",
+        "new_user_email": "newprod@gryd.com",
+        "new_user_first_name": "New Production",
+        "new_user_last_name": "User",
+        "new_user_phone": "+5511555555555",
+        "new_user_is_active": true,
+        "tenant_id": "00000000-0000-0000-0000-000000000003",
+        "user_tenant_role": "Admin",
+        "user_department": "Production",
+        "user_position": "Administrator",
+        "role_id": "00000000-0000-0000-0000-000000000006",
+        "role_name": "Production Admin",
+        "role_description": "Production admin role with full permissions",
+        "permission_id": "00000000-0000-0000-0000-000000000007",
+        "permission_name": "admin.all",
+        "permission_category": "admin",
+        "permission_description": "Full admin permissions",
+        "social_provider": "google",
+        "social_access_token": "GOOGLE_PROD_TOKEN_AQUI",
+        "page_number": "1",
+        "page_size": "50",
+        "is_active": true,
+        "is_default": false
+      },
+      "dataPropertyOrder": null,
+      "color": "#ef4444",
+      "isPrivate": false,
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "fld_gryd_auth_folder",
+      "_type": "request_group",
+      "name": "🔐 GrydAuth - Authentication",
+      "description": "Endpoints de autenticação do GrydAuthenticationFramework",
+      "environment": {},
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "name": "🔐 Login - Get Token",
+      "description": "Autentica o usuário e obtém o token JWT",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"appIds\": [\"{{ _.app_id }}\"]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692888000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_auth_folder"
+    },
+    {
+      "_id": "req_auth_refresh",
+      "_type": "request",
+      "name": "🔄 Refresh Token",
+      "description": "Renova o token JWT usando o refresh token",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/refresh",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692887000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_auth_folder"
+    },
+    {
+      "_id": "req_auth_me",
+      "_type": "request",
+      "name": "👤 Get Profile (Me)",
+      "description": "Obtém informações do perfil do usuário autenticado",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/me",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692886000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_auth_folder"
+    },
+    {
+      "_id": "req_auth_logout",
+      "_type": "request",
+      "name": "🚪 Logout",
+      "description": "Faz logout do usuário invalidando o token",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/logout",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692885000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_auth_folder"
+    },
+    {
+      "_id": "fld_gryd_users_folder",
+      "_type": "request_group",
+      "name": "👥 GrydAuth - Users Management",
+      "description": "Endpoints de gerenciamento de usuários do GrydAuthenticationFramework",
+      "environment": {},
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "req_users_list",
+      "_type": "request",
+      "name": "📋 List Users",
+      "description": "Lista todos os usuários com paginação",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "page",
+          "value": "{{ _.page_number }}"
+        },
+        {
+          "name": "size",
+          "value": "{{ _.page_size }}"
+        },
+        {
+          "name": "isActive",
+          "value": "{{ _.is_active }}"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692884000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_users_folder"
+    },
+    {
+      "_id": "req_users_create",
+      "_type": "request",
+      "name": "➕ Create User",
+      "description": "Cria um novo usuário",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{{ _.new_user_email }}\",\n  \"firstName\": \"{{ _.new_user_first_name }}\",\n  \"lastName\": \"{{ _.new_user_last_name }}\",\n  \"phoneNumber\": \"{{ _.new_user_phone }}\",\n  \"isActive\": {{ _.new_user_is_active }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692883000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_users_folder"
+    },
+    {
+      "_id": "req_users_get",
+      "_type": "request",
+      "name": "🔍 Get User by ID",
+      "description": "Obtém informações de um usuário específico",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692882000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_users_folder"
+    },
+    {
+      "_id": "req_users_update",
+      "_type": "request",
+      "name": "✏️ Update User",
+      "description": "Atualiza informações de um usuário",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"firstName\": \"{{ _.user_first_name }}\",\n  \"lastName\": \"{{ _.user_last_name }}\",\n  \"phoneNumber\": \"{{ _.user_phone }}\",\n  \"isActive\": {{ _.is_active }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692881000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_users_folder"
+    },
+    {
+      "_id": "req_users_delete",
+      "_type": "request",
+      "name": "🗑️ Delete User",
+      "description": "Remove um usuário (soft delete)",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692880000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_users_folder"
+    },
+    {
+      "_id": "fld_gryd_roles_folder",
+      "_type": "request_group",
+      "name": "🎭 GrydAuth - Roles Management",
+      "description": "Endpoints de gerenciamento de papéis/roles do GrydAuthenticationFramework",
+      "environment": {},
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "req_roles_list",
+      "_type": "request",
+      "name": "📋 List Roles",
+      "description": "Lista todos os papéis/roles com paginação",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/roles",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "page",
+          "value": "{{ _.page_number }}"
+        },
+        {
+          "name": "size",
+          "value": "{{ _.page_size }}"
+        },
+        {
+          "name": "isActive",
+          "value": "{{ _.is_active }}"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692879000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_roles_folder"
+    },
+    {
+      "_id": "req_roles_create",
+      "_type": "request",
+      "name": "➕ Create Role",
+      "description": "Cria um novo papel/role",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/roles",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"{{ _.role_name }}\",\n  \"description\": \"{{ _.role_description }}\",\n  \"isActive\": {{ _.is_active }},\n  \"isDefault\": {{ _.is_default }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692878000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_roles_folder"
+    },
+    {
+      "_id": "req_roles_get",
+      "_type": "request",
+      "name": "🔍 Get Role by ID",
+      "description": "Obtém informações de um papel/role específico",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/roles/{{ _.role_id }}",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692877000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_roles_folder"
+    },
+    {
+      "_id": "fld_gryd_permissions_folder",
+      "_type": "request_group",
+      "name": "🔑 GrydAuth - Permissions Management",
+      "description": "Endpoints de gerenciamento de permissões do GrydAuthenticationFramework",
+      "environment": {},
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "req_permissions_list",
+      "_type": "request",
+      "name": "📋 List Permissions",
+      "description": "Lista todas as permissões com filtros",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/permissions",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "page",
+          "value": "{{ _.page_number }}"
+        },
+        {
+          "name": "size",
+          "value": "{{ _.page_size }}"
+        },
+        {
+          "name": "category",
+          "value": "{{ _.permission_category }}"
+        },
+        {
+          "name": "isActive",
+          "value": "{{ _.is_active }}"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692876000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_permissions_folder"
+    },
+    {
+      "_id": "req_permissions_create",
+      "_type": "request",
+      "name": "➕ Create Permission",
+      "description": "Cria uma nova permissão",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/permissions",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"{{ _.permission_name }}\",\n  \"description\": \"{{ _.permission_description }}\",\n  \"category\": \"{{ _.permission_category }}\",\n  \"isActive\": {{ _.is_active }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692875000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_permissions_folder"
+    },
+    {
+      "_id": "req_user_roles_assign",
+      "_type": "request",
+      "name": "🔗 Assign Role to User",
+      "description": "Atribui um papel/role a um usuário",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}/roles",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"roleId\": \"{{ _.role_id }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692874000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_permissions_folder"
+    },
+    {
+      "_id": "req_role_permissions_assign",
+      "_type": "request",
+      "name": "🔗 Assign Permission to Role",
+      "description": "Atribui uma permissão a um papel/role",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/roles/{{ _.role_id }}/permissions",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"permissionId\": \"{{ _.permission_id }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692873000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_permissions_folder"
+    },
+    {
+      "_id": "fld_gryd_user_tenant_folder",
+      "_type": "request_group",
+      "name": "🏢 GrydUserTenant - Tenant Management",
+      "description": "Endpoints de gerenciamento de usuários e tenants do GrydUserTenantFramework",
+      "environment": {},
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
+      "_id": "req_user_tenants_list",
+      "_type": "request",
+      "name": "📋 List User-Tenants",
+      "description": "Lista todas as associações usuário-tenant com paginação",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/user-tenants",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "page",
+          "value": "{{ _.page_number }}"
+        },
+        {
+          "name": "size",
+          "value": "{{ _.page_size }}"
+        },
+        {
+          "name": "tenantId",
+          "value": "{{ _.tenant_id }}"
+        },
+        {
+          "name": "isActive",
+          "value": "{{ _.is_active }}"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692872000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_user_tenant_folder"
+    },
+    {
+      "_id": "req_user_tenants_create",
+      "_type": "request",
+      "name": "➕ Create User-Tenant Association",
+      "description": "Cria uma nova associação usuário-tenant",
+      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/user-tenants",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"userId\": \"{{ _.user_id }}\",\n  \"tenantId\": \"{{ _.tenant_id }}\",\n  \"role\": \"{{ _.user_tenant_role }}\",\n  \"department\": \"{{ _.user_department }}\",\n  \"position\": \"{{ _.user_position }}\",\n  \"isActive\": {{ _.is_active }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.auth_token }}"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "{{ _.app_id }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692871000000,
+      "isPrivate": false,
+      "parentId": "fld_gryd_user_tenant_folder"
+    }
+  ]
+}
