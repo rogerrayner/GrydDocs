@@ -8,7 +8,7 @@
       "_id": "wrk_gryd_frameworks_collection",
       "_type": "workspace",
       "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4",
-      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados\n\n📋 CONFIGURAÇÃO POR AMBIENTE:\n🟢 Development: HTTP localhost:5222 (sem SSL para testes locais)\n🟡 Testing: HTTPS com certificados válidos\n🔴 Production: HTTPS com certificados válidos\n\n📋 Payload Login configurado com isPasswordEncrypted: false para desenvolvimento local",
+      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados\n\n📋 CONFIGURAÇÃO POR AMBIENTE:\n🟢 Development: HTTP localhost:5222 (sem SSL para testes locais)\n🟡 Testing: HTTPS com certificados válidos\n🔴 Production: HTTPS com certificados válidos\n\n📋 Payload Login configurado com isPasswordEncrypted: false para desenvolvimento local\n\n🔧 CONFIGURAÇÕES DE TIMEOUT:\n- Request timeout: 30 segundos\n- Response timeout: 30 segundos\n- Keep-alive: Habilitado",
       "scope": "collection"
     },
     {
@@ -177,11 +177,26 @@
         {
           "name": "X-App-Id",
           "value": "{{ _.app_id }}"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "User-Agent",
+          "value": "Insomnia/2023.5.8"
         }
       ],
       "authentication": {},
       "metaSortKey": -1692888000000,
       "isPrivate": false,
+      "settingFollowRedirects": "global",
+      "settingRebuildPath": true,
+      "settingSendCookies": true,
+      "settingStoreCookies": true,
+      "settingEncodeUrl": true,
+      "settingDisableRenderRequestBody": false,
+      "settingMaxTimelineDataSize": 1000,
       "parentId": "fld_gryd_auth_folder"
     },
     {
@@ -683,6 +698,48 @@
       "metaSortKey": -1692871000000,
       "isPrivate": false,
       "parentId": "fld_gryd_user_tenant_folder"
+    },
+    {
+      "_id": "req_auth_login_test_hardcoded",
+      "_type": "request",
+      "name": "🧪 Login TEST - Hardcoded (Debug 522)",
+      "description": "Request de teste com valores hardcoded para debug do erro 522",
+      "url": "http://localhost:5222/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@local.com\",\n  \"password\": \"admin@123\",\n  \"isPasswordEncrypted\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-App-Id",
+          "value": "dev-req-control-Q1b0j4rXHf0v3XQHlDzCyrRynZVyqnHR9"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "User-Agent",
+          "value": "Insomnia/2023.5.8"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1692888100000,
+      "isPrivate": false,
+      "settingFollowRedirects": "global",
+      "settingRebuildPath": true,
+      "settingSendCookies": true,
+      "settingStoreCookies": true,
+      "settingEncodeUrl": true,
+      "settingDisableRenderRequestBody": false,
+      "settingMaxTimelineDataSize": 1000,
+      "parentId": "fld_gryd_auth_folder"
     }
   ]
 }
