@@ -191,11 +191,26 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "User-Agent",
+          "value": "Insomnia/11.5.0"
+        },
+        {
+          "name": "Connection",
+          "value": "keep-alive"
         }
       ],
       "authentication": {},
       "metaSortKey": -1692888000000,
       "isPrivate": false,
+      "settingFollowRedirects": "global",
+      "settingRebuildPath": true,
+      "settingSendCookies": true,
+      "settingStoreCookies": true,
+      "settingEncodeUrl": true,
+      "settingDisableRenderRequestBody": false,
+      "settingMaxTimelineDataSize": 1000,
       "parentId": "fld_gryd_auth_folder"
     },
     {
