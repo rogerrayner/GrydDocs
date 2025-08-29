@@ -170,7 +170,7 @@ public async Task&lt;Result&gt; DeleteUserAsync(string auth0UserId, Cancellation
                 <h3>Auth0ServiceRegistration</h3>
                 <pre><code class="language-csharp">public static class Auth0ServiceRegistration
 {
-    public static IServiceCollection AddAuth0Services(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuth0GrydAuthServices(this IServiceCollection services, IConfiguration configuration)
     {
         var auth0Settings = new Auth0Settings();
         configuration.GetSection("Auth0").Bind(auth0Settings);
@@ -200,7 +200,7 @@ public async Task&lt;Result&gt; DeleteUserAsync(string auth0UserId, Cancellation
 builder.Services.AddGrydAuthentication(builder.Configuration);
 
 // Add Auth0 integration
-builder.Services.AddAuth0Services(builder.Configuration);
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
 
 var app = builder.Build();</code></pre>
 

@@ -12,7 +12,7 @@ collection:
       created: 1756472884868
       modified: 1756472884868
       sortKey: -1756472884868
-      description: Endpoints de autenticação do GrydAuthenticationFramework
+      description: Endpoints de autenticação do GrydAuth
     children:
       - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/login"
         name: 🔐 Login - Get Token
@@ -144,7 +144,7 @@ collection:
       created: 1756472884870
       modified: 1756472884870
       sortKey: -1756472884870
-      description: Endpoints de gerenciamento de usuários do GrydAuthenticationFramework
+      description: Endpoints de gerenciamento de usuários do GrydAuth
     children:
       - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users"
         name: ➕ Create User
@@ -317,7 +317,7 @@ collection:
       created: 1756472884871
       modified: 1756472884871
       sortKey: -1756472884871
-      description: Endpoints de gerenciamento de papéis/roles do GrydAuthenticationFramework
+      description: Endpoints de gerenciamento de papéis/roles do GrydAuth
     children:
       - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles"
         name: 📋 List Roles
@@ -424,7 +424,7 @@ collection:
       created: 1756472884872
       modified: 1756472884872
       sortKey: -1756472884872
-      description: Endpoints de gerenciamento de permissões do GrydAuthenticationFramework
+      description: Endpoints de gerenciamento de permissões do GrydAuth
     children:
       - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles/{{ role_id
           }}/permissions"
@@ -579,7 +579,7 @@ collection:
       modified: 1756472884874
       sortKey: -1756472884874
       description: Endpoints de gerenciamento de usuários e tenants do
-        GrydUserTenantFramework
+        GrydUserTenant
     children:
       - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/user-tenants"
         name: ➕ Create User-Tenant Association

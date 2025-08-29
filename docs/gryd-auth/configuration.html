@@ -23,8 +23,8 @@
                 <h2>📦 Instalação</h2>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <h3 class="font-semibold text-gray-800 mb-2">Via Package Manager Console</h3>
-                    <pre><code class="language-bash">Install-Package GrydAuthenticationFramework.Infrastructure
-Install-Package GrydAuthenticationFramework.Infrastructure.Auth0</code></pre>
+                    <pre><code class="language-bash">Install-Package GrydAuth.Infrastructure
+Install-Package GrydAuth.Infrastructure.Auth0</code></pre>
                 </div>
 
                 <h2>🚀 Configuração Automática de DbContext (NOVO)</h2>
@@ -41,8 +41,8 @@ Install-Package GrydAuthenticationFramework.Infrastructure.Auth0</code></pre>
                 </ul>
 
                 <h3>🛠️ Opção 1: Interface IAuthenticationDbContext (Mais Flexível)</h3>
-                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Common.Interfaces;
-using GrydAuthenticationFramework.Infrastructure.Extensions;
+                <pre><code class="language-csharp">using GrydAuth.Infrastructure.Common.Interfaces;
+using GrydAuth.Infrastructure.Extensions;
 
 public class ApplicationDbContext : BaseDbContext, IAuthenticationDbContext
 {
@@ -67,7 +67,7 @@ public class ApplicationDbContext : BaseDbContext, IAuthenticationDbContext
 }</code></pre>
 
                 <h3>🎯 Opção 2: BaseDbContextWithAuthentication (Mais Simples - RECOMENDADO)</h3>
-                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Data;
+                <pre><code class="language-csharp">using GrydAuth.Infrastructure.Data;
 
 public class ApplicationDbContext : BaseDbContextWithAuthentication
 {
@@ -90,7 +90,7 @@ public class ApplicationDbContext : BaseDbContextWithAuthentication
 }</code></pre>
 
                 <h3>⚙️ Opção 3: Apenas o Método de Extensão (Máxima Flexibilidade)</h3>
-                <pre><code class="language-csharp">using GrydAuthenticationFramework.Infrastructure.Extensions;
+                <pre><code class="language-csharp">using GrydAuth.Infrastructure.Extensions;
 
 public class ApplicationDbContext : DbContext
 {
@@ -112,10 +112,10 @@ public class ApplicationDbContext : DbContext
                 <h2>🔧 Program.cs Configuration</h2>
                 <p>Configuração no Program.cs conforme implementado:</p>
 
-                <pre><code class="language-csharp">using GrydAuthenticationFramework.Application;
-using GrydAuthenticationFramework.Infrastructure;
-using GrydAuthenticationFramework.Infrastructure.Auth0;
-using GrydAuthenticationFramework.API.Middleware;
+                <pre><code class="language-csharp">using GrydAuth.Application;
+using GrydAuth.Infrastructure;
+using GrydAuth.Infrastructure.Auth0;
+using GrydAuth.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -151,9 +151,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add Framework services (implementado)
-builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddAuth0Services(builder.Configuration);
+builder.Services.AddApplicationGrydAuthServices();
+builder.Services.AddInfrastructureGrydAuthServices(builder.Configuration);
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -190,12 +190,12 @@ app.Run();</code></pre>
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=GrydAuthenticationFramework;Trusted_Connection=true;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=GrydAuth;Trusted_Connection=true;MultipleActiveResultSets=true"
   },
   "JwtSettings": {
     "SecretKey": "YourSuperSecretKeyThatShouldBeAtLeast32CharactersLong",
-    "Issuer": "GrydAuthenticationFramework",
-    "Audience": "GrydAuthenticationFramework",
+    "Issuer": "GrydAuth",
+    "Audience": "GrydAuth",
     "ExpirationMinutes": 60
   },
   "Auth0": {
@@ -280,9 +280,9 @@ services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "GrydAuthenticationFramework",
+        ValidIssuer = jwtSettings["Issuer"] ?? "GrydAuth",
         ValidateAudience = true,
-        ValidAudience = jwtSettings["Audience"] ?? "GrydAuthenticationFramework",
+        ValidAudience = jwtSettings["Audience"] ?? "GrydAuth",
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };

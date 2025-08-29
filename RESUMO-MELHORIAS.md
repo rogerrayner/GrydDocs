@@ -2,7 +2,7 @@
 
 ## ✨ O que foi implementado
 
-### 1. **GrydAuthenticationFramework - Configuração Automática**
+### 1. **GrydAuth - Configuração Automática**
 
 #### 🔧 Novos Componentes Criados:
 - **`IAuthenticationDbContext`**: Interface para DbContext com entidades de autenticação
@@ -13,11 +13,11 @@
 - **Configuração automática de DbSets**: Users, Roles, Permissions, UserRoles, UserPermissions, RolePermissions, RefreshTokens
 - **Aplicação automática de configurações**: Todas as EntityTypeConfiguration são aplicadas automaticamente
 - **Nomes de tabela corretos**: Respeitam as configurações do framework (plural)
-- **Framework independente**: Não depende do GrydCrudFramework
+- **Framework independente**: Não depende do GrydCrud
 
 ---
 
-### 2. **GrydUserTenantFramework - Configuração Automática**
+### 2. **GrydUserTenant - Configuração Automática**
 
 #### 🔧 Novos Componentes Criados:
 - **`IUserTenantDbContext`**: Interface para DbContext com entidades de UserTenant
@@ -65,7 +65,7 @@ public class ApplicationDbContext : BaseDbContext,
 
 ---
 
-### 4. **Documentação Atualizada no GrydFrameworkDocs**
+### 4. **Documentação Atualizada no GrydDocs**
 
 #### 📚 Arquivos Criados/Atualizados:
 
@@ -132,8 +132,8 @@ public class ApplicationDbContext : BaseDbContext,
 
 1. ✅ **Adicionar referências**:
    ```xml
-   <ProjectReference Include="GrydAuthenticationFramework.Infrastructure" />
-   <ProjectReference Include="GrydUserTenantFramework.Infrastructure" />
+   <ProjectReference Include="GrydAuth.Infrastructure" />
+   <ProjectReference Include="GrydUserTenant.Infrastructure" />
    ```
 
 2. ✅ **Implementar interfaces no DbContext**:

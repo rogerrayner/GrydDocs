@@ -255,7 +255,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace GrydAuthenticationFramework.Attributes
+namespace GrydAuth.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequirePermissionAttribute : Attribute, IAuthorizationFilter
@@ -331,7 +331,7 @@ namespace GrydAuthenticationFramework.Attributes
 }</code></pre>
 
                 <h3>RequireRoleAttribute</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Attributes
+                <pre><code class="language-csharp">namespace GrydAuth.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequireRoleAttribute : Attribute, IAuthorizationFilter
@@ -505,7 +505,7 @@ public class ProductsController : ControllerBase
                 <h2>Serviços de Autorização</h2>
 
                 <h3>IPermissionService</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+                <pre><code class="language-csharp">namespace GrydAuth.Application.Interfaces
 {
     public interface IPermissionService
     {
@@ -519,7 +519,7 @@ public class ProductsController : ControllerBase
 }</code></pre>
 
                 <h3>PermissionService Implementation</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Services
+                <pre><code class="language-csharp">namespace GrydAuth.Infrastructure.Services
 {
     public class PermissionService : IPermissionService
     {
@@ -714,7 +714,7 @@ public class ReportsController : ControllerBase
                 <h2>Extensões e Helpers</h2>
 
                 <h3>Authorization Extensions</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
+                <pre><code class="language-csharp">namespace GrydAuth.Extensions
 {
     public static class AuthorizationExtensions
     {

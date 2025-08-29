@@ -243,7 +243,7 @@ public class GetRoleByNameQuery : IRequest&lt;Result&lt;RoleDto&gt;&gt;
                 <pre><code class="language-csharp">// InfrastructureServiceRegistration.cs (implementado)
 public static class InfrastructureServiceRegistration
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureGrydAuthServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Entity Framework
         services.AddDbContext&lt;AuthenticationDbContext&gt;(options =>
@@ -277,7 +277,7 @@ public static class InfrastructureServiceRegistration
                 <pre><code class="language-csharp">// Auth0ServiceRegistration.cs (implementado)
 public static class Auth0ServiceRegistration
 {
-    public static IServiceCollection AddAuth0Services(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuth0GrydAuthServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Auth0 configuration
         services.Configure&lt;Auth0Settings&gt;(configuration.GetSection("Auth0"));
@@ -306,7 +306,7 @@ public static class Auth0ServiceRegistration
                 <pre><code class="language-csharp">// ApplicationServiceRegistration.cs (implementado)
 public static class ApplicationServiceRegistration
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationGrydAuthServices(this IServiceCollection services)
     {
         // MediatR registration
         services.AddMediatR(cfg =&gt;

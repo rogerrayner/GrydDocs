@@ -23,7 +23,7 @@
                 <h2>📦 Instalação</h2>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <h3 class="font-semibold text-gray-800 mb-2">Via Package Manager Console</h3>
-                    <pre><code class="language-bash">Install-Package GrydUserTenantFramework.Infrastructure</code></pre>
+                    <pre><code class="language-bash">Install-Package GrydUserTenant.Infrastructure</code></pre>
                 </div>
 
                 <h2>🚀 Configuração Automática de DbContext</h2>
@@ -40,8 +40,8 @@
                 </ul>
 
                 <h3>🛠️ Opção 1: Interface IUserTenantDbContext (Mais Flexível)</h3>
-                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Common.Interfaces;
-using GrydUserTenantFramework.Infrastructure.Extensions;
+                <pre><code class="language-csharp">using GrydUserTenant.Infrastructure.Common.Interfaces;
+using GrydUserTenant.Infrastructure.Extensions;
 
 public class ApplicationDbContext : BaseDbContext, IUserTenantDbContext
 {
@@ -60,7 +60,7 @@ public class ApplicationDbContext : BaseDbContext, IUserTenantDbContext
 }</code></pre>
 
                 <h3>🎯 Opção 2: BaseDbContextWithUserTenant (Mais Simples - RECOMENDADO)</h3>
-                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Data;
+                <pre><code class="language-csharp">using GrydUserTenant.Infrastructure.Data;
 
 public class ApplicationDbContext : BaseDbContextWithUserTenant
 {
@@ -83,7 +83,7 @@ public class ApplicationDbContext : BaseDbContextWithUserTenant
 }</code></pre>
 
                 <h3>⚙️ Opção 3: Apenas o Método de Extensão (Máxima Flexibilidade)</h3>
-                <pre><code class="language-csharp">using GrydUserTenantFramework.Infrastructure.Extensions;
+                <pre><code class="language-csharp">using GrydUserTenant.Infrastructure.Extensions;
 
 public class ApplicationDbContext : DbContext
 {
@@ -98,21 +98,35 @@ public class ApplicationDbContext : DbContext
     }
 }</code></pre>
 
-                <h2>🔄 Integração com Múltiplos Frameworks</h2>
+                <h2>� Registro de Serviços</h2>
+                <p>Configure os serviços do GrydUserTenant Framework no Program.cs:</p>
+
+                <pre><code class="language-csharp">using GrydUserTenant.Application;
+using GrydUserTenant.Infrastructure;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Registrar serviços do GrydUserTenant
+builder.Services.AddApplicationGrydUserTenantServices();
+builder.Services.AddInfrastructureGrydUserTenantServices(builder.Configuration);
+
+var app = builder.Build();</code></pre>
+
+                <h2>�🔄 Integração com Múltiplos Frameworks</h2>
                 <p>Para projetos que usam GrydAuthentication + GrydCrud + GrydUserTenant simultaneamente:</p>
 
                 <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
-using GrydCrudFramework.Infrastructure.EntityFramework.Context;
-using GrydAuthenticationFramework.Infrastructure.Common.Interfaces;
-using GrydAuthenticationFramework.Infrastructure.Extensions;
-using GrydUserTenantFramework.Infrastructure.Common.Interfaces;
-using GrydUserTenantFramework.Infrastructure.Extensions;
+using GrydCrud.Infrastructure.EntityFramework.Context;
+using GrydAuth.Infrastructure.Common.Interfaces;
+using GrydAuth.Infrastructure.Extensions;
+using GrydUserTenant.Infrastructure.Common.Interfaces;
+using GrydUserTenant.Infrastructure.Extensions;
 
 public class ApplicationDbContext : BaseDbContext, 
                                    IAuthenticationDbContext, 
                                    IUserTenantDbContext
 {
-    // GrydAuthenticationFramework entities
+    // GrydAuth entities
     public DbSet&lt;User&gt; Users =&gt; Set&lt;User&gt;();
     public DbSet&lt;Role&gt; Roles =&gt; Set&lt;Role&gt;();
     public DbSet&lt;Permission&gt; Permissions =&gt; Set&lt;Permission&gt;();
@@ -121,7 +135,7 @@ public class ApplicationDbContext : BaseDbContext,
     public DbSet&lt;RolePermission&gt; RolePermissions =&gt; Set&lt;RolePermission&gt;();
     public DbSet&lt;RefreshToken&gt; RefreshTokens =&gt; Set&lt;RefreshToken&gt;();
     
-    // GrydUserTenantFramework entities
+    // GrydUserTenant entities
     public DbSet&lt;UserTenant&gt; UserTenants =&gt; Set&lt;UserTenant&gt;();
     
     // Suas entidades específicas
@@ -129,7 +143,7 @@ public class ApplicationDbContext : BaseDbContext,
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // GrydCrudFramework configurações (multi-tenancy, audit, etc.)
+        // GrydCrud configurações (multi-tenancy, audit, etc.)
         base.OnModelCreating(modelBuilder);
 
         // Configurações automáticas dos frameworks
@@ -148,7 +162,7 @@ public class ApplicationDbContext : BaseDbContext,
                 <h2>📋 Checklist de Configuração</h2>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <ul class="space-y-2">
-                        <li>✅ Adicionar referência ao <code>GrydUserTenantFramework.Infrastructure</code></li>
+                        <li>✅ Adicionar referência ao <code>GrydUserTenant.Infrastructure</code></li>
                         <li>✅ Implementar <code>IUserTenantDbContext</code> OU herdar de <code>BaseDbContextWithUserTenant</code></li>
                         <li>✅ Atualizar <code>OnModelCreating</code> para usar <code>ConfigureUserTenantEntities()</code></li>
                         <li>✅ Testar migration e funcionamento</li>

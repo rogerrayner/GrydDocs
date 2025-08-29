@@ -241,7 +241,7 @@ Install-Package GrydAuthentication.Infrastructure.Auth0</code></pre>
                         <h3 class="font-semibold text-gray-800 mb-2">2. Configurar no Program.cs</h3>
                         <pre class="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto"><code>// Add framework services
 builder.Services.AddGrydAuthentication(builder.Configuration);
-builder.Services.AddAuth0Services(builder.Configuration);
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
 
 // Configure middleware
 app.UseAuthentication();
@@ -253,8 +253,8 @@ app.UseAuthorization();</code></pre>
                         <pre class="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto"><code>{
   "JwtSettings": {
     "SecretKey": "YourSuperSecretKey32CharactersLong",
-    "Issuer": "GrydAuthenticationFramework",
-    "Audience": "GrydAuthenticationFramework",
+    "Issuer": "GrydAuth",
+    "Audience": "GrydAuth",
     "ExpirationMinutes": 60
   },
   "Auth0": {

@@ -230,7 +230,7 @@ if (app.Environment.IsDevelopment())
     try
     {
         var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var grydAuthAssembly = typeof(GrydAuthenticationFramework.API.Controllers.UsersController).Assembly;
+        var grydAuthAssembly = typeof(GrydAuth.API.Controllers.UsersController).Assembly;
         
         await app.Services.SeedPermissionsAsync(currentAssembly, grydAuthAssembly);
         Log.Information("Permissions seeded successfully");

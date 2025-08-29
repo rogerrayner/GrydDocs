@@ -1,4 +1,4 @@
-# GrydFrameworkDocs
+# GrydDocs
 
 Documentação centralizada para todos os frameworks Gryd
 
@@ -7,14 +7,14 @@ Documentação centralizada para todos os frameworks Gryd
 Este repositório contém a documentação unificada para todos os frameworks da família Gryd:
 
 - **GrydUI Framework** - Framework React com Module Federation para microfrontends
-- **GrydAuthentication Framework** - Framework de autenticação e autorização enterprise
+- **GrydAuth Framework** - Framework de autenticação e autorização enterprise
 - **GrydCrud Framework** - Framework completo para operações CRUD com Clean Architecture
 - **GrydUserTenant Framework** - Framework para gestão de usuários e multi-tenancy
 
 ## 📁 Estrutura do Projeto
 
 ```
-GrydFrameworkDocs/
+GrydDocs/
 ├── index.html                           # Página principal com navegação
 ├── README.md                           # Este arquivo
 ├── .github/
@@ -27,8 +27,8 @@ GrydFrameworkDocs/
     │   ├── MODULE-FEDERATION-GUIDE.html
     │   ├── GITFLOW-STRATEGY.html
     │   └── ...                         # Outras documentações
-    ├── gryd-authentication/
-    │   ├── index.html                  # Página principal do GrydAuthentication
+    ├── gryd-auth/
+    │   ├── index.html                  # Página principal do GrydAuth
     │   ├── README.html
     │   ├── CONFIGURATION-GUIDE.html
     │   ├── SECURE-MULTIAPP-SETUP.html
@@ -51,12 +51,12 @@ GrydFrameworkDocs/
 
 1. **Criar Repositório no GitHub:**
    ```bash
-   # No diretório GrydFrameworkDocs
+   # No diretório GrydDocs
    git init
    git add .
    git commit -m "Initial commit: Centralized Gryd Framework Documentation"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/GrydFrameworkDocs.git
+   git remote add origin https://github.com/YOUR_USERNAME/GrydDocs.git
    git push -u origin main
    ```
 
@@ -122,8 +122,8 @@ Para usar um domínio customizado:
    cp ../GrydUI/docs/* docs/grydui/
    
    # Copiar do GrydAuthentication
-   cp ../GrydAuthenticationFramework/README.md docs/gryd-authentication/
-   cp ../GrydAuthenticationFramework/docs/* docs/gryd-authentication/
+   cp ../GrydAuth/README.md docs/gryd-authentication/
+   cp ../GrydAuth/docs/* docs/gryd-authentication/
    
    # Etc...
    ```

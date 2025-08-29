@@ -159,7 +159,7 @@
       "_id": "fld_gryd_auth_folder",
       "_type": "request_group",
       "name": "🔐 GrydAuth - Authentication",
-      "description": "Endpoints de autenticação do GrydAuthenticationFramework",
+      "description": "Endpoints de autenticação do GrydAuth",
       "environment": {},
       "parentId": "wrk_gryd_frameworks_collection"
     },
@@ -280,7 +280,7 @@
       "_id": "fld_gryd_users_folder",
       "_type": "request_group",
       "name": "👥 GrydAuth - Users Management",
-      "description": "Endpoints de gerenciamento de usuários do GrydAuthenticationFramework",
+      "description": "Endpoints de gerenciamento de usuários do GrydAuth",
       "environment": {},
       "parentId": "wrk_gryd_frameworks_collection"
     },
@@ -435,7 +435,7 @@
       "_id": "fld_gryd_roles_folder",
       "_type": "request_group",
       "name": "🎭 GrydAuth - Roles Management",
-      "description": "Endpoints de gerenciamento de papéis/roles do GrydAuthenticationFramework",
+      "description": "Endpoints de gerenciamento de papéis/roles do GrydAuth",
       "environment": {},
       "parentId": "wrk_gryd_frameworks_collection"
     },
@@ -535,7 +535,7 @@
       "_id": "fld_gryd_permissions_folder",
       "_type": "request_group",
       "name": "🔑 GrydAuth - Permissions Management",
-      "description": "Endpoints de gerenciamento de permissões do GrydAuthenticationFramework",
+      "description": "Endpoints de gerenciamento de permissões do GrydAuth",
       "environment": {},
       "parentId": "wrk_gryd_frameworks_collection"
     },
@@ -677,7 +677,7 @@
       "_id": "fld_gryd_user_tenant_folder",
       "_type": "request_group",
       "name": "🏢 GrydUserTenant - Tenant Management",
-      "description": "Endpoints de gerenciamento de usuários e tenants do GrydUserTenantFramework",
+      "description": "Endpoints de gerenciamento de usuários e tenants do GrydUserTenant",
       "environment": {},
       "parentId": "wrk_gryd_frameworks_collection"
     },

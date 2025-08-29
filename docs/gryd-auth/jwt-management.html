@@ -153,7 +153,7 @@ builder.Services.AddAuthentication(options =&gt;
 
                 <h4>1. Mudanças no GrydAuth Framework</h4>
                 <pre><code class="language-csharp">// ANTIGO - Fortemente acoplado (ERRADO)
-public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+public static IServiceCollection AddInfrastructureGrydAuthServices(this IServiceCollection services, IConfiguration configuration)
 {
     // ... registrar serviços
     AddJwtAuthentication(services, configuration); // Usando config própria do framework
@@ -161,7 +161,7 @@ public static IServiceCollection AddInfrastructureServices(this IServiceCollecti
 }
 
 // NOVO - Fracamente acoplado (CORRETO) 
-public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+public static IServiceCollection AddInfrastructureGrydAuthServices(this IServiceCollection services, IConfiguration configuration)
 {
     // ... registrar apenas serviços
     // Configuração JWT é responsabilidade da APLICAÇÃO HOST
@@ -181,7 +181,7 @@ public static IServiceCollection AddGrydAuthJwtAuthentication(this IServiceColle
                 <pre><code class="language-csharp">private static void RegisterGrydAuthenticationInfrastructure(IServiceCollection services, IConfiguration configuration)
 {
     // Registrar serviços GrydAuth SEM configuração automática de JWT
-    services.AddInfrastructureServices(configuration);
+    services.AddInfrastructureGrydAuthServices(configuration);
     
     // Configuração básica (padrão: RequireHttpsMetadata = true)
     services.AddGrydAuthJwtAuthentication(configuration);
@@ -268,7 +268,7 @@ public static IServiceCollection AddGrydAuthJwtAuthentication(this IServiceColle
                 <h2 id="servicos-jwt">Serviços JWT</h2>
 
                 <h3>IJwtService Interface</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+                <pre><code class="language-csharp">namespace GrydAuth.Application.Interfaces
 {
     public interface IJwtService
     {
@@ -290,7 +290,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GrydAuthenticationFramework.Infrastructure.Services
+namespace GrydAuth.Infrastructure.Services
 {
     public class JwtService : IJwtService
     {
@@ -526,7 +526,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                 <h2 id="token-blacklist">Token Blacklist Service</h2>
 
                 <h3>ITokenBlacklistService Interface</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
+                <pre><code class="language-csharp">namespace GrydAuth.Application.Interfaces
 {
     public interface ITokenBlacklistService
     {
@@ -541,7 +541,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                 <h3>Redis-based Implementation</h3>
                 <pre><code class="language-csharp">using StackExchange.Redis;
 
-namespace GrydAuthenticationFramework.Infrastructure.Services
+namespace GrydAuth.Infrastructure.Services
 {
     public class RedisTokenBlacklistService : ITokenBlacklistService
     {
@@ -603,7 +603,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                 <h2>Middleware de JWT</h2>
 
                 <h3>JwtMiddleware</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Infrastructure.Middleware
+                <pre><code class="language-csharp">namespace GrydAuth.Infrastructure.Middleware
 {
     public class JwtMiddleware
     {
@@ -671,7 +671,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                 <h2>DTOs de JWT</h2>
 
                 <h3>TokenValidationResult</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Auth
+                <pre><code class="language-csharp">namespace GrydAuth.Application.DTOs.Auth
 {
     public class TokenValidationResult
     {
@@ -686,7 +686,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
 }</code></pre>
 
                 <h3>RefreshTokenRequest</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.DTOs.Auth
+                <pre><code class="language-csharp">namespace GrydAuth.Application.DTOs.Auth
 {
     public class RefreshTokenRequest
     {
@@ -708,7 +708,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                 <h2>Extensões Úteis</h2>
 
                 <h3>ClaimsPrincipal Extensions</h3>
-                <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Extensions
+                <pre><code class="language-csharp">namespace GrydAuth.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {

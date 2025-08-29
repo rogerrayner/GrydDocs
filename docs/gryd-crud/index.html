@@ -65,6 +65,9 @@
                         <a href="README.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🚀 Quick Start
                         </a>
+                        <a href="#configuration" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚙️ Configuration
+                        </a>
                         <a href="README-IMPLEMENTACAO.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🛠️ Implementação
                         </a>
@@ -281,6 +284,33 @@
                                 <li>• Sorting multi-column</li>
                                 <li>• Export functionality</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Section -->
+                <div id="configuration" class="bg-white rounded-lg shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Configuração</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-3">🔧 Registro de Serviços</h3>
+                            <p class="text-gray-600 mb-4">Configure os serviços do GrydCrud Framework no Program.cs:</p>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>using GrydCrud.Application;
+using GrydCrud.Infrastructure;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Registrar serviços do GrydCrud
+builder.Services.AddApplicationGrydCrudServices();
+builder.Services.AddInfrastructureGrydCrudServices(builder.Configuration);
+
+var app = builder.Build();</code></pre>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-medium text-gray-800 mb-3">📦 Instalação</h3>
+                            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto"><code>Install-Package GrydCrud.Infrastructure
+Install-Package GrydCrud.Application</code></pre>
                         </div>
                     </div>
                 </div>
