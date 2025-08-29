@@ -162,11 +162,11 @@
       "_type": "request",
       "name": "🔐 Login - Get Token",
       "description": "Autentica o usuário e obtém o token JWT",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/login",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/login",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{{ _.user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"isPasswordEncrypted\": false\n}"
+        "text": "{\n  \"email\": \"{{ user_email }}\",\n  \"password\": \"{{ user_password }}\",\n  \"isPasswordEncrypted\": false\n}"
       },
       "parameters": [],
       "headers": [
@@ -176,7 +176,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         },
         {
           "name": "Accept",
@@ -204,11 +204,11 @@
       "_type": "request",
       "name": "🔄 Refresh Token",
       "description": "Renova o token JWT usando o refresh token",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/refresh",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/refresh",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token }}\"\n}"
+        "text": "{\n  \"refreshToken\": \"{{ refresh_token }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -218,7 +218,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -231,18 +231,18 @@
       "_type": "request",
       "name": "🚪 Logout",
       "description": "Revoga o token atual e faz logout",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/logout",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/logout",
       "method": "POST",
       "body": {},
       "parameters": [],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -255,11 +255,11 @@
       "_type": "request",
       "name": "📝 Register New User",
       "description": "Registra um novo usuário no sistema",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/register",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/register",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{{ _.new_user_email }}\",\n  \"password\": \"{{ _.user_password }}\",\n  \"firstName\": \"{{ _.new_user_first_name }}\",\n  \"lastName\": \"{{ _.new_user_last_name }}\",\n  \"phone\": \"{{ _.new_user_phone }}\",\n  \"isActive\": {{ _.new_user_is_active }}\n}"
+        "text": "{\n  \"email\": \"{{ new_user_email }}\",\n  \"password\": \"{{ user_password }}\",\n  \"firstName\": \"{{ new_user_first_name }}\",\n  \"lastName\": \"{{ new_user_last_name }}\",\n  \"phone\": \"{{ new_user_phone }}\",\n  \"isActive\": {{ new_user_is_active }}\n}"
       },
       "parameters": [],
       "headers": [
@@ -269,7 +269,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -282,11 +282,11 @@
       "_type": "request",
       "name": "🔑 Forgot Password",
       "description": "Solicita reset de senha por email",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/forgot-password",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/forgot-password",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{{ _.user_email }}\"\n}"
+        "text": "{\n  \"email\": \"{{ user_email }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -296,7 +296,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -309,11 +309,11 @@
       "_type": "request",
       "name": "🔐 Reset Password",
       "description": "Redefine a senha usando token de reset",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/reset-password",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/reset-password",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"token\": \"RESET_TOKEN_HERE\",\n  \"newPassword\": \"{{ _.user_password }}\"\n}"
+        "text": "{\n  \"token\": \"RESET_TOKEN_HERE\",\n  \"newPassword\": \"{{ user_password }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -323,7 +323,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -336,11 +336,11 @@
       "_type": "request",
       "name": "🔄 Change Password",
       "description": "Altera a senha do usuário autenticado",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/change-password",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/change-password",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"currentPassword\": \"{{ _.user_password }}\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+        "text": "{\n  \"currentPassword\": \"{{ user_password }}\",\n  \"newPassword\": \"NewPassword@123\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -350,11 +350,11 @@
         },
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -367,11 +367,11 @@
       "_type": "request",
       "name": "🌐 Social Login (Google)",
       "description": "Login usando provedor social (Google)",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/social-login",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/social-login",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"provider\": \"{{ _.social_provider }}\",\n  \"accessToken\": \"{{ _.social_access_token }}\"\n}"
+        "text": "{\n  \"provider\": \"{{ social_provider }}\",\n  \"accessToken\": \"{{ social_access_token }}\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -381,7 +381,7 @@
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -394,18 +394,18 @@
       "_type": "request",
       "name": "✅ Validate Token",
       "description": "Valida se o token JWT ainda é válido",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/auth/validate",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/validate",
       "method": "GET",
       "body": {},
       "parameters": [],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -426,31 +426,31 @@
       "_type": "request",
       "name": "👤 List Users",
       "description": "Lista todos os usuários com paginação",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users",
       "method": "GET",
       "body": {},
       "parameters": [
         {
           "name": "page",
-          "value": "{{ _.page_number }}"
+          "value": "{{ page_number }}"
         },
         {
           "name": "size",
-          "value": "{{ _.page_size }}"
+          "value": "{{ page_size }}"
         },
         {
           "name": "isActive",
-          "value": "{{ _.is_active }}"
+          "value": "{{ is_active }}"
         }
       ],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -463,18 +463,18 @@
       "_type": "request",
       "name": "👤 Get User by ID",
       "description": "Obtém um usuário específico pelo ID",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}",
       "method": "GET",
       "body": {},
       "parameters": [],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -487,11 +487,11 @@
       "_type": "request",
       "name": "✏️ Update User",
       "description": "Atualiza os dados de um usuário",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"firstName\": \"{{ _.user_first_name }}\",\n  \"lastName\": \"{{ _.user_last_name }}\",\n  \"phone\": \"{{ _.user_phone }}\",\n  \"isActive\": {{ _.is_active }}\n}"
+        "text": "{\n  \"firstName\": \"{{ user_first_name }}\",\n  \"lastName\": \"{{ user_last_name }}\",\n  \"phone\": \"{{ user_phone }}\",\n  \"isActive\": {{ is_active }}\n}"
       },
       "parameters": [],
       "headers": [
@@ -501,11 +501,11 @@
         },
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -518,18 +518,18 @@
       "_type": "request",
       "name": "🗑️ Delete User",
       "description": "Remove um usuário do sistema",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/users/{{ _.user_id }}",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}",
       "method": "DELETE",
       "body": {},
       "parameters": [],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -542,31 +542,31 @@
       "_type": "request",
       "name": "🏢 List Tenants",
       "description": "Lista todos os tenants com paginação",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/tenants",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/tenants",
       "method": "GET",
       "body": {},
       "parameters": [
         {
           "name": "page",
-          "value": "{{ _.page_number }}"
+          "value": "{{ page_number }}"
         },
         {
           "name": "size",
-          "value": "{{ _.page_size }}"
+          "value": "{{ page_size }}"
         },
         {
           "name": "isActive",
-          "value": "{{ _.is_active }}"
+          "value": "{{ is_active }}"
         }
       ],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -579,18 +579,18 @@
       "_type": "request",
       "name": "🏢 Get Tenant by ID",
       "description": "Obtém um tenant específico pelo ID",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/tenants/{{ _.tenant_id }}",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/tenants/{{ tenant_id }}",
       "method": "GET",
       "body": {},
       "parameters": [],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -603,27 +603,27 @@
       "_type": "request",
       "name": "🔒 List Roles",
       "description": "Lista todas as roles do sistema",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/roles",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles",
       "method": "GET",
       "body": {},
       "parameters": [
         {
           "name": "page",
-          "value": "{{ _.page_number }}"
+          "value": "{{ page_number }}"
         },
         {
           "name": "size",
-          "value": "{{ _.page_size }}"
+          "value": "{{ page_size }}"
         }
       ],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -636,31 +636,31 @@
       "_type": "request",
       "name": "🔑 List Permissions",
       "description": "Lista todas as permissões do sistema",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/permissions",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/permissions",
       "method": "GET",
       "body": {},
       "parameters": [
         {
           "name": "page",
-          "value": "{{ _.page_number }}"
+          "value": "{{ page_number }}"
         },
         {
           "name": "size",
-          "value": "{{ _.page_size }}"
+          "value": "{{ page_size }}"
         },
         {
           "name": "category",
-          "value": "{{ _.permission_category }}"
+          "value": "{{ permission_category }}"
         }
       ],
       "headers": [
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
@@ -673,11 +673,11 @@
       "_type": "request",
       "name": "➕ Create User-Tenant Association",
       "description": "Cria uma nova associação usuário-tenant",
-      "url": "{{ _.protocol }}://{{ _.app_host }}:{{ _.app_port }}/api/user-tenants",
+      "url": "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/user-tenants",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"userId\": \"{{ _.user_id }}\",\n  \"tenantId\": \"{{ _.tenant_id }}\",\n  \"role\": \"{{ _.user_tenant_role }}\",\n  \"department\": \"{{ _.user_department }}\",\n  \"position\": \"{{ _.user_position }}\",\n  \"isActive\": {{ _.is_active }}\n}"
+        "text": "{\n  \"userId\": \"{{ user_id }}\",\n  \"tenantId\": \"{{ tenant_id }}\",\n  \"role\": \"{{ user_tenant_role }}\",\n  \"department\": \"{{ user_department }}\",\n  \"position\": \"{{ user_position }}\",\n  \"isActive\": {{ is_active }}\n}"
       },
       "parameters": [],
       "headers": [
@@ -687,11 +687,11 @@
         },
         {
           "name": "Authorization",
-          "value": "Bearer {{ _.auth_token }}"
+          "value": "Bearer {{ auth_token }}"
         },
         {
           "name": "X-App-Id",
-          "value": "{{ _.app_id }}"
+          "value": "{{ app_id }}"
         }
       ],
       "authentication": {},
