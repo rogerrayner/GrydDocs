@@ -12,6 +12,16 @@
       "scope": "collection"
     },
     {
+      "_id": "env_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "data": {},
+      "dataPropertyOrder": null,
+      "color": "#9ca3af",
+      "isPrivate": false,
+      "parentId": "wrk_gryd_frameworks_collection"
+    },
+    {
       "_id": "env_development",
       "_type": "environment",
       "name": "🟢 Development",
@@ -55,7 +65,7 @@
       "dataPropertyOrder": null,
       "color": "#22c55e",
       "isPrivate": false,
-      "parentId": "wrk_gryd_frameworks_collection"
+      "parentId": "env_base"
     },
     {
       "_id": "env_testing",
@@ -101,7 +111,7 @@
       "dataPropertyOrder": null,
       "color": "#eab308",
       "isPrivate": false,
-      "parentId": "wrk_gryd_frameworks_collection"
+      "parentId": "env_base"
     },
     {
       "_id": "env_production",
@@ -147,7 +157,7 @@
       "dataPropertyOrder": null,
       "color": "#ef4444",
       "isPrivate": false,
-      "parentId": "wrk_gryd_frameworks_collection"
+      "parentId": "env_base"
     },
     {
       "_id": "fld_gryd_auth_folder",
