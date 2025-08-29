@@ -7,15 +7,11 @@
     {
       "_id": "wrk_gryd_frameworks_collection",
       "_type": "workspace",
-      "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4",
-      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados",
+      "name": "🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4 (Legacy)",
+      "description": "Collection completa para APIs dos Gryd Frameworks: Authentication e UserTenant integrados\n\n🎯 COMPATIBILIDADE:\n✅ Insomnia 8.0+ até 11.4.x (Versões Antigas)\n⚠️  Para Insomnia 11.5.0+ use: GrydFrameworks_Insomnia_Collection_v4.json\n\n📋 CONFIGURAÇÃO POR AMBIENTE:\n🟢 Development: HTTP localhost:5222 (desenvolvimento local)\n🟡 Testing: HTTPS auth-test.gryd.com (ambiente de testes)\n🔴 Production: HTTPS api.gryd.com (ambiente de produção)\n\n🔧 RECURSOS:\n- Estrutura de ambientes compatível com versões antigas\n- Configurações simplificadas para máxima compatibilidade\n- Headers básicos para estabilidade",
       "scope": "collection"
     },
     {
-      "_id": "env_base",
-      "_type": "environment",
-      "name": "Base Environment",
-      "data": {},
       "dataPropertyOrder": null,
       "color": "#9ca3af",
       "isPrivate": false,
@@ -65,7 +61,7 @@
       "dataPropertyOrder": null,
       "color": "#22c55e",
       "isPrivate": false,
-      "parentId": "env_base"
+      "parentId": "wrk_gryd_frameworks_collection"
     },
     {
       "_id": "env_testing",
@@ -111,7 +107,7 @@
       "dataPropertyOrder": null,
       "color": "#eab308",
       "isPrivate": false,
-      "parentId": "env_base"
+      "parentId": "wrk_gryd_frameworks_collection"
     },
     {
       "_id": "env_production",
@@ -157,7 +153,7 @@
       "dataPropertyOrder": null,
       "color": "#ef4444",
       "isPrivate": false,
-      "parentId": "env_base"
+      "parentId": "wrk_gryd_frameworks_collection"
     },
     {
       "_id": "fld_gryd_auth_folder",
@@ -191,26 +187,11 @@
         {
           "name": "Accept",
           "value": "application/json"
-        },
-        {
-          "name": "User-Agent",
-          "value": "Insomnia/11.5.0"
-        },
-        {
-          "name": "Connection",
-          "value": "keep-alive"
         }
       ],
       "authentication": {},
       "metaSortKey": -1692888000000,
       "isPrivate": false,
-      "settingFollowRedirects": "global",
-      "settingRebuildPath": true,
-      "settingSendCookies": true,
-      "settingStoreCookies": true,
-      "settingEncodeUrl": true,
-      "settingDisableRenderRequestBody": false,
-      "settingMaxTimelineDataSize": 1000,
       "parentId": "fld_gryd_auth_folder"
     },
     {

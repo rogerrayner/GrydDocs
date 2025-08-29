@@ -1,0 +1,806 @@
+type: collection.insomnia.rest/5.0
+name: 🚀 Gryd Frameworks - GrydAuth & GrydUserTenant Collection v4
+meta:
+  id: wrk_9afbe404e19541e9a00213fa42330747
+  created: 1756472884863
+  modified: 1756472884863
+  description: ""
+collection:
+  - name: 🔐 GrydAuth - Authentication
+    meta:
+      id: fld_c98a9a8d366f41da9d785d59e5140cc1
+      created: 1756472884868
+      modified: 1756472884868
+      sortKey: -1756472884868
+      description: Endpoints de autenticação do GrydAuthenticationFramework
+    children:
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/login"
+        name: 🔐 Login - Get Token
+        meta:
+          id: req_57f8b62898794c9aa637a7eb6b4b35f0
+          created: 1756472884868
+          modified: 1756472884868
+          isPrivate: false
+          description: Autentica o usuário e obtém o token JWT
+          sortKey: -1692888000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "{{ user_email }}",
+              "password": "{{ user_password }}",
+              "isPasswordEncrypted": false
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: X-App-Id
+            value: "{{ app_id }}"
+          - name: Accept
+            value: application/json
+          - name: User-Agent
+            value: Insomnia/11.5.0
+          - name: Connection
+            value: keep-alive
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/me"
+        name: 👤 Get Profile (Me)
+        meta:
+          id: req_361e87d8e49e43469e65bd31c65f00e2
+          created: 1756472884869
+          modified: 1756472920469
+          isPrivate: false
+          description: Obtém informações do perfil do usuário autenticado
+          sortKey: -1692886000000
+        method: GET
+        headers:
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/refresh"
+        name: 🔄 Refresh Token
+        meta:
+          id: req_d1a86bb4d38541898d7a7c796cdc8cbd
+          created: 1756472884869
+          modified: 1756472884869
+          isPrivate: false
+          description: Renova o token JWT usando o refresh token
+          sortKey: -1692887000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "refreshToken": "{{ refresh_token }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/auth/logout"
+        name: 🚪 Logout
+        meta:
+          id: req_d31d06cc410142d8b572c07d3574df51
+          created: 1756472884870
+          modified: 1756473107873
+          isPrivate: false
+          description: Faz logout do usuário invalidando o token
+          sortKey: -1692885000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "refreshToken": "{{ refresh_token }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: 👥 GrydAuth - Users Management
+    meta:
+      id: fld_ce7d9c5cbf8540e5895f664a5093b6fa
+      created: 1756472884870
+      modified: 1756472884870
+      sortKey: -1756472884870
+      description: Endpoints de gerenciamento de usuários do GrydAuthenticationFramework
+    children:
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users"
+        name: ➕ Create User
+        meta:
+          id: req_528bee152ee24c45afe2212d320b8866
+          created: 1756472884870
+          modified: 1756473071676
+          isPrivate: false
+          description: Cria um novo usuário
+          sortKey: -1692883000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "{{ new_user_email }}",
+              "firstName": "{{ new_user_first_name }}",
+              "lastName": "{{ new_user_last_name }}",
+              "phoneNumber": "{{ new_user_phone }}",
+              "isActive": {{ new_user_is_active }}
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users"
+        name: 📋 List Users
+        meta:
+          id: req_5a3367839a0a4411b65651f1d2bc1d25
+          created: 1756472884870
+          modified: 1756473064937
+          isPrivate: false
+          description: Lista todos os usuários com paginação
+          sortKey: -1692884000000
+        method: GET
+        parameters:
+          - name: page
+            value: "{{ page_number }}"
+          - name: size
+            value: "{{ page_size }}"
+          - name: isActive
+            value: "{{ is_active }}"
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}"
+        name: ✏️ Update User
+        meta:
+          id: req_4242bd5451ee4a63a7bec2bd4f74d0ea
+          created: 1756472884871
+          modified: 1756473089010
+          isPrivate: false
+          description: Atualiza informações de um usuário
+          sortKey: -1692881000000
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "firstName": "{{ user_first_name }}",
+              "lastName": "{{ user_last_name }}",
+              "phoneNumber": "{{ user_phone }}",
+              "isActive": {{ is_active }}
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}"
+        name: 🗑️ Delete User
+        meta:
+          id: req_84e6e12f7e2c495b8594966fa0b368e2
+          created: 1756472884871
+          modified: 1756473095653
+          isPrivate: false
+          description: Remove um usuário (soft delete)
+          sortKey: -1692880000000
+        method: DELETE
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id }}"
+        name: 🔍 Get User by ID
+        meta:
+          id: req_cd6c8996657a4688be5cf451864cc6a6
+          created: 1756472884871
+          modified: 1756473079337
+          isPrivate: false
+          description: Obtém informações de um usuário específico
+          sortKey: -1692882000000
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: 🎭 GrydAuth - Roles Management
+    meta:
+      id: fld_94d7d4a2d8d84895b85ed4822a4bc10a
+      created: 1756472884871
+      modified: 1756472884871
+      sortKey: -1756472884871
+      description: Endpoints de gerenciamento de papéis/roles do GrydAuthenticationFramework
+    children:
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles"
+        name: 📋 List Roles
+        meta:
+          id: req_3268eb3ab22e42fe974d1c39ac358d93
+          created: 1756472884872
+          modified: 1756473041452
+          isPrivate: false
+          description: Lista todos os papéis/roles com paginação
+          sortKey: -1692879000000
+        method: GET
+        parameters:
+          - name: page
+            value: "{{ page_number }}"
+          - name: size
+            value: "{{ page_size }}"
+          - name: isActive
+            value: "{{ is_active }}"
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles"
+        name: ➕ Create Role
+        meta:
+          id: req_73f82da5c0794b7a92a7e5a1581957c0
+          created: 1756472884872
+          modified: 1756473049383
+          isPrivate: false
+          description: Cria um novo papel/role
+          sortKey: -1692878000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "{{ role_name }}",
+              "description": "{{ role_description }}",
+              "isActive": {{ is_active }},
+              "isDefault": {{ is_default }}
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles/{{ role_id }}"
+        name: 🔍 Get Role by ID
+        meta:
+          id: req_d29fd42cf3234d24b4972355fbfdcf26
+          created: 1756472884872
+          modified: 1756473057237
+          isPrivate: false
+          description: Obtém informações de um papel/role específico
+          sortKey: -1692877000000
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: 🔑 GrydAuth - Permissions Management
+    meta:
+      id: fld_9f333dce053e481da106b2719633cb49
+      created: 1756472884872
+      modified: 1756472884872
+      sortKey: -1756472884872
+      description: Endpoints de gerenciamento de permissões do GrydAuthenticationFramework
+    children:
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/roles/{{ role_id
+          }}/permissions"
+        name: 🔗 Assign Permission to Role
+        meta:
+          id: req_77313b5859284e4287f4cd2e94f7b77f
+          created: 1756472884873
+          modified: 1756473030234
+          isPrivate: false
+          description: Atribui uma permissão a um papel/role
+          sortKey: -1692873000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "permissionId": "{{ permission_id }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/permissions"
+        name: 📋 List Permissions
+        meta:
+          id: req_9c2c2bdf9647495a9d4eab33d40bed8a
+          created: 1756472884873
+          modified: 1756472985632
+          isPrivate: false
+          description: Lista todas as permissões com filtros
+          sortKey: -1692876000000
+        method: GET
+        parameters:
+          - name: page
+            value: "{{ page_number }}"
+          - name: size
+            value: "{{ page_size }}"
+          - name: category
+            value: "{{ permission_category }}"
+          - name: isActive
+            value: "{{ is_active }}"
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/users/{{ user_id
+          }}/roles"
+        name: 🔗 Assign Role to User
+        meta:
+          id: req_d028cc1a81f445d3ab3c29603317254d
+          created: 1756472884873
+          modified: 1756473023208
+          isPrivate: false
+          description: Atribui um papel/role a um usuário
+          sortKey: -1692874000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "roleId": "{{ role_id }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/permissions"
+        name: ➕ Create Permission
+        meta:
+          id: req_d0d99095cec34418a659979abc3a00b8
+          created: 1756472884873
+          modified: 1756473013256
+          isPrivate: false
+          description: Cria uma nova permissão
+          sortKey: -1692875000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "{{ permission_name }}",
+              "description": "{{ permission_description }}",
+              "category": "{{ permission_category }}",
+              "isActive": {{ is_active }}
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: 🏢 GrydUserTenant - Tenant Management
+    meta:
+      id: fld_3eec10d03bfd47a1afe14bfaeff10d78
+      created: 1756472884874
+      modified: 1756472884874
+      sortKey: -1756472884874
+      description: Endpoints de gerenciamento de usuários e tenants do
+        GrydUserTenantFramework
+    children:
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/user-tenants"
+        name: ➕ Create User-Tenant Association
+        meta:
+          id: req_30d6656fba4f401cb237b0782ba1b844
+          created: 1756472884874
+          modified: 1756472975575
+          isPrivate: false
+          description: Cria uma nova associação usuário-tenant
+          sortKey: -1692871000000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "userId": "{{ user_id }}",
+              "tenantId": "{{ tenant_id }}",
+              "role": "{{ user_tenant_role }}",
+              "department": "{{ user_department }}",
+              "position": "{{ user_position }}",
+              "isActive": {{ is_active }}
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ protocol }}://{{ app_host }}:{{ app_port }}/api/user-tenants"
+        name: 📋 List User-Tenants
+        meta:
+          id: req_e7896cf08af9413298be96dd02b11892
+          created: 1756472884874
+          modified: 1756472965861
+          isPrivate: false
+          description: Lista todas as associações usuário-tenant com paginação
+          sortKey: -1692872000000
+        method: GET
+        parameters:
+          - name: page
+            value: "{{ page_number }}"
+          - name: size
+            value: "{{ page_size }}"
+          - name: tenantId
+            value: "{{ tenant_id }}"
+          - name: isActive
+            value: "{{ is_active }}"
+        headers:
+          - name: Authorization
+            value: Bearer {{ auth_token }}
+          - name: X-App-Id
+            value: "{{ app_id }}"
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_57f8b62898794c9aa637a7eb6b4b35f0',
+            'b64::JC5kYXRhLnRva2Vu::46b', 'always', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_479f90d73113d6846133846543d1c8a61e277174
+    created: 1756472884876
+    modified: 1756472884876
+environments:
+  name: Base Environment
+  meta:
+    id: env_b01cea4cb7f94dbe8bf4e006515ec566
+    created: 1756472884865
+    modified: 1756472884865
+    isPrivate: false
+  color: "#9ca3af"
+  subEnvironments:
+    - name: 🟡 Testing
+      meta:
+        id: env_53e0c921ab0d4cb5a13c03cdcf8e3ee8
+        created: 1756472884866
+        modified: 1756472884866
+        isPrivate: false
+        sortKey: 1756472884866
+      data:
+        environment: testing
+        protocol: https
+        app_host: auth-test.gryd.com
+        app_port: "443"
+        app_id: requisition-control-ccb
+        auth_token: ""
+        refresh_token: ""
+        user_email: test@gryd.com
+        user_password: Test@123456
+        user_first_name: Test
+        user_last_name: User
+        user_phone: "+5511888888888"
+        user_id: 00000000-0000-0000-0000-000000000002
+        new_user_email: newtest@gryd.com
+        new_user_first_name: New Test
+        new_user_last_name: User
+        new_user_phone: "+5511777777777"
+        new_user_is_active: true
+        tenant_id: 00000000-0000-0000-0000-000000000002
+        user_tenant_role: User
+        user_department: Testing
+        user_position: Tester
+        role_id: 00000000-0000-0000-0000-000000000004
+        role_name: Tester
+        role_description: Testing role with limited permissions
+        permission_id: 00000000-0000-0000-0000-000000000005
+        permission_name: users.read
+        permission_category: testing
+        permission_description: Testing permission
+        social_provider: google
+        social_access_token: GOOGLE_TEST_TOKEN_AQUI
+        page_number: "1"
+        page_size: "20"
+        is_active: true
+        is_default: false
+      color: "#eab308"
+    - name: 🟢 Development
+      meta:
+        id: env_bce899673a7d44369c0b911f6b5c550e
+        created: 1756472884866
+        modified: 1756472884866
+        isPrivate: false
+        sortKey: 1756472884866
+      data:
+        environment: development
+        protocol: http
+        app_host: localhost
+        app_port: "5222"
+        app_id: dev-req-control-Q1b0j4rXHf0v3XQHlDzCyrRynZVyqnHR9
+        auth_token: ""
+        refresh_token: ""
+        user_email: admin@local.com
+        user_password: admin@123
+        user_first_name: Admin
+        user_last_name: User
+        user_phone: "+5511999999999"
+        user_id: 00000000-0000-0000-0000-000000000001
+        new_user_email: newuser@local.com
+        new_user_first_name: New
+        new_user_last_name: User
+        new_user_phone: "+5511888888888"
+        new_user_is_active: true
+        tenant_id: 00000000-0000-0000-0000-000000000001
+        user_tenant_role: Admin
+        user_department: IT
+        user_position: Manager
+        role_id: 00000000-0000-0000-0000-000000000002
+        role_name: Manager
+        role_description: Manager role with specific permissions
+        permission_id: 00000000-0000-0000-0000-000000000003
+        permission_name: users.read
+        permission_category: users
+        permission_description: Permission to read users
+        social_provider: google
+        social_access_token: GOOGLE_ACCESS_TOKEN_AQUI
+        page_number: "1"
+        page_size: "10"
+        is_active: true
+        is_default: false
+      color: "#22c55e"
+    - name: 🔴 Production
+      meta:
+        id: env_c20ff3dbfcea45b2a1a3a33844d90436
+        created: 1756472884867
+        modified: 1756472884867
+        isPrivate: false
+        sortKey: 1756472884867
+      data:
+        environment: production
+        protocol: https
+        app_host: api.gryd.com
+        app_port: "443"
+        app_id: requisition-control-ccb
+        auth_token: ""
+        refresh_token: ""
+        user_email: admin@gryd.com
+        user_password: SecurePassword@123
+        user_first_name: Admin
+        user_last_name: Production
+        user_phone: "+5511666666666"
+        user_id: 00000000-0000-0000-0000-000000000003
+        new_user_email: newprod@gryd.com
+        new_user_first_name: New Production
+        new_user_last_name: User
+        new_user_phone: "+5511555555555"
+        new_user_is_active: true
+        tenant_id: 00000000-0000-0000-0000-000000000003
+        user_tenant_role: Admin
+        user_department: Production
+        user_position: Administrator
+        role_id: 00000000-0000-0000-0000-000000000006
+        role_name: Production Admin
+        role_description: Production admin role with full permissions
+        permission_id: 00000000-0000-0000-0000-000000000007
+        permission_name: admin.all
+        permission_category: admin
+        permission_description: Full admin permissions
+        social_provider: google
+        social_access_token: GOOGLE_PROD_TOKEN_AQUI
+        page_number: "1"
+        page_size: "50"
+        is_active: true
+        is_default: false
+      color: "#ef4444"
