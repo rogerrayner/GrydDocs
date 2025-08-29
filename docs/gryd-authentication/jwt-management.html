@@ -16,8 +16,24 @@
                 <h1 class="text-3xl font-bold text-gray-800">🎫 JWT Management</h1>
             </div>
 
+            <!-- Índice de Navegação -->
+            <div class="bg-gray-50 p-4 rounded-lg mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">📋 Índice</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                    <a href="#funcionalidades" class="text-blue-600 hover:text-blue-800">🔑 Funcionalidades</a>
+                    <a href="#configuracao-jwt" class="text-blue-600 hover:text-blue-800">⚙️ Configuração JWT</a>
+                    <a href="#clean-architecture" class="text-blue-600 hover:text-blue-800 font-semibold bg-yellow-100 px-2 py-1 rounded">🏗️ Clean Architecture (NOVO)</a>
+                    <a href="#servicos-jwt" class="text-blue-600 hover:text-blue-800">🔧 Serviços JWT</a>
+                    <a href="#token-blacklist" class="text-blue-600 hover:text-blue-800">� Token Blacklist</a>
+                    <a href="#seguranca-avancada" class="text-blue-600 hover:text-blue-800">�️ Segurança Avançada</a>
+                    <a href="#middleware" class="text-blue-600 hover:text-blue-800">⚡ Middleware</a>
+                    <a href="#dtos" class="text-blue-600 hover:text-blue-800">📋 DTOs</a>
+                    <a href="#extensoes" class="text-blue-600 hover:text-blue-800">🔧 Extensões</a>
+                </div>
+            </div>
+
             <div class="prose max-w-none">
-                <h2>Gerenciamento de Tokens JWT</h2>
+                <h2 id="funcionalidades">Gerenciamento de Tokens JWT</h2>
                 <p>O GrydAuthentication Framework fornece um sistema completo de gerenciamento de tokens JWT com recursos avançados de segurança, validação e renovação automática.</p>
 
                 <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 my-6">
@@ -32,7 +48,7 @@
                     </ul>
                 </div>
 
-                <h2>Configuração JWT</h2>
+                <h2 id="configuracao-jwt">Configuração JWT</h2>
 
                 <h3>appsettings.json</h3>
                 <pre><code class="language-json">{
@@ -109,7 +125,147 @@ builder.Services.AddAuthentication(options =&gt;
     };
 });</code></pre>
 
-                <h2>Serviços JWT</h2>
+                <h2 id="clean-architecture">🏗️ JWT Configuration - Clean Architecture Approach</h2>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 my-6">
+                    <h3 class="text-yellow-800 font-semibold">⚠️ Importante - Nova Arquitetura</h3>
+                    <p class="text-yellow-700 mb-0">A partir da versão atual, o GrydAuth Framework segue os princípios da Clean Architecture, permitindo que cada aplicação host defina suas próprias configurações JWT.</p>
+                </div>
+
+                <h3>🎯 Problema Resolvido</h3>
+                <p>A implementação anterior violava os princípios SOLID e Clean Architecture ao ter o framework GrydAuth fortemente acoplado às suas próprias configurações JWT. Isso impossibilitava que aplicações host definissem suas próprias configurações JWT.</p>
+
+                <h3>✅ Nova Arquitetura</h3>
+                
+                <h4>Separação de Responsabilidades:</h4>
+                <ul>
+                    <li><strong>GrydAuth Framework:</strong> Fornece serviços e lógica de negócio</li>
+                    <li><strong>Aplicação Host:</strong> Define configurações de infraestrutura (JWT, bancos de dados, etc.)</li>
+                </ul>
+
+                <h4>Princípio da Inversão de Dependência:</h4>
+                <ul>
+                    <li>GrydAuth depende de abstrações fornecidas pela aplicação host</li>
+                    <li>Aplicação host controla todas as questões de infraestrutura</li>
+                </ul>
+
+                <h3>🔧 Implementação</h3>
+
+                <h4>1. Mudanças no GrydAuth Framework</h4>
+                <pre><code class="language-csharp">// ANTIGO - Fortemente acoplado (ERRADO)
+public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+{
+    // ... registrar serviços
+    AddJwtAuthentication(services, configuration); // Usando config própria do framework
+    return services;
+}
+
+// NOVO - Fracamente acoplado (CORRETO) 
+public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+{
+    // ... registrar apenas serviços
+    // Configuração JWT é responsabilidade da APLICAÇÃO HOST
+    return services;
+}
+
+// NOVO - Método opcional para aplicações host
+public static IServiceCollection AddGrydAuthJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+{
+    // Configuração JWT usando configurações da APLICAÇÃO HOST
+    var jwtSettings = configuration.GetSection("JwtSettings");
+    // ... configurar JWT com settings do host
+    return services;
+}</code></pre>
+
+                <h4>2. Configuração da Aplicação Host</h4>
+                <pre><code class="language-csharp">private static void RegisterGrydAuthenticationInfrastructure(IServiceCollection services, IConfiguration configuration)
+{
+    // Registrar serviços GrydAuth SEM configuração automática de JWT
+    services.AddInfrastructureServices(configuration);
+    
+    // Configuração básica (padrão: RequireHttpsMetadata = true)
+    services.AddGrydAuthJwtAuthentication(configuration);
+    
+    // OU Configuração customizada para desenvolvimento/produção
+    services.AddGrydAuthJwtAuthentication(configuration, options =>
+    {
+        // Para desenvolvimento local
+        options.RequireHttpsMetadata = false;
+        
+        // Eventos customizados
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                // Log personalizado de falhas
+                Console.WriteLine($"JWT Auth failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+}</code></pre>
+
+                <h3>📋 Benefícios</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h4 class="text-green-800 font-semibold">✅ Conformidade com Princípios SOLID</h4>
+                        <ul class="text-green-700 text-sm">
+                            <li><strong>Responsabilidade Única:</strong> Cada camada tem uma razão para mudar</li>
+                            <li><strong>Aberto/Fechado:</strong> Framework aberto para extensão, fechado para modificação</li>
+                            <li><strong>Inversão de Dependência:</strong> Framework depende de abstrações do host</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h4 class="text-blue-800 font-semibold">✅ Clean Architecture</h4>
+                        <ul class="text-blue-700 text-sm">
+                            <li><strong>Infraestrutura:</strong> Controlada pelas camadas externas (aplicação host)</li>
+                            <li><strong>Aplicação:</strong> Lógica de negócio independente da infraestrutura</li>
+                            <li><strong>Domínio:</strong> Regras de negócio puras</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-lg border border-purple-200 my-6">
+                    <h4 class="text-purple-800 font-semibold">✅ Benefícios Práticos</h4>
+                    <ul class="text-purple-700">
+                        <li>Cada aplicação pode definir suas próprias configurações JWT</li>
+                        <li>Framework permanece reutilizável entre diferentes projetos</li>
+                        <li>Sem acoplamento forte a configurações específicas</li>
+                        <li>Melhor testabilidade e manutenibilidade</li>
+                    </ul>
+                </div>
+
+                <h3>🎯 Exemplo de Configuração</h3>
+
+                <h4>appsettings.json da Aplicação Host:</h4>
+                <pre><code class="language-json">{
+  "JwtSettings": {
+    "SecretKey": "sua-chave-secreta-da-aplicacao-host-256-bits",
+    "Issuer": "NomeDaSuaAplicacao",
+    "Audience": "NomeDaSuaAplicacao-API",
+    "ExpirationInMinutes": 60,
+    "RefreshTokenExpirationInDays": 7
+  }
+}</code></pre>
+
+                <h4>Framework Não Precisa Mais:</h4>
+                <ul>
+                    <li>❌ Seu próprio appsettings.json para JWT</li>
+                    <li>❌ Configurações JWT hardcoded</li>
+                    <li>❌ Valores específicos de Issuer/Audience do framework</li>
+                </ul>
+
+                <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-500 my-6">
+                    <h4 class="text-gray-800 font-semibold">🔑 Princípio Fundamental</h4>
+                    <blockquote class="text-gray-700 italic text-lg">
+                        "Framework fornece capacidades, Aplicação define políticas"
+                    </blockquote>
+                    <p class="text-gray-600 mt-2 mb-0">O GrydAuth framework agora fornece capacidades JWT enquanto permite que cada aplicação host defina suas próprias políticas, segredos e configurações JWT. Isso segue os princípios da Clean Architecture e torna o framework verdadeiramente reutilizável.</p>
+                </div>
+
+                <h2 id="servicos-jwt">Serviços JWT</h2>
 
                 <h3>IJwtService Interface</h3>
                 <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
@@ -367,7 +523,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
     }
 }</code></pre>
 
-                <h2>Token Blacklist Service</h2>
+                <h2 id="token-blacklist">Token Blacklist Service</h2>
 
                 <h3>ITokenBlacklistService Interface</h3>
                 <pre><code class="language-csharp">namespace GrydAuthenticationFramework.Application.Interfaces
@@ -604,7 +760,7 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
     }
 }</code></pre>
 
-                <h2>Configuração de Segurança Avançada</h2>
+                <h2 id="seguranca-avancada">Configuração de Segurança Avançada</h2>
 
                 <h3>Key Rotation (Opcional)</h3>
                 <pre><code class="language-csharp">public class JwtKeyRotationService : IHostedService
@@ -652,6 +808,85 @@ namespace GrydAuthenticationFramework.Infrastructure.Services
                         </a>
                     </div>
                 </div>
+
+            <section id="middleware" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">⚡ Middleware JWT</h2>
+                
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">JwtMiddleware</h3>
+                    <p class="text-gray-700 mb-4">Middleware para interceptar e validar tokens JWT automaticamente:</p>
+                    
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4"><code>public class JwtMiddleware
+{
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        var token = context.Request.Headers["Authorization"]
+            .FirstOrDefault()?.Split(" ").Last();
+            
+        if (token != null)
+        {
+            await AttachUserToContext(context, token);
+        }
+        
+        await next(context);
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="dtos" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">📋 DTOs de Autenticação</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">LoginRequestDto</h3>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>public class LoginRequestDto
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public bool RememberMe { get; set; }
+}</code></pre>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">AuthResponseDto</h3>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>public class AuthResponseDto
+{
+    public string AccessToken { get; set; }
+    public string RefreshToken { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public UserDto User { get; set; }
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="extensoes" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">🔧 Extensões e Helpers</h2>
+                
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">JwtExtensions</h3>
+                    <p class="text-gray-700 mb-4">Extensões úteis para trabalhar com JWT:</p>
+                    
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4"><code>public static class JwtExtensions
+{
+    public static string GetUserId(this ClaimsPrincipal user)
+    {
+        return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+    
+    public static string GetUserEmail(this ClaimsPrincipal user)
+    {
+        return user.FindFirst(ClaimTypes.Email)?.Value;
+    }
+    
+    public static bool IsTokenExpired(this JwtSecurityToken token)
+    {
+        return token.ValidTo < DateTime.UtcNow;
+    }
+}</code></pre>
+                </div>
+            </section>
             </div>
         </div>
     </div>

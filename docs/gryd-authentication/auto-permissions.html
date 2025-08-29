@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Permissions Automático - GrydAuth Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">🔐 Sistema de Permissions Automático</h1>
+                <p class="text-xl text-gray-600">Geração automática de permissions baseada em controllers e actions</p>
+                <div class="flex items-center gap-4 mt-4">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">GrydAuth Framework</span>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">Auto Permission</span>
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">Controller-Based</span>
+                </div>
+            </div>
+
+            <!-- Índice de Navegação -->
+            <div class="bg-gray-50 p-4 rounded-lg mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">📋 Índice</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                    <a href="#overview" class="text-blue-600 hover:text-blue-800">🎯 Visão Geral</a>
+                    <a href="#auto-permission-attribute" class="text-blue-600 hover:text-blue-800">🏷️ AutoPermission Attribute</a>
+                    <a href="#permission-generator" class="text-blue-600 hover:text-blue-800">⚙️ Permission Generator</a>
+                    <a href="#seed-service" class="text-blue-600 hover:text-blue-800">🌱 Seed Service</a>
+                    <a href="#configuracao" class="text-blue-600 hover:text-blue-800">⚙️ Configuração</a>
+                    <a href="#exemplos" class="text-blue-600 hover:text-blue-800">💡 Exemplos</a>
+                    <a href="#admin-role" class="text-blue-600 hover:text-blue-800">👑 Role Admin</a>
+                    <a href="#boas-praticas" class="text-blue-600 hover:text-blue-800">✅ Boas Práticas</a>
+                </div>
+            </div>
+
+            <!-- Visão Geral -->
+            <section id="overview" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">🎯 Visão Geral</h2>
+                
+                <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-3">O que é o Sistema de Permissions Automático?</h3>
+                    <p class="text-blue-700 mb-4">
+                        Sistema que gera automaticamente permissions baseadas nos controllers e actions da aplicação,
+                        seguindo o padrão <code class="bg-blue-100 px-2 py-1 rounded">action:entity</code>.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded border border-blue-200">
+                            <h4 class="font-semibold text-blue-800 mb-2">📝 Formato das Permissions</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li><code>read:users</code> - Listar/visualizar usuários</li>
+                                <li><code>create:users</code> - Criar usuários</li>
+                                <li><code>update:users</code> - Atualizar usuários</li>
+                                <li><code>delete:users</code> - Deletar usuários</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border border-blue-200">
+                            <h4 class="font-semibold text-blue-800 mb-2">🚀 Benefícios</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>✅ Geração automática de permissions</li>
+                                <li>✅ Padrão consistente</li>
+                                <li>✅ Role Admin criado automaticamente</li>
+                                <li>✅ Sincronização com controllers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AutoPermission Attribute -->
+            <section id="auto-permission-attribute" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">🏷️ AutoPermission Attribute</h2>
+                
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Definição do Attribute</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4"><code>[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+public class AutoPermissionAttribute : Attribute
+{
+    /// <summary>
+    /// Nome da entidade (normalmente plural do controller)
+    /// </summary>
+    public string EntityName { get; }
+
+    /// <summary>
+    /// Nome customizado da ação (opcional)
+    /// </summary>
+    public string? ActionName { get; set; }
+
+    /// <summary>
+    /// Se deve incluir nas permissions automáticas
+    /// </summary>
+    public bool IncludeInPermissions { get; set; } = true;
+
+    public AutoPermissionAttribute(string entityName)
+    {
+        EntityName = entityName.ToLowerInvariant();
+    }
+}</code></pre>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-3">📝 Uso no Controller</h4>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>[ApiController]
+[Route("api/[controller]")]
+[AutoPermission("users")]
+public class UsersController : ControllerBase
+{
+    [HttpGet]
+    public async Task&lt;IActionResult&gt; GetUsers()
+    {
+        // Gera permission: read:users
+        return Ok();
+    }
+
+    [HttpPost]
+    public async Task&lt;IActionResult&gt; CreateUser()
+    {
+        // Gera permission: create:users
+        return Ok();
+    }
+}</code></pre>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-3">🎛️ Customizações</h4>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// Action customizada
+[HttpGet("special")]
+[AutoPermission("users", ActionName = "special")]
+public IActionResult SpecialAction()
+{
+    // Gera permission: special:users
+    return Ok();
+}
+
+// Excluir da geração automática
+[HttpGet("internal")]
+[AutoPermission("users", IncludeInPermissions = false)]
+public IActionResult InternalAction()
+{
+    // Não gera permission
+    return Ok();
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Permission Generator -->
+            <section id="permission-generator" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">⚙️ Permission Generator Service</h2>
+                
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Como Funciona</h3>
+                    <p class="text-gray-700 mb-4">
+                        O <code>PermissionGeneratorService</code> escaneia assemblies em busca de controllers com 
+                        <code>AutoPermissionAttribute</code> e gera permissions baseadas nos HTTP methods:
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-2">🔄 Mapeamento HTTP → Action</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li><code>HttpGet</code> → <code>read</code></li>
+                                <li><code>HttpPost</code> → <code>create</code></li>
+                                <li><code>HttpPut/Patch</code> → <code>update</code></li>
+                                <li><code>HttpDelete</code> → <code>delete</code></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-2">📋 Formato Final</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li><code>read:users</code></li>
+                                <li><code>create:roles</code></li>
+                                <li><code>update:permissions</code></li>
+                                <li><code>delete:tests</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3">🔧 Uso Programático</h4>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// Injetar o serviço
+public class MyService
+{
+    private readonly IPermissionGeneratorService _permissionGenerator;
+
+    public MyService(IPermissionGeneratorService permissionGenerator)
+    {
+        _permissionGenerator = permissionGenerator;
+    }
+
+    public void GeneratePermissions()
+    {
+        var assembly1 = typeof(UsersController).Assembly;
+        var assembly2 = typeof(TestController).Assembly;
+        
+        var permissions = _permissionGenerator.GeneratePermissions(assembly1, assembly2);
+        
+        // permissions = ["read:users", "create:users", "read:tests", ...]
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Seed Service -->
+            <section id="seed-service" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">🌱 Permission Seed Service</h2>
+                
+                <div class="bg-green-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-green-800 mb-3">O que faz o Seed Service?</h3>
+                    <ul class="text-green-700 space-y-2">
+                        <li>✅ <strong>Gera permissions</strong> baseadas nos controllers</li>
+                        <li>✅ <strong>Cria permissions</strong> que não existem no banco</li>
+                        <li>✅ <strong>Cria role Admin</strong> automaticamente</li>
+                        <li>✅ <strong>Vincula todas as permissions</strong> ao role Admin</li>
+                        <li>✅ <strong>Gera descrições</strong> automáticas para as permissions</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3">📋 Exemplo de Uso</h4>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// No Program.cs da aplicação
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var grydAuthAssembly = typeof(GrydAuthenticationFramework.API.Controllers.UsersController).Assembly;
+        
+        await app.Services.SeedPermissionsAsync(currentAssembly, grydAuthAssembly);
+        Log.Information("Permissions seeded successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "Failed to seed permissions");
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Configuração -->
+            <section id="configuracao" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">⚙️ Configuração</h2>
+                
+                <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">1. Registrar Serviços</h4>
+                    <p class="text-gray-600 mb-3">Os serviços são registrados automaticamente no GrydAuth:</p>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// Em InfrastructureServiceRegistration.cs (já incluído)
+services.AddPermissionSeeding();</code></pre>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">2. Aplicar Attributes nos Controllers</h4>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>[ApiController]
+[Route("api/[controller]")]
+[AutoPermission("products")]
+public class ProductsController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetProducts() => Ok(); // read:products
+
+    [HttpPost]
+    public IActionResult CreateProduct() => Ok(); // create:products
+}</code></pre>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3">3. Executar Seed no Startup</h4>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// Program.cs
+await app.Services.SeedPermissionsAsync(
+    Assembly.GetExecutingAssembly(),
+    typeof(GrydAuthController).Assembly
+);</code></pre>
+                </div>
+            </section>
+
+            <!-- Exemplos -->
+            <section id="exemplos" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">💡 Exemplos Práticos</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-3">📝 Controller Básico</h4>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>[AutoPermission("orders")]
+public class OrdersController : ControllerBase
+{
+    [HttpGet] // → read:orders
+    public IActionResult GetOrders() => Ok();
+
+    [HttpGet("{id}")] // → read:orders
+    public IActionResult GetOrder(int id) => Ok();
+
+    [HttpPost] // → create:orders
+    public IActionResult CreateOrder() => Ok();
+
+    [HttpPut("{id}")] // → update:orders
+    public IActionResult UpdateOrder(int id) => Ok();
+
+    [HttpDelete("{id}")] // → delete:orders
+    public IActionResult DeleteOrder(int id) => Ok();
+}</code></pre>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-3">🎛️ Controller Avançado</h4>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>[AutoPermission("reports")]
+public class ReportsController : ControllerBase
+{
+    [HttpGet("sales")]
+    [AutoPermission("reports", ActionName = "sales")]
+    public IActionResult SalesReport() 
+    {
+        // Gera: sales:reports
+        return Ok();
+    }
+
+    [HttpGet("internal")]
+    [AutoPermission("reports", IncludeInPermissions = false)]
+    public IActionResult InternalReport() 
+    {
+        // Não gera permission
+        return Ok();
+    }
+
+    [HttpPost("generate")]
+    public IActionResult GenerateReport() 
+    {
+        // Gera: create:reports
+        return Ok();
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-6 rounded-lg mt-6">
+                    <h4 class="font-semibold text-blue-800 mb-3">📊 Resultado das Permissions Geradas</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-3 rounded border border-blue-200">
+                            <h5 class="font-semibold text-blue-700">OrdersController</h5>
+                            <ul class="text-sm text-blue-600 mt-2 space-y-1">
+                                <li><code>read:orders</code></li>
+                                <li><code>create:orders</code></li>
+                                <li><code>update:orders</code></li>
+                                <li><code>delete:orders</code></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-blue-200">
+                            <h5 class="font-semibold text-blue-700">ReportsController</h5>
+                            <ul class="text-sm text-blue-600 mt-2 space-y-1">
+                                <li><code>sales:reports</code></li>
+                                <li><code>create:reports</code></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-blue-200">
+                            <h5 class="font-semibold text-blue-700">GrydAuth Controllers</h5>
+                            <ul class="text-sm text-blue-600 mt-2 space-y-1">
+                                <li><code>read:users</code></li>
+                                <li><code>create:users</code></li>
+                                <li><code>read:roles</code></li>
+                                <li><code>create:roles</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Role -->
+            <section id="admin-role" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">👑 Role Admin Automático</h2>
+                
+                <div class="bg-amber-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-amber-800 mb-3">🚀 Criação Automática</h3>
+                    <p class="text-amber-700 mb-4">
+                        O sistema cria automaticamente um role <strong>"Admin"</strong> e vincula 
+                        <strong>todas as permissions geradas</strong> a este role.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded border border-amber-200">
+                            <h4 class="font-semibold text-amber-800 mb-2">📋 Características</h4>
+                            <ul class="text-sm text-amber-600 space-y-1">
+                                <li>✅ Nome: <code>"Admin"</code></li>
+                                <li>✅ Descrição: "Administrator role with all permissions"</li>
+                                <li>✅ <code>IsSystemRole = true</code></li>
+                                <li>✅ Todas as permissions vinculadas</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border border-amber-200">
+                            <h4 class="font-semibold text-amber-800 mb-2">🔄 Comportamento</h4>
+                            <ul class="text-sm text-amber-600 space-y-1">
+                                <li>🔄 Atualizado a cada seed</li>
+                                <li>🔄 Recebe novas permissions automaticamente</li>
+                                <li>🛡️ Protegido contra remoção de permissions</li>
+                                <li>⚡ Criado se não existir</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3">👤 Atribuindo Admin a um Usuário</h4>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto"><code>// Exemplo: atribuir role Admin a um usuário
+public async Task MakeUserAdmin(Guid userId)
+{
+    var user = await _userRepository.GetByIdAsync(userId);
+    var adminRole = await _roleRepository.GetByNameAsync("Admin");
+    
+    if (user != null && adminRole != null)
+    {
+        user.AssignRole(adminRole);
+        await _userRepository.UpdateAsync(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Boas Práticas -->
+            <section id="boas-praticas" class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-4">✅ Boas Práticas</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                        <h3 class="text-lg font-semibold text-green-800 mb-3">✅ Recomendações</h3>
+                        <ul class="text-green-700 space-y-2">
+                            <li><strong>Use nomes plurais</strong> para entidades: <code>"users"</code>, <code>"orders"</code></li>
+                            <li><strong>Execute seed apenas em Development</strong> para evitar conflitos</li>
+                            <li><strong>Use actions padrão</strong>: read, create, update, delete</li>
+                            <li><strong>Documente permissions customizadas</strong> com ActionName</li>
+                            <li><strong>Monitore logs</strong> durante o processo de seed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-red-50 p-6 rounded-lg border border-red-200">
+                        <h3 class="text-lg font-semibold text-red-800 mb-3">❌ Evite</h3>
+                        <ul class="text-red-700 space-y-2">
+                            <li><strong>Não execute seed em Production</strong> automaticamente</li>
+                            <li><strong>Não use nomes inconsistentes</strong> para entidades</li>
+                            <li><strong>Não remova permissions manualmente</strong> do role Admin</li>
+                            <li><strong>Não ignore erros</strong> durante o seed</li>
+                            <li><strong>Não misture permissions manuais</strong> com automáticas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-6 rounded-lg mt-6">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-3">💡 Dicas Avançadas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded border border-blue-200">
+                            <h4 class="font-semibold text-blue-800 mb-2">🔧 Personalização</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>Use <code>ActionName</code> para ações específicas</li>
+                                <li>Configure <code>IncludeInPermissions = false</code> para endpoints internos</li>
+                                <li>Combine permissions automáticas com manuais conforme necessário</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border border-blue-200">
+                            <h4 class="font-semibold text-blue-800 mb-2">🔍 Monitoramento</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>Monitore logs de criação de permissions</li>
+                                <li>Verifique se todas as permissions esperadas foram criadas</li>
+                                <li>Teste o role Admin após cada seed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Links -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h3 class="font-semibold text-green-800 mb-2">📚 Documentação Relacionada</h3>
+                    <p class="text-sm text-green-600 mb-3">Explore outros recursos do GrydAuth Framework</p>
+                    <a href="jwt-management.html" class="text-green-600 text-sm font-medium hover:underline">
+                        Ver JWT Management →
+                    </a>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-semibold text-blue-800 mb-2">🔐 Role-Based Access</h3>
+                    <p class="text-sm text-blue-600 mb-3">Sistema de controle de acesso baseado em roles</p>
+                    <a href="role-based-access.html" class="text-blue-600 text-sm font-medium hover:underline">
+                        Ver Role-Based Access →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
