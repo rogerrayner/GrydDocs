@@ -3,297 +3,1156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GrydAuthentication Framework - Documentação</title>
+    <title>GrydAuth Framework - Smart Federation Authentication</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA">
     <style>
-        .nav-link.active { @apply bg-green-100 text-green-800 font-medium; }
-        .nav-link:hover { @apply bg-gray-100; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .nav-link.active { 
+            background-color: #d1fae5; 
+            color: #065f46; 
+            font-weight: 500; 
+        }
+        .nav-link:hover { 
+            background-color: #f3f4f6; 
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            overflow-x: auto;
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-bottom-color: #10b981;
+            color: #10b981;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex">
     <!-- Sidebar Navigation -->
-    <nav class="w-64 bg-white shadow-lg min-h-screen">
+    <nav class="w-80 bg-white shadow-lg min-h-screen fixed overflow-y-auto">
         <div class="p-6">
+            <!-- Header -->
             <div class="flex items-center mb-8">
-                <div class="w-8 h-8 bg-green-600 rounded mr-3"></div>
-                <h2 class="text-xl font-bold text-gray-800">GrydAuth Docs</h2>
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3">
+                    <span class="text-white text-lg font-bold">🔐</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">GrydAuth</h2>
+                    <p class="text-xs text-gray-500">Smart Federation Framework</p>
+                </div>
             </div>
             
             <div class="space-y-6">
                 <!-- Getting Started -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Getting Started</h3>
-                    <a href="authentication-flow.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        📖 Fluxo de Integração
-                    </a>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🚀 Getting Started</h3>
+                    <div class="space-y-1">
+                        <a href="#overview" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md active">
+                            📋 Overview
+                        </a>
+                        <a href="installation.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📦 Installation & Setup
+                        </a>
+                        <a href="#integration-flow" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📖 Integration Flow
+                        </a>
+                        <a href="#quick-start" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚡ Quick Start Guide
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Configuration -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Configuration</h3>
-                    <a href="configuration.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        ⚙️ Configuration Setup
-                    </a>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">⚙️ Configuration</h3>
+                    <div class="space-y-1">
+                        <a href="#configuration-setup" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔧 Configuration Setup
+                        </a>
+                        <a href="#environment-variables" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🌍 Environment Variables
+                        </a>
+                        <a href="#dependency-injection" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💉 Dependency Injection
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Auth Providers -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Auth Providers</h3>
-                    <a href="auth0-integration.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🔐 Auth0 Integration
-                    </a>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🔐 Auth Providers</h3>
+                    <div class="space-y-1">
+                        <a href="#auth0-integration" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔗 Auth0 Integration
+                        </a>
+                        <a href="#social-providers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📱 Social Providers
+                        </a>
+                        <a href="#custom-providers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🛠️ Custom Providers
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Core Features -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Core Features</h3>
-                    <a href="jwt-management.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🎫 JWT Management
-                    </a>
-                    <a href="auto-permissions.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🔐 Auto-Permissions
-                    </a>
-                    <a href="role-based-access.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        👥 Role-Based Access
-                    </a>
-                    <a href="middleware.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🔄 Middleware
-                    </a>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">✨ Core Features</h3>
+                    <div class="space-y-1">
+                        <a href="#jwt-management" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎫 JWT Management
+                        </a>
+                        <a href="#auto-permissions" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔐 Auto-Permissions
+                        </a>
+                        <a href="#role-based-access" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👥 Role-Based Access
+                        </a>
+                        <a href="#multi-tenant" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏢 Multi-Tenant Support
+                        </a>
+                        <a href="#security-features" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🛡️ Security Features
+                        </a>
+                        <a href="#caching-system" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💾 Caching System
+                        </a>
+                        <a href="#middleware" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔄 Middleware
+                        </a>
+                    </div>
                 </div>
 
                 <!-- API Reference -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">API Reference</h3>
-                    <a href="controllers.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🎮 Controllers
-                    </a>
-                    <a href="services.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                        🔧 Services
-                    </a>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🎮 API Reference</h3>
+                    <div class="space-y-1">
+                        <a href="#controllers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎯 Controllers
+                        </a>
+                        <a href="#services" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔧 Services
+                        </a>
+                        <a href="#entities" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📊 Entities & Models
+                        </a>
+                        <a href="#dtos" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📋 DTOs & Requests
+                        </a>
+                    </div>
                 </div>
+
+                <!-- Architecture -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🏗️ Architecture</h3>
+                    <div class="space-y-1">
+                        <a href="architecture.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📐 Architecture Overview
+                        </a>
+                        <a href="#clean-architecture" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🧹 Clean Architecture
+                        </a>
+                        <a href="#domain-driven-design" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎯 Domain Driven Design
+                        </a>
+                        <a href="#security-patterns" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔒 Security Patterns
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Code Documentation -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">📚 Code Documentation</h3>
+                    <div class="space-y-1">
+                        <a href="code-documentation.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏗️ Infrastructure Services
+                        </a>
+                        <a href="code-documentation.html#application-services" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📱 Application Services
+                        </a>
+                        <a href="code-documentation.html#domain-entities" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎯 Domain Entities
+                        </a>
+                        <a href="code-documentation.html#api-controllers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎮 API Controllers
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Main -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <a href="../../index.html" class="flex items-center text-gray-600 hover:text-gray-800 transition">
+                    <span class="mr-2">←</span>
+                    <span class="text-sm">Voltar para Gryd Docs</span>
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 p-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Hero Section -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-8 mb-8 border border-green-100">
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">GrydAuthentication Framework</h1>
-                <p class="text-xl text-gray-600 mb-6">
-                    Framework de autenticação e autorização enterprise com .NET 9, Auth0 integration e Clean Architecture
-                </p>
-                <div class="flex space-x-4">
-                    <a href="authentication-flow.html" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
-                        📖 Fluxo de Integração
-                    </a>
-                    <a href="configuration.html" class="border border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition">
-                        Configuração
-                    </a>
-                    <a href="auth0-integration.html" class="border border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition">
-                        Auth0 Integration
-                    </a>
+    <main class="flex-1 ml-80 p-8">
+        <!-- Hero Section -->
+        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white" id="overview">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-4">GrydAuth Framework</h1>
+                    <p class="text-xl opacity-90 mb-6">Smart Federation Authentication System for .NET 9</p>
+                    <div class="flex space-x-4">
+                        <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                            🚀 Enterprise-Ready
+                        </span>
+                        <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                            🔒 Zero-Trust Security
+                        </span>
+                        <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm">
+                            🏢 Multi-Tenant
+                        </span>
+                    </div>
+                </div>
+                <div class="text-6xl opacity-50">
+                    🔐
                 </div>
             </div>
-
-            <!-- Real Features Overview -->
-            <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Funcionalidades Disponíveis</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">🔐 Authentication</h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li>• JWT Token-based authentication</li>
-                            <li>• Auth0 integration completa</li>
-                            <li>• Social login (Auth0 providers)</li>
-                            <li>• Token refresh mechanism</li>
-                            <li>• Token validation endpoints</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">👥 Authorization</h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li>• Role-based access control</li>
-                            <li>• Permission-based access</li>
-                            <li>• Auto-permissions com attributes</li>
-                            <li>• AppId authorization middleware</li>
-                            <li>• RequirePermission attributes</li>
-                            <li>• Endpoint protection</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">🎮 Controllers</h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li>• AuthController (login, social-login, refresh, logout)</li>
-                            <li>• UsersController (CRUD operations)</li>
-                            <li>• RolesController (role management)</li>
-                            <li>• PermissionsController</li>
-                            <li>• CQRS pattern with MediatR</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">🏗️ Architecture</h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li>• Clean Architecture pattern</li>
-                            <li>• CQRS with MediatR</li>
-                            <li>• Entity Framework Core</li>
-                            <li>• Domain entities (User, Role, Permission)</li>
-                            <li>• Dependency injection ready</li>
-                        </ul>
-                    </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-4 gap-6 mt-8 pt-8 border-t border-white border-opacity-20">
+                <div class="text-center">
+                    <div class="text-2xl font-bold">12</div>
+                    <div class="text-sm opacity-80">Infrastructure Services</div>
                 </div>
-            </div>
-
-            <!-- Core APIs -->
-            <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">API Endpoints Reais</h2>
-                
-                <div class="space-y-6">
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="font-semibold text-green-800 mb-2">🔐 AuthController</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">POST /api/auth/login</code>
-                                <p class="text-gray-600 text-xs mt-1">Email/password authentication</p>
-                            </div>
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">POST /api/auth/social-login</code>
-                                <p class="text-gray-600 text-xs mt-1">Auth0 social provider login</p>
-                            </div>
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">POST /api/auth/refresh</code>
-                                <p class="text-gray-600 text-xs mt-1">Refresh JWT token</p>
-                            </div>
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">POST /api/auth/logout</code>
-                                <p class="text-gray-600 text-xs mt-1">Logout and revoke token</p>
-                            </div>
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">GET /api/auth/me</code>
-                                <p class="text-gray-600 text-xs mt-1">Get current user info</p>
-                            </div>
-                            <div>
-                                <code class="bg-green-100 px-2 py-1 rounded">GET /api/auth/validate</code>
-                                <p class="text-gray-600 text-xs mt-1">Validate current token</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="font-semibold text-blue-800 mb-2">👥 UsersController</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <code class="bg-blue-100 px-2 py-1 rounded">GET /api/users</code>
-                                <p class="text-gray-600 text-xs mt-1">List users with pagination</p>
-                            </div>
-                            <div>
-                                <code class="bg-blue-100 px-2 py-1 rounded">GET /api/users/{id}</code>
-                                <p class="text-gray-600 text-xs mt-1">Get user by ID</p>
-                            </div>
-                            <div>
-                                <code class="bg-blue-100 px-2 py-1 rounded">POST /api/users</code>
-                                <p class="text-gray-600 text-xs mt-1">Create new user</p>
-                            </div>
-                            <div>
-                                <code class="bg-blue-100 px-2 py-1 rounded">PUT /api/users/{id}</code>
-                                <p class="text-gray-600 text-xs mt-1">Update user</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="font-semibold text-purple-800 mb-2">⚙️ RolesController</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <code class="bg-purple-100 px-2 py-1 rounded">GET /api/roles</code>
-                                <p class="text-gray-600 text-xs mt-1">List all roles</p>
-                            </div>
-                            <div>
-                                <code class="bg-purple-100 px-2 py-1 rounded">GET /api/roles/{id}</code>
-                                <p class="text-gray-600 text-xs mt-1">Get role by ID</p>
-                            </div>
-                            <div>
-                                <code class="bg-purple-100 px-2 py-1 rounded">POST /api/roles</code>
-                                <p class="text-gray-600 text-xs mt-1">Create new role</p>
-                            </div>
-                            <div>
-                                <code class="bg-purple-100 px-2 py-1 rounded">GET /api/roles/by-name/{name}</code>
-                                <p class="text-gray-600 text-xs mt-1">Get role by name</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">5</div>
+                    <div class="text-sm opacity-80">Application Services</div>
                 </div>
-            </div>
-
-            <!-- Quick Setup Example -->
-            <div class="bg-white rounded-lg shadow-md p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Setup Rápido</h2>
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-gray-800 mb-2">1. Instalar via NuGet</h3>
-                        <pre class="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto"><code>Install-Package GrydAuthentication.Framework
-Install-Package GrydAuthentication.Infrastructure.Auth0</code></pre>
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-gray-800 mb-2">2. Configurar no Program.cs</h3>
-                        <pre class="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto"><code>// Add framework services
-builder.Services.AddGrydAuthentication(builder.Configuration);
-builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
-
-// Configure middleware
-app.UseAuthentication();
-app.UseAuthorization();</code></pre>
-                    </div>
-
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-gray-800 mb-2">3. Configurar appsettings.json</h3>
-                        <pre class="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto"><code>{
-  "JwtSettings": {
-    "SecretKey": "YourSuperSecretKey32CharactersLong",
-    "Issuer": "GrydAuth",
-    "Audience": "GrydAuth",
-    "ExpirationMinutes": 60
-  },
-  "Auth0": {
-    "Domain": "your-domain.auth0.com",
-    "ClientId": "your-client-id",
-    "ClientSecret": "your-client-secret"
-  }
-}</code></pre>
-                    </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">4</div>
+                    <div class="text-sm opacity-80">API Controllers</div>
                 </div>
-            </div>
-
-            <!-- Navigation Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-                    <h3 class="font-semibold text-gray-800 mb-2">🚀 Fluxo de Autenticação</h3>
-                    <p class="text-sm text-gray-600 mb-3">Como integrar seu frontend com o Gryd Authentication</p>
-                    <a href="authentication-flow.html" class="text-green-600 text-sm font-medium hover:underline">
-                        Ver guia →
-                    </a> 
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-                    <h3 class="font-semibold text-gray-800 mb-2">🎮 API Reference</h3>
-                    <p class="text-sm text-gray-600 mb-3">Documentação completa dos controllers</p>
-                    <a href="controllers.html" class="text-blue-600 text-sm font-medium hover:underline">
-                        Ver API →
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-                    <h3 class="font-semibold text-gray-800 mb-2">💡 Roled Based Access</h3>
-                    <p class="text-sm text-gray-600 mb-3">Confira como funciona o controle por Roles e Permissions dos usuários</p>
-                    <a href="role-based-access.html" class="text-purple-600 text-sm font-medium hover:underline">
-                        Ver documentação →
-                    </a>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">9</div>
+                    <div class="text-sm opacity-80">Domain Entities</div>
                 </div>
             </div>
         </div>
+
+        <!-- Features Overview -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Principais Funcionalidades</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JWT Management -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            🎫
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">JWT Management</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Stateless Refresh Tokens</li>
+                        <li>• RSA Encryption/Decryption</li>
+                        <li>• Token Enrichment</li>
+                        <li>• Claims Building</li>
+                        <li>• Auto Token Rotation</li>
+                    </ul>
+                </div>
+
+                <!-- Auto-Permissions -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            🔐
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Auto-Permissions</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Automatic Permission Generation</li>
+                        <li>• Role-Based Access Control</li>
+                        <li>• Permission Inheritance</li>
+                        <li>• Dynamic Authorization</li>
+                        <li>• Fine-Grained Control</li>
+                    </ul>
+                </div>
+
+                <!-- Multi-Tenant -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                            🏢
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Multi-Tenant</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Tenant Context Resolution</li>
+                        <li>• Data Isolation</li>
+                        <li>• Tenant-Specific Config</li>
+                        <li>• Cross-Tenant Security</li>
+                        <li>• Scalable Architecture</li>
+                    </ul>
+                </div>
+
+                <!-- Security Features -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                            🛡️
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Security Features</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Argon2id Password Hashing</li>
+                        <li>• Zero-Trust Security</li>
+                        <li>• Circuit Breaker Pattern</li>
+                        <li>• Rate Limiting</li>
+                        <li>• Security Headers</li>
+                    </ul>
+                </div>
+
+                <!-- Caching System -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                            💾
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Caching System</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Redis Cache Support</li>
+                        <li>• In-Memory Fallback</li>
+                        <li>• Cache Invalidation</li>
+                        <li>• Performance Optimization</li>
+                        <li>• Distributed Caching</li>
+                    </ul>
+                </div>
+
+                <!-- Auth0 Integration -->
+                <div class="bg-white rounded-xl shadow-lg p-6 feature-card">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                            🔗
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Auth0 Integration</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Social Login Providers</li>
+                        <li>• User Management</li>
+                        <li>• Profile Synchronization</li>
+                        <li>• Enterprise SSO</li>
+                        <li>• Identity Federation</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation & Setup Section -->
+        <section class="mb-12" id="installation">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📦 Installation & Setup</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">1. Prerequisites</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">Required</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• .NET 9.0 SDK or later</li>
+                            <li>• Visual Studio 2022 / VS Code</li>
+                            <li>• SQL Server / PostgreSQL</li>
+                            <li>• Auth0 Account (optional)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">Optional</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Redis Server (for caching)</li>
+                            <li>• Docker (for containerization)</li>
+                            <li>• Azure Key Vault</li>
+                            <li>• Application Insights</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">2. NuGet Packages</h3>
+                <div class="code-block mb-8">
+<pre>dotnet add package GrydAuth.API
+dotnet add package GrydAuth.Application  
+dotnet add package GrydAuth.Domain
+dotnet add package GrydAuth.Infrastructure
+dotnet add package GrydAuth.Infrastructure.Auth0</pre>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">3. Database Setup</h3>
+                <div class="code-block mb-8">
+<pre># Create database
+dotnet ef database update
+
+# Or using script
+dotnet ef migrations script --output migration.sql</pre>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">4. Configuration Setup</h3>
+                <div class="code-block">
+<pre>{
+  "GrydAuth": {
+    "JwtSettings": {
+      "SecretKey": "your-super-secret-key-here",
+      "Issuer": "GrydAuth",
+      "Audience": "GrydAuth-API",
+      "ExpirationMinutes": 60
+    },
+    "Auth0": {
+      "Domain": "your-domain.auth0.com",
+      "ClientId": "your-client-id",
+      "ClientSecret": "your-client-secret",
+      "Audience": "your-api-identifier"
+    },
+    "Redis": {
+      "ConnectionString": "localhost:6379"
+    }
+  }
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Flow Section -->
+        <section class="mb-12" id="integration-flow">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📖 Fluxo de Integração Frontend</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Este guia demonstra como um projeto frontend (React, Angular, Vue, etc.) deve integrar completamente com o GrydAuth,
+                    incluindo todas as APIs necessárias e os retornos esperados em cada etapa.
+                </p>
+
+                <!-- Tab Navigation -->
+                <div class="flex border-b border-gray-200 mb-8">
+                    <button class="tab-button active" onclick="showTab('auth-flow')">🔐 Authentication Flow</button>
+                    <button class="tab-button" onclick="showTab('user-mgmt')">👥 User Management</button>
+                    <button class="tab-button" onclick="showTab('permissions')">🔑 Permissions</button>
+                    <button class="tab-button" onclick="showTab('multi-tenant')">🏢 Multi-Tenant</button>
+                </div>
+
+                <!-- Authentication Flow Tab -->
+                <div class="tab-content active" id="auth-flow">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">1. Authentication Flow</h3>
+                    
+                    <!-- Step 1: Login -->
+                    <div class="mb-8 border-l-4 border-green-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Etapa 1: Login do Usuário</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request POST /api/auth/login</h5>
+                            <div class="code-block mb-4">
+<pre>{
+  "email": "user@example.com",
+  "password": "userPassword123",
+  "tenantId": "optional-tenant-id"  // For multi-tenant
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "encrypted-refresh-token-here",
+    "expiresAt": "2025-08-31T15:30:00Z",
+    "user": {
+      "id": "user-uuid",
+      "email": "user@example.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "roles": ["User", "Manager"],
+      "permissions": ["users:read", "orders:create"],
+      "tenants": [
+        {
+          "id": "tenant-uuid",
+          "name": "Empresa ABC",
+          "isActive": true
+        }
+      ]
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Store Tokens -->
+                    <div class="mb-8 border-l-4 border-blue-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Etapa 2: Armazenar Tokens</h4>
+                        <div class="code-block">
+<pre>// Store in secure storage (httpOnly cookies recommended)
+localStorage.setItem('grydauth_access_token', data.accessToken);
+localStorage.setItem('grydauth_refresh_token', data.refreshToken);
+localStorage.setItem('grydauth_user', JSON.stringify(data.user));
+
+// Set axios default headers
+axios.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;</pre>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Token Refresh -->
+                    <div class="mb-8 border-l-4 border-yellow-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Etapa 3: Refresh Token (quando access token expira)</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request POST /api/auth/refresh</h5>
+                            <div class="code-block mb-4">
+<pre>{
+  "refreshToken": "encrypted-refresh-token-here"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "accessToken": "new-jwt-token-here",
+    "refreshToken": "new-encrypted-refresh-token",
+    "expiresAt": "2025-08-31T16:30:00Z"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Authorization Check -->
+                    <div class="mb-8 border-l-4 border-purple-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Etapa 4: Verificação de Permissões</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/permissions/check</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/permissions/check?permission=users:create&resource=users
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "hasPermission": true,
+    "permission": "users:create",
+    "resource": "users",
+    "userId": "user-uuid",
+    "tenantId": "tenant-uuid"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Logout -->
+                    <div class="border-l-4 border-red-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Etapa 5: Logout</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request POST /api/auth/logout</h5>
+                            <div class="code-block mb-4">
+<pre>POST /api/auth/logout
+Authorization: Bearer your-jwt-token
+
+{
+  "refreshToken": "encrypted-refresh-token-here"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "message": "Logout successful"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">🧹 Frontend Cleanup</h5>
+                            <div class="code-block">
+<pre>// Clear all stored data
+localStorage.removeItem('grydauth_access_token');
+localStorage.removeItem('grydauth_refresh_token');
+localStorage.removeItem('grydauth_user');
+delete axios.defaults.headers.common['Authorization'];</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div class="tab-content" id="user-mgmt">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">2. User Management APIs</h3>
+                    
+                    <!-- Get Current User -->
+                    <div class="mb-8 border-l-4 border-green-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Obter Usuário Atual</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/users/me</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/users/me
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "id": "user-uuid",
+    "email": "user@example.com",
+    "firstName": "João",
+    "lastName": "Silva",
+    "isActive": true,
+    "lastLoginAt": "2025-08-31T14:30:00Z",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "roles": [
+      {
+        "id": "role-uuid",
+        "name": "Manager",
+        "permissions": ["users:read", "users:create"]
+      }
+    ],
+    "tenants": [
+      {
+        "id": "tenant-uuid",
+        "name": "Empresa ABC",
+        "isActive": true,
+        "role": "Admin"
+      }
+    ]
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Update User Profile -->
+                    <div class="mb-8 border-l-4 border-blue-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Atualizar Perfil</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request PUT /api/users/me</h5>
+                            <div class="code-block mb-4">
+<pre>PUT /api/users/me
+Authorization: Bearer your-jwt-token
+
+{
+  "firstName": "João Updated",
+  "lastName": "Silva Updated",
+  "phoneNumber": "+55 11 99999-9999"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "id": "user-uuid",
+    "email": "user@example.com",
+    "firstName": "João Updated",
+    "lastName": "Silva Updated",
+    "phoneNumber": "+55 11 99999-9999",
+    "updatedAt": "2025-08-31T15:00:00Z"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="mb-8 border-l-4 border-yellow-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Alterar Senha</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request POST /api/users/change-password</h5>
+                            <div class="code-block mb-4">
+<pre>POST /api/users/change-password
+Authorization: Bearer your-jwt-token
+
+{
+  "currentPassword": "currentPassword123",
+  "newPassword": "newPassword123",
+  "confirmPassword": "newPassword123"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "message": "Password changed successfully"
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions Tab -->
+                <div class="tab-content" id="permissions">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">3. Permissions & Roles APIs</h3>
+                    
+                    <!-- Get User Permissions -->
+                    <div class="mb-8 border-l-4 border-purple-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Obter Permissões do Usuário</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/permissions/my-permissions</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/permissions/my-permissions?tenantId=tenant-uuid
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "userId": "user-uuid",
+    "tenantId": "tenant-uuid",
+    "permissions": [
+      {
+        "name": "users:read",
+        "resource": "users",
+        "action": "read",
+        "source": "role", // or "direct"
+        "roleName": "Manager"
+      },
+      {
+        "name": "orders:create",
+        "resource": "orders", 
+        "action": "create",
+        "source": "direct",
+        "roleName": null
+      }
+    ],
+    "roles": [
+      {
+        "id": "role-uuid",
+        "name": "Manager",
+        "tenantId": "tenant-uuid"
+      }
+    ]
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check Specific Permission -->
+                    <div class="mb-8 border-l-4 border-indigo-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Verificar Permissão Específica</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/permissions/check</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/permissions/check?permission=users:delete&tenantId=tenant-uuid
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "hasPermission": false,
+    "permission": "users:delete",
+    "userId": "user-uuid",
+    "tenantId": "tenant-uuid",
+    "reason": "Permission not found in user roles or direct permissions"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Get Available Roles -->
+                    <div class="border-l-4 border-green-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Obter Roles Disponíveis</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/roles</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/roles?tenantId=tenant-uuid
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": [
+    {
+      "id": "role-uuid-1",
+      "name": "Admin",
+      "description": "Full system access",
+      "tenantId": "tenant-uuid",
+      "permissionCount": 25,
+      "userCount": 3,
+      "isActive": true
+    },
+    {
+      "id": "role-uuid-2", 
+      "name": "Manager",
+      "description": "Limited admin access",
+      "tenantId": "tenant-uuid",
+      "permissionCount": 15,
+      "userCount": 8,
+      "isActive": true
+    }
+  ]
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Tenant Tab -->
+                <div class="tab-content" id="multi-tenant">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">4. Multi-Tenant APIs</h3>
+                    
+                    <!-- Get User Tenants -->
+                    <div class="mb-8 border-l-4 border-orange-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Obter Tenants do Usuário</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request GET /api/users/my-tenants</h5>
+                            <div class="code-block mb-4">
+<pre>GET /api/users/my-tenants
+Authorization: Bearer your-jwt-token</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": [
+    {
+      "id": "tenant-uuid-1",
+      "name": "Empresa ABC Ltda",
+      "domain": "empresa-abc.com",
+      "isActive": true,
+      "userRole": "Admin",
+      "joinedAt": "2025-01-15T10:00:00Z",
+      "settings": {
+        "allowSocialLogin": true,
+        "requireMFA": false,
+        "sessionTimeout": 480
+      }
+    },
+    {
+      "id": "tenant-uuid-2",
+      "name": "Empresa XYZ S.A",
+      "domain": "empresa-xyz.com", 
+      "isActive": true,
+      "userRole": "User",
+      "joinedAt": "2025-02-01T14:30:00Z",
+      "settings": {
+        "allowSocialLogin": false,
+        "requireMFA": true,
+        "sessionTimeout": 240
+      }
+    }
+  ]
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Switch Tenant Context -->
+                    <div class="mb-8 border-l-4 border-red-500 pl-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Trocar Contexto de Tenant</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📤 Request POST /api/auth/switch-tenant</h5>
+                            <div class="code-block mb-4">
+<pre>POST /api/auth/switch-tenant
+Authorization: Bearer your-jwt-token
+
+{
+  "tenantId": "tenant-uuid-2"
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">📥 Response (Success 200)</h5>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "accessToken": "new-jwt-with-tenant-context",
+    "refreshToken": "new-encrypted-refresh-token",
+    "expiresAt": "2025-08-31T16:30:00Z",
+    "currentTenant": {
+      "id": "tenant-uuid-2",
+      "name": "Empresa XYZ S.A",
+      "userRole": "User",
+      "permissions": ["orders:read", "products:read"]
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">🔄 Update Frontend State</h5>
+                            <div class="code-block">
+<pre>// Update stored tokens with new tenant context
+localStorage.setItem('grydauth_access_token', data.accessToken);
+localStorage.setItem('grydauth_refresh_token', data.refreshToken);
+localStorage.setItem('grydauth_current_tenant', JSON.stringify(data.currentTenant));
+
+// Update axios headers
+axios.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
+
+// Refresh application state based on new tenant permissions</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start Guide -->
+        <section class="mb-12" id="quick-start">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">⚡ Quick Start Guide</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Backend Setup -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🔧 Backend Setup</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">1. Add to Program.cs</h4>
+                                <div class="code-block text-sm">
+<pre>builder.Services.AddGrydAuth(configuration);
+app.UseGrydAuth();</pre>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">2. Configure appsettings.json</h4>
+                                <div class="code-block text-sm">
+<pre>{
+  "GrydAuth": {
+    "JwtSettings": {
+      "SecretKey": "your-secret-key"
+    }
+  }
+}</pre>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">3. Protect Controllers</h4>
+                                <div class="code-block text-sm">
+<pre>[Authorize]
+[GrydPermission("users:read")]
+public class UsersController : ControllerBase</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frontend Integration -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🌐 Frontend Integration</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">1. Login Request</h4>
+                                <div class="code-block text-sm">
+<pre>const response = await fetch('/api/auth/login', {
+  method: 'POST',
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password'
+  })
+});</pre>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">2. Store Tokens</h4>
+                                <div class="code-block text-sm">
+<pre>localStorage.setItem('grydauth_access_token', data.accessToken);
+axios.defaults.headers.common['Authorization'] = 
+  `Bearer ${data.accessToken}`;</pre>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">3. Check Permissions</h4>
+                                <div class="code-block text-sm">
+<pre>const hasPermission = await checkPermission('users:create');
+if (hasPermission) {
+  // Show create button
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Integration Patterns -->
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">🔗 Common Integration Patterns</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-2">🔄 Auto Token Refresh</h4>
+                            <p class="text-sm text-blue-600">Implement interceptors to automatically refresh tokens on 401 responses</p>
+                        </div>
+                        
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-2">🛡️ Route Guards</h4>
+                            <p class="text-sm text-green-600">Create route guards that check permissions before navigation</p>
+                        </div>
+                        
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <h4 class="font-medium text-purple-800 mb-2">🏢 Tenant Context</h4>
+                            <p class="text-sm text-purple-600">Maintain tenant context throughout the application session</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 pt-8 mt-16">
+            <div class="text-center text-gray-600">
+                <p class="text-sm">
+                    📚 GrydAuth Framework Documentation - Versão 1.0.0
+                </p>
+                <p class="text-xs mt-2">
+                    Última atualização: 31 de agosto de 2025
+                </p>
+            </div>
+        </footer>
     </main>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Smooth scroll to target section
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight current section in navigation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        const navLink = document.querySelector(`a[href="#${id}"]`);
+                        
+                        if (navLink) {
+                            navLinks.forEach(l => l.classList.remove('active'));
+                            navLink.classList.add('active');
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -80% 0px'
+            });
+
+            // Observe all sections
+            document.querySelectorAll('section[id], div[id]').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydAuth - Code Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+        .nav-item.active {
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: 600;
+        }
+        .method-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .method-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .parameter {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+        }
+        .return-type {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex">
+    <!-- Sidebar Navigation -->
+    <nav class="w-80 bg-white shadow-lg min-h-screen fixed overflow-y-auto">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-center mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3">
+                    <span class="text-white text-lg font-bold">📚</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Code Docs</h2>
+                    <p class="text-xs text-gray-500">Detailed Code Reference</p>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- API Controllers -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🎮 API Controllers</h3>
+                    <div class="space-y-1">
+                        <a href="#auth-controller" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md active">
+                            🔐 AuthController
+                        </a>
+                        <a href="#users-controller" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👥 UsersController
+                        </a>
+                        <a href="#roles-controller" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎭 RolesController
+                        </a>
+                        <a href="#permissions-controller" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔑 PermissionsController
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Infrastructure Services -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🏗️ Infrastructure Services</h3>
+                    <div class="space-y-1">
+                        <a href="#jwt-token-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎫 JwtTokenService
+                        </a>
+                        <a href="#password-hash-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔒 PasswordHashService
+                        </a>
+                        <a href="#rsa-encryption-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔐 RsaEncryptionService
+                        </a>
+                        <a href="#stateless-refresh-token-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎫 StatelessRefreshTokenService
+                        </a>
+                        <a href="#current-user-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👤 CurrentUserService
+                        </a>
+                        <a href="#tenant-context-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏢 TenantContextService
+                        </a>
+                        <a href="#redis-cache-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            💾 RedisCacheService
+                        </a>
+                        <a href="#inmemory-cache-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📱 InMemoryCacheService
+                        </a>
+                        <a href="#circuit-breaker-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ⚡ CircuitBreakerService
+                        </a>
+                        <a href="#permission-generator-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔧 PermissionGeneratorService
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Application Services -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">📱 Application Services</h3>
+                    <div class="space-y-1">
+                        <a href="#claims-builder-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏗️ ClaimsBuilderService
+                        </a>
+                        <a href="#enriched-jwt-token-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            ✨ EnrichedJwtTokenService
+                        </a>
+                        <a href="#jwt-enrichment-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎯 JwtEnrichmentService
+                        </a>
+                        <a href="#refresh-token-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔄 RefreshTokenService
+                        </a>
+                        <a href="#zero-trust-security-service" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🛡️ ZeroTrustSecurityService
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Domain Entities -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🎯 Domain Entities</h3>
+                    <div class="space-y-1">
+                        <a href="#user-entity" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            👤 User
+                        </a>
+                        <a href="#role-entity" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎭 Role
+                        </a>
+                        <a href="#permission-entity" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔑 Permission
+                        </a>
+                        <a href="#tenant-entity" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🏢 Tenant
+                        </a>
+                        <a href="#refresh-token-entity" class="nav-item block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🎫 RefreshToken
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Main -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <a href="index.html" class="flex items-center text-gray-600 hover:text-gray-800 transition">
+                    <span class="mr-2">←</span>
+                    <span class="text-sm">Voltar para GrydAuth</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-80 p-8">
+        <!-- Header -->
+        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white">
+            <h1 class="text-4xl font-bold mb-4">📚 Code Documentation</h1>
+            <p class="text-xl opacity-90">Documentação detalhada de todos os métodos, classes e interfaces do GrydAuth</p>
+        </div>
+
+        <!-- AuthController Documentation -->
+        <section class="mb-12" id="auth-controller">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔐 AuthController</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Visão Geral</h3>
+                    <p class="text-gray-600 mb-4">
+                        Controller responsável por todas as operações de autenticação, incluindo login, logout, refresh de tokens e verificação de sessões.
+                    </p>
+                    <div class="code-block">
+<pre>namespace: GrydAuth.API.Controllers
+base: ControllerBase
+route: api/[controller] (/api/auth)</pre>
+                    </div>
+                </div>
+
+                <!-- Dependencies -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Dependências</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="parameter">
+                            <strong>IMediator _mediator</strong><br>
+                            <span class="text-sm text-gray-600">Mediação de comandos e queries (CQRS pattern)</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>IEncryptionService _encryptionService</strong><br>
+                            <span class="text-sm text-gray-600">Serviço de criptografia RSA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methods -->
+                <div class="space-y-6">
+                    <!-- Login Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">📥 Login</h4>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">POST</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Autentica usuário usando email e senha, retornando JWT token e informações do usuário.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Endpoint</h5>
+                            <div class="code-block">
+<pre>POST /api/auth/login</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>LoginCommand command</strong> (FromBody)<br>
+                                <span class="text-sm text-gray-600">
+                                    • Email: string (required)<br>
+                                    • Password: string (required)<br>
+                                    • TenantId: Guid? (optional)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;</strong><br>
+                                <span class="text-sm">
+                                    • IsSuccess: bool<br>
+                                    • Data: AuthenticationResult (AccessToken, RefreshToken, User, ExpiresAt)<br>
+                                    • Errors: List&lt;string&gt;
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Implementação</h5>
+                            <div class="code-block">
+<pre>[HttpPost("login")]
+public async Task&lt;ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;&gt; Login([FromBody] LoginCommand command)
+{
+    var result = await _mediator.Send(command);
+    
+    if (!result.IsSuccess)
+    {
+        return BadRequest(result);
+    }
+
+    return Ok(result);
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Login Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">📱 SocialLogin</h4>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">POST</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Autentica usuário através de provedores sociais (Google, Facebook, Auth0), validando token externo.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Endpoint</h5>
+                            <div class="code-block">
+<pre>POST /api/auth/social-login</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>SocialLoginCommand command</strong> (FromBody)<br>
+                                <span class="text-sm text-gray-600">
+                                    • Provider: string (Google, Facebook, Auth0)<br>
+                                    • IdToken: string (JWT do provedor)<br>
+                                    • TenantId: Guid? (optional)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="return-type">
+                            <strong>ActionResult&lt;Result&lt;AuthenticationResult&gt;&gt;</strong><br>
+                            <span class="text-sm">Mesmo retorno do login tradicional</span>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Token Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🔄 RefreshToken</h4>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">POST</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Renova access token usando refresh token válido, mantendo sessão ativa sem novo login.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Endpoint</h5>
+                            <div class="code-block">
+<pre>POST /api/auth/refresh</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>RefreshTokenCommand command</strong> (FromBody)<br>
+                                <span class="text-sm text-gray-600">
+                                    • RefreshToken: string (encrypted token)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="return-type">
+                            <strong>ActionResult&lt;Result&lt;RefreshTokenResult&gt;&gt;</strong><br>
+                            <span class="text-sm">
+                                • AccessToken: string (novo JWT)<br>
+                                • RefreshToken: string (novo refresh token)<br>
+                                • ExpiresAt: DateTime
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Logout Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🚪 Logout</h4>
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">POST</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Invalida sessão atual, removendo refresh token e adicionando JWT à blacklist.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Endpoint</h5>
+                            <div class="code-block">
+<pre>POST /api/auth/logout
+Authorization: Bearer {token}</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>LogoutCommand command</strong> (FromBody)<br>
+                                <span class="text-sm text-gray-600">
+                                    • RefreshToken: string (para invalidação)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="return-type">
+                            <strong>ActionResult&lt;Result&lt;bool&gt;&gt;</strong><br>
+                            <span class="text-sm">Success: true se logout bem-sucedido</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JwtTokenService Documentation -->
+        <section class="mb-12" id="jwt-token-service">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🎫 JwtTokenService</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Visão Geral</h3>
+                    <p class="text-gray-600 mb-4">
+                        Serviço de infraestrutura responsável pela geração, validação e gerenciamento de tokens JWT. 
+                        Implementa padrões de segurança modernos com suporte a claims customizados.
+                    </p>
+                    <div class="code-block">
+<pre>namespace: GrydAuth.Infrastructure.Services
+implements: IJwtTokenService
+dependencies: IConfiguration</pre>
+                    </div>
+                </div>
+
+                <!-- Configuration -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Configuração</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="parameter">
+                            <strong>_secretKey</strong><br>
+                            <span class="text-sm text-gray-600">Chave secreta para assinatura HMAC</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>_issuer</strong><br>
+                            <span class="text-sm text-gray-600">Emissor do token (default: GrydAuthenticationFramework)</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>_audience</strong><br>
+                            <span class="text-sm text-gray-600">Audiência do token</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>_expirationMinutes</strong><br>
+                            <span class="text-sm text-gray-600">Tempo de expiração em minutos (default: 60)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methods -->
+                <div class="space-y-6">
+                    <!-- GenerateToken Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🔨 GenerateToken</h4>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Gera um token JWT assinado com todas as informações do usuário, roles e permissões.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>string GenerateToken(
+    Guid userId, 
+    string email, 
+    string fullName, 
+    IEnumerable&lt;string&gt; roles, 
+    IEnumerable&lt;string&gt; permissions
+)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="space-y-2">
+                                <div class="parameter">
+                                    <strong>Guid userId</strong><br>
+                                    <span class="text-sm text-gray-600">ID único do usuário</span>
+                                </div>
+                                <div class="parameter">
+                                    <strong>string email</strong><br>
+                                    <span class="text-sm text-gray-600">Email do usuário</span>
+                                </div>
+                                <div class="parameter">
+                                    <strong>string fullName</strong><br>
+                                    <span class="text-sm text-gray-600">Nome completo do usuário</span>
+                                </div>
+                                <div class="parameter">
+                                    <strong>IEnumerable&lt;string&gt; roles</strong><br>
+                                    <span class="text-sm text-gray-600">Lista de roles do usuário</span>
+                                </div>
+                                <div class="parameter">
+                                    <strong>IEnumerable&lt;string&gt; permissions</strong><br>
+                                    <span class="text-sm text-gray-600">Lista de permissões do usuário</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>string</strong><br>
+                                <span class="text-sm">Token JWT base64 assinado</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Claims Gerados</h5>
+                            <div class="code-block">
+<pre>• NameIdentifier: fullName
+• Email: email  
+• Name: fullName
+• Sub: userId.ToString()
+• Jti: Guid.NewGuid()
+• Iat: UnixTimeSeconds
+• Role: roles[] (multiple claims)
+• permission: permissions[] (multiple claims)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Implementação</h5>
+                            <div class="code-block">
+<pre>public string GenerateToken(Guid userId, string email, string fullName, 
+    IEnumerable&lt;string&gt; roles, IEnumerable&lt;string&gt; permissions)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.ASCII.GetBytes(_secretKey);
+    
+    var claims = new List&lt;Claim&gt;
+    {
+        new(ClaimTypes.NameIdentifier, fullName),
+        new(ClaimTypes.Email, email),
+        new(ClaimTypes.Name, fullName),
+        new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new(JwtRegisteredClaimNames.Iat, 
+            new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(), 
+            ClaimValueTypes.Integer64)
+    };
+
+    // Add roles and permissions
+    claims.AddRange(roles.Select(role =&gt; new Claim(ClaimTypes.Role, role)));
+    claims.AddRange(permissions.Select(permission =&gt; new Claim("permission", permission)));
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddMinutes(_expirationMinutes),
+        Issuer = _issuer,
+        Audience = _audience,
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(key), 
+            SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(token);
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ValidateToken Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">✅ ValidateToken</h4>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Valida assinatura e integridade do token JWT, verificando expiração e claims obrigatórios.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>ClaimsPrincipal? ValidateToken(string token)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>string token</strong><br>
+                                <span class="text-sm text-gray-600">Token JWT a ser validado</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>ClaimsPrincipal?</strong><br>
+                                <span class="text-sm">Principal com claims se válido, null se inválido</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Validações Realizadas</h5>
+                            <div class="code-block">
+<pre>• Assinatura HMAC-SHA256
+• Tempo de expiração
+• Issuer válido
+• Audience válido
+• Estrutura do token
+• Claims obrigatórios</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GetUserIdFromToken Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">👤 GetUserIdFromToken</h4>
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Extrai o ID do usuário de um token válido sem realizar validação completa.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>Guid? GetUserIdFromToken(string token)</pre>
+                            </div>
+                        </div>
+
+                        <div class="return-type">
+                            <strong>Guid?</strong><br>
+                            <span class="text-sm">ID do usuário se encontrado, null caso contrário</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PasswordHashService Documentation -->
+        <section class="mb-12" id="password-hash-service">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔒 PasswordHashService</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Visão Geral</h3>
+                    <p class="text-gray-600 mb-4">
+                        Serviço especializado em hashing seguro de senhas usando algoritmo Argon2id, 
+                        considerado o estado da arte em segurança de passwords.
+                    </p>
+                    <div class="code-block">
+<pre>namespace: GrydAuth.Infrastructure.Services
+implements: IPasswordHashService
+algorithm: Argon2id
+salt: 16 bytes random</pre>
+                    </div>
+                </div>
+
+                <!-- Configuration -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Configuração Argon2id</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="parameter">
+                            <strong>MemorySize</strong><br>
+                            <span class="text-sm text-gray-600">65536 KB (64 MB) de memória</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>Iterations</strong><br>
+                            <span class="text-sm text-gray-600">3 iterações</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>DegreeOfParallelism</strong><br>
+                            <span class="text-sm text-gray-600">1 thread</span>
+                        </div>
+                        <div class="parameter">
+                            <strong>HashLength</strong><br>
+                            <span class="text-sm text-gray-600">32 bytes de output</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methods -->
+                <div class="space-y-6">
+                    <!-- HashPassword Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🔐 HashPassword</h4>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Gera hash seguro da senha usando Argon2id com salt aleatório único.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>string HashPassword(string password)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="parameter">
+                                <strong>string password</strong><br>
+                                <span class="text-sm text-gray-600">Senha em texto plano</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>string</strong><br>
+                                <span class="text-sm">Hash Argon2id em formato base64 com salt incluído</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Processo de Hashing</h5>
+                            <div class="code-block">
+<pre>1. Gerar salt aleatório (16 bytes)
+2. Configurar Argon2id com parâmetros seguros
+3. Processar senha + salt
+4. Retornar hash em base64</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Implementação</h5>
+                            <div class="code-block">
+<pre>public string HashPassword(string password)
+{
+    var salt = new byte[16];
+    using (var rng = RandomNumberGenerator.Create())
+    {
+        rng.GetBytes(salt);
+    }
+
+    using var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
+    {
+        Salt = salt,
+        MemorySize = 65536, // 64 MB
+        Iterations = 3,
+        DegreeOfParallelism = 1,
+        HashLength = 32
+    };
+
+    var hash = argon2.GetBytes(32);
+    return Convert.ToBase64String(salt.Concat(hash).ToArray());
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VerifyPassword Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">✅ VerifyPassword</h4>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Verifica se uma senha corresponde ao hash armazenado, usando timing-attack resistant comparison.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>bool VerifyPassword(string password, string hash)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Parâmetros</h5>
+                            <div class="space-y-2">
+                                <div class="parameter">
+                                    <strong>string password</strong><br>
+                                    <span class="text-sm text-gray-600">Senha em texto plano para verificar</span>
+                                </div>
+                                <div class="parameter">
+                                    <strong>string hash</strong><br>
+                                    <span class="text-sm text-gray-600">Hash armazenado (salt + hash)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>bool</strong><br>
+                                <span class="text-sm">true se senha correta, false caso contrário</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Processo de Verificação</h5>
+                            <div class="code-block">
+<pre>1. Extrair salt do hash armazenado (primeiros 16 bytes)
+2. Extrair hash original (bytes restantes)
+3. Hash da senha fornecida com mesmo salt
+4. Comparação constant-time dos hashes</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Segurança</h5>
+                            <div class="code-block">
+<pre>• Timing-attack resistant
+• Salt único por senha
+• Argon2id resistente a GPU/ASIC
+• Memória intensiva
+• Configuração atual (2025) recomendada</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Continue with more services... -->
+        <section class="mb-12" id="rsa-encryption-service">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔐 RsaEncryptionService</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Visão Geral</h3>
+                    <p class="text-gray-600 mb-4">
+                        Serviço de criptografia RSA para proteger dados sensíveis como refresh tokens. 
+                        Utiliza chaves RSA 2048-bit com padding OAEP para máxima segurança.
+                    </p>
+                    <div class="code-block">
+<pre>namespace: GrydAuth.Infrastructure.Services
+implements: IEncryptionService
+algorithm: RSA-2048 with OAEP padding
+key_format: PEM (PKCS#8)</pre>
+                    </div>
+                </div>
+
+                <!-- Methods -->
+                <div class="space-y-6">
+                    <!-- Encrypt Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🔒 Encrypt</h4>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Criptografa texto usando chave pública RSA com padding OAEP SHA-256.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>string Encrypt(string plainText)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Retorno</h5>
+                            <div class="return-type">
+                                <strong>string</strong><br>
+                                <span class="text-sm">Texto criptografado em base64</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Limitações</h5>
+                            <div class="code-block">
+<pre>• Máximo 190 bytes de texto (RSA-2048 com OAEP)
+• Uso recomendado para refresh tokens
+• Para dados maiores, usar criptografia híbrida</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decrypt Method -->
+                    <div class="method-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">🔓 Decrypt</h4>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Method</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Descrição</h5>
+                            <p class="text-gray-600 text-sm">
+                                Descriptografa texto usando chave privada RSA correspondente.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Assinatura</h5>
+                            <div class="code-block">
+<pre>string Decrypt(string encryptedText)</pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Tratamento de Erros</h5>
+                            <div class="code-block">
+<pre>• CryptographicException para dados inválidos
+• FormatException para base64 malformado
+• Validação de tamanho e formato</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 pt-8 mt-16">
+            <div class="text-center text-gray-600">
+                <p class="text-sm">
+                    📚 GrydAuth Code Documentation - Versão 1.0.0
+                </p>
+                <p class="text-xs mt-2">
+                    Documentação gerada automaticamente do código fonte - Última atualização: 31 de agosto de 2025
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-item');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Smooth scroll to target section
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight current section in navigation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        const navLink = document.querySelector(`a[href="#${id}"]`);
+                        
+                        if (navLink) {
+                            navLinks.forEach(l => l.classList.remove('active'));
+                            navLink.classList.add('active');
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -80% 0px'
+            });
+
+            // Observe all sections
+            document.querySelectorAll('section[id]').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

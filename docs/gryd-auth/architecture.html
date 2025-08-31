@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydAuth - Architecture Overview</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .architecture-box {
+            border: 2px dashed #e5e7eb;
+            border-radius: 0.5rem;
+            background: #f9fafb;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        .architecture-box:hover {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .layer-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .layer-box:hover {
+            border-color: #10b981;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4">
+                        🏗️
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">GrydAuth Architecture</h1>
+                        <p class="text-sm opacity-90">Clean Architecture + DDD + Security Patterns</p>
+                    </div>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition">
+                    ← Voltar
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- Architecture Overview -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📐 Visão Geral da Arquitetura</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <p class="text-gray-600 mb-6">
+                    O GrydAuth foi construído seguindo os princípios da Clean Architecture, Domain Driven Design (DDD) e padrões de segurança modernos. 
+                    A arquitetura é dividida em camadas bem definidas, garantindo separação de responsabilidades, testabilidade e manutenibilidade.
+                </p>
+
+                <!-- Architectural Principles -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-3xl mb-2">🧹</div>
+                        <h3 class="font-semibold text-gray-800">Clean Architecture</h3>
+                        <p class="text-sm text-gray-600 mt-2">Separação clara de responsabilidades entre camadas</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h3 class="font-semibold text-gray-800">Domain Driven Design</h3>
+                        <p class="text-sm text-gray-600 mt-2">Modelagem rica do domínio de autenticação</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-3xl mb-2">🛡️</div>
+                        <h3 class="font-semibold text-gray-800">Security First</h3>
+                        <p class="text-sm text-gray-600 mt-2">Segurança como prioridade em todos os layers</p>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-3xl mb-2">🔧</div>
+                        <h3 class="font-semibold text-gray-800">SOLID Principles</h3>
+                        <p class="text-sm text-gray-600 mt-2">Código modular e facilmente extensível</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Layers Architecture -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🏗️ Camadas da Arquitetura</h2>
+            
+            <!-- Presentation Layer -->
+            <div class="layer-box">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        🎮
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Presentation Layer</h3>
+                        <p class="text-sm text-gray-600">API Controllers & External Interfaces</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">📁 Estrutura</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• <code>/src/Presentation/GrydAuth.API/</code></li>
+                            <li>• Controllers/ - API endpoints</li>
+                            <li>• Middleware/ - Request pipeline</li>
+                            <li>• Filters/ - Cross-cutting concerns</li>
+                            <li>• Extensions/ - Service configuration</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">🎯 Responsabilidades</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Exposição de APIs REST</li>
+                            <li>• Validação de requests</li>
+                            <li>• Serialização/Deserialização</li>
+                            <li>• Tratamento de erros HTTP</li>
+                            <li>• Configuração de CORS e Security Headers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-3">🎮 Controllers Implementados</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="text-center p-3 bg-white rounded border">
+                            <div class="text-lg mb-1">🔐</div>
+                            <div class="text-sm font-medium">AuthController</div>
+                            <div class="text-xs text-gray-500">Login, Logout, Refresh</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border">
+                            <div class="text-lg mb-1">👥</div>
+                            <div class="text-sm font-medium">UsersController</div>
+                            <div class="text-xs text-gray-500">User Management</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border">
+                            <div class="text-lg mb-1">🎭</div>
+                            <div class="text-sm font-medium">RolesController</div>
+                            <div class="text-xs text-gray-500">Role Management</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border">
+                            <div class="text-lg mb-1">🔑</div>
+                            <div class="text-sm font-medium">PermissionsController</div>
+                            <div class="text-xs text-gray-500">Permission Checks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Layer -->
+            <div class="layer-box">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        📱
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Application Layer</h3>
+                        <p class="text-sm text-gray-600">Use Cases & Business Rules Orchestration</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">📁 Estrutura</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• <code>/src/Core/GrydAuth.Application/</code></li>
+                            <li>• Services/ - Application services</li>
+                            <li>• Interfaces/ - Contracts</li>
+                            <li>• DTOs/ - Data transfer objects</li>
+                            <li>• Validators/ - Input validation</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">🎯 Responsabilidades</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Orquestração de casos de uso</li>
+                            <li>• Coordenação entre domínio e infraestrutura</li>
+                            <li>• Transformação de dados (DTOs)</li>
+                            <li>• Validação de regras de negócio</li>
+                            <li>• Gerenciamento de transações</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-3">🔧 Application Services</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">ClaimsBuilderService</div>
+                            <div class="text-xs text-gray-500">Construção de claims JWT</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">EnrichedJwtTokenService</div>
+                            <div class="text-xs text-gray-500">Enriquecimento de tokens</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">JwtEnrichmentService</div>
+                            <div class="text-xs text-gray-500">Adição de contexto JWT</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">RefreshTokenService</div>
+                            <div class="text-xs text-gray-500">Gestão refresh tokens</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">ZeroTrustSecurityService</div>
+                            <div class="text-xs text-gray-500">Segurança zero-trust</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domain Layer -->
+            <div class="layer-box">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                        🎯
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Domain Layer</h3>
+                        <p class="text-sm text-gray-600">Core Business Logic & Domain Models</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">📁 Estrutura</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• <code>/src/Core/GrydAuth.Domain/</code></li>
+                            <li>• Entities/ - Domain entities</li>
+                            <li>• ValueObjects/ - Value objects</li>
+                            <li>• Events/ - Domain events</li>
+                            <li>• Interfaces/ - Repository contracts</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">🎯 Responsabilidades</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Modelagem do domínio de autenticação</li>
+                            <li>• Regras de negócio fundamentais</li>
+                            <li>• Invariantes do domínio</li>
+                            <li>• Eventos de domínio</li>
+                            <li>• Interfaces para repositórios</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-3">📊 Domain Entities</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">User</div>
+                            <div class="text-xs text-gray-500">Entidade principal de usuário</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">Role</div>
+                            <div class="text-xs text-gray-500">Papéis do sistema</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">Permission</div>
+                            <div class="text-xs text-gray-500">Permissões granulares</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">Tenant</div>
+                            <div class="text-xs text-gray-500">Multi-tenancy</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">RefreshToken</div>
+                            <div class="text-xs text-gray-500">Tokens de renovação</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">UserRole</div>
+                            <div class="text-xs text-gray-500">Relacionamento usuário-papel</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">UserPermission</div>
+                            <div class="text-xs text-gray-500">Permissões diretas</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">RolePermission</div>
+                            <div class="text-xs text-gray-500">Permissões por papel</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">UserTenant</div>
+                            <div class="text-xs text-gray-500">Relacionamento usuário-tenant</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infrastructure Layer -->
+            <div class="layer-box">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                        🏗️
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Infrastructure Layer</h3>
+                        <p class="text-sm text-gray-600">External Dependencies & Technical Implementations</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">📁 Estrutura</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• <code>/src/Infrastructure/GrydAuth.Infrastructure/</code></li>
+                            <li>• Services/ - Implementation services</li>
+                            <li>• Repositories/ - Data access</li>
+                            <li>• Configurations/ - EF configurations</li>
+                            <li>• Migrations/ - Database migrations</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">🎯 Responsabilidades</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Acesso a dados (Entity Framework)</li>
+                            <li>• Implementação de serviços técnicos</li>
+                            <li>• Integração com APIs externas</li>
+                            <li>• Caching e performance</li>
+                            <li>• Configurações de segurança</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-3">🔧 Infrastructure Services</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">JwtTokenService</div>
+                            <div class="text-xs text-gray-500">Gestão JWT</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">PasswordHashService</div>
+                            <div class="text-xs text-gray-500">Hash Argon2id</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">RsaEncryptionService</div>
+                            <div class="text-xs text-gray-500">Criptografia RSA</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">StatelessRefreshTokenService</div>
+                            <div class="text-xs text-gray-500">Tokens stateless</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">CurrentUserService</div>
+                            <div class="text-xs text-gray-500">Contexto usuário</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">TenantContextService</div>
+                            <div class="text-xs text-gray-500">Contexto tenant</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">RedisCacheService</div>
+                            <div class="text-xs text-gray-500">Cache Redis</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">InMemoryCacheService</div>
+                            <div class="text-xs text-gray-500">Cache memória</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">CircuitBreakerService</div>
+                            <div class="text-xs text-gray-500">Circuit breaker</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">PermissionGeneratorService</div>
+                            <div class="text-xs text-gray-500">Auto-permissions</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">EventPublisher</div>
+                            <div class="text-xs text-gray-500">Eventos</div>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            <div class="font-medium text-sm">DomainEventDispatcher</div>
+                            <div class="text-xs text-gray-500">Dispatch eventos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Architecture -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔒 Arquitetura de Segurança</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Security Layers -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🛡️ Camadas de Segurança</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border-l-4 border-red-500 bg-red-50">
+                                <h4 class="font-semibold text-red-800">1. Transport Security</h4>
+                                <ul class="text-sm text-red-700 mt-2 space-y-1">
+                                    <li>• HTTPS obrigatório</li>
+                                    <li>• Security Headers (HSTS, CSP)</li>
+                                    <li>• CORS configurado</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border-l-4 border-orange-500 bg-orange-50">
+                                <h4 class="font-semibold text-orange-800">2. Authentication</h4>
+                                <ul class="text-sm text-orange-700 mt-2 space-y-1">
+                                    <li>• JWT com RSA encryption</li>
+                                    <li>• Stateless refresh tokens</li>
+                                    <li>• Multi-factor authentication</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border-l-4 border-yellow-500 bg-yellow-50">
+                                <h4 class="font-semibold text-yellow-800">3. Authorization</h4>
+                                <ul class="text-sm text-yellow-700 mt-2 space-y-1">
+                                    <li>• Role-based access control</li>
+                                    <li>• Permission-based authorization</li>
+                                    <li>• Multi-tenant isolation</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border-l-4 border-green-500 bg-green-50">
+                                <h4 class="font-semibold text-green-800">4. Data Security</h4>
+                                <ul class="text-sm text-green-700 mt-2 space-y-1">
+                                    <li>• Argon2id password hashing</li>
+                                    <li>• Encrypted sensitive data</li>
+                                    <li>• Secure token storage</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Patterns -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🔧 Padrões de Segurança</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Zero Trust Security</h4>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Verificação contínua de identidade e autorização em cada request, 
+                                    nunca assumindo confiança baseada em localização ou contexto anterior.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Circuit Breaker Pattern</h4>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Proteção contra falhas em cascata, com monitoramento de 
+                                    saúde de serviços externos e fallbacks automáticos.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Defense in Depth</h4>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Múltiplas camadas de segurança sobrepostas, garantindo que 
+                                    falha em uma camada não comprometa todo o sistema.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Principle of Least Privilege</h4>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Usuários e serviços recebem apenas as permissões mínimas 
+                                    necessárias para suas funções específicas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multi-Tenant Architecture -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🏢 Arquitetura Multi-Tenant</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Tenant Isolation -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🔒 Isolamento de Tenants</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Data Isolation</h4>
+                                <p class="text-sm text-gray-600">
+                                    Cada tenant possui completo isolamento de dados através de:
+                                </p>
+                                <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                                    <li>• Tenant ID em todas as queries</li>
+                                    <li>• Global query filters no EF Core</li>
+                                    <li>• Validação automática de contexto</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Context Resolution</h4>
+                                <p class="text-sm text-gray-600">
+                                    Resolução automática do contexto do tenant através de:
+                                </p>
+                                <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                                    <li>• Claims no JWT token</li>
+                                    <li>• Headers HTTP personalizados</li>
+                                    <li>• Subdomain detection</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Security Boundaries</h4>
+                                <p class="text-sm text-gray-600">
+                                    Limites de segurança rigorosos entre tenants:
+                                </p>
+                                <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                                    <li>• Cross-tenant access prevention</li>
+                                    <li>• Tenant-specific configurations</li>
+                                    <li>• Isolated caching per tenant</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tenant Features -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">✨ Funcionalidades Multi-Tenant</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">Tenant Switching</h4>
+                                <p class="text-sm text-blue-700">
+                                    Usuários podem alternar entre tenants sem novo login, 
+                                    com atualização automática de permissões e contexto.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-semibold text-green-800 mb-2">Tenant-Specific Roles</h4>
+                                <p class="text-sm text-green-700">
+                                    Sistema de papéis flexível onde usuários podem ter 
+                                    diferentes roles em diferentes tenants.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-purple-50 rounded-lg">
+                                <h4 class="font-semibold text-purple-800 mb-2">Scalable Design</h4>
+                                <p class="text-sm text-purple-700">
+                                    Arquitetura preparada para milhares de tenants com 
+                                    performance otimizada e recursos compartilhados.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-yellow-50 rounded-lg">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Tenant Configuration</h4>
+                                <p class="text-sm text-yellow-700">
+                                    Configurações personalizáveis por tenant, incluindo 
+                                    políticas de segurança, branding e integrations.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance & Scalability -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">⚡ Performance & Escalabilidade</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Caching Strategy -->
+                    <div class="p-6 border border-gray-200 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                💾
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Caching Strategy</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li>• <strong>L1:</strong> In-Memory Cache (ASP.NET Core)</li>
+                            <li>• <strong>L2:</strong> Redis Distributed Cache</li>
+                            <li>• <strong>TTL:</strong> Configurável por tipo de dado</li>
+                            <li>• <strong>Invalidation:</strong> Event-driven cache clearing</li>
+                            <li>• <strong>Fallback:</strong> Automatic degradation to memory</li>
+                        </ul>
+                    </div>
+
+                    <!-- Database Optimization -->
+                    <div class="p-6 border border-gray-200 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                🗄️
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Database Optimization</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li>• <strong>Indexes:</strong> Otimizados para queries frequentes</li>
+                            <li>• <strong>Partitioning:</strong> Por tenant quando necessário</li>
+                            <li>• <strong>Connection Pooling:</strong> Gerenciamento eficiente</li>
+                            <li>• <strong>Query Optimization:</strong> EF Core projections</li>
+                            <li>• <strong>Async/Await:</strong> Operações não-bloqueantes</li>
+                        </ul>
+                    </div>
+
+                    <!-- Security Performance -->
+                    <div class="p-6 border border-gray-200 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                🔐
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Security Performance</h3>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li>• <strong>JWT:</strong> Stateless para escalabilidade</li>
+                            <li>• <strong>RSA:</strong> Chaves cachadas em memória</li>
+                            <li>• <strong>Hashing:</strong> Argon2id otimizado</li>
+                            <li>• <strong>Permissions:</strong> Cache de autorizações</li>
+                            <li>• <strong>Rate Limiting:</strong> Proteção contra abuso</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="mt-8 p-6 bg-gray-50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Métricas de Performance</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">&lt; 50ms</div>
+                            <div class="text-sm text-gray-600">JWT Validation</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">&lt; 100ms</div>
+                            <div class="text-sm text-gray-600">Permission Check</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">&lt; 200ms</div>
+                            <div class="text-sm text-gray-600">Login Response</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600">10K+</div>
+                            <div class="text-sm text-gray-600">Concurrent Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment Architecture -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🚀 Arquitetura de Deploy</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Container Strategy -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">🐳 Estratégia de Containers</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Multi-Stage Docker Build</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• Build stage com SDK .NET 9</li>
+                                    <li>• Runtime stage com ASP.NET Core Runtime</li>
+                                    <li>• Imagem otimizada (~150MB)</li>
+                                    <li>• Health checks integrados</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Kubernetes Ready</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• StatefulSet para persistência</li>
+                                    <li>• ConfigMaps para configuração</li>
+                                    <li>• Secrets para dados sensíveis</li>
+                                    <li>• Horizontal Pod Autoscaler</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Architecture -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">☁️ Arquitetura Cloud</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Azure Integration</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• Azure Key Vault para secrets</li>
+                                    <li>• Application Insights monitoring</li>
+                                    <li>• Azure Redis Cache</li>
+                                    <li>• Azure SQL Database</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">AWS Integration</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• AWS Secrets Manager</li>
+                                    <li>• CloudWatch monitoring</li>
+                                    <li>• ElastiCache Redis</li>
+                                    <li>• RDS PostgreSQL/SQL Server</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm">
+                📚 GrydAuth Architecture Documentation - Versão 1.0.0
+            </p>
+            <p class="text-xs mt-2 text-gray-400">
+                Última atualização: 31 de agosto de 2025
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

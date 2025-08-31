@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydAuth - Installation & Local Setup</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        .step-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            background: white;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .step-number {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .requirement-check {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 0.25rem;
+            background: #f8fafc;
+        }
+        .requirement-check.met {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .requirement-check.optional {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab-button.active {
+            border-bottom-color: #10b981;
+            color: #10b981;
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4">
+                        📦
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Installation & Local Setup</h1>
+                        <p class="text-sm opacity-90">Complete guide for local development environment</p>
+                    </div>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition">
+                    ← Voltar
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- Prerequisites Check -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">✅ Prerequisites Check</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-6">
+                    Antes de começar, verifique se você possui todos os requisitos instalados. Use os comandos abaixo para verificar as versões.
+                </p>
+
+                <!-- Tab Navigation -->
+                <div class="flex border-b border-gray-200 mb-8">
+                    <button class="tab-button active" onclick="showTab('required')">📋 Required</button>
+                    <button class="tab-button" onclick="showTab('optional')">⭐ Optional</button>
+                    <button class="tab-button" onclick="showTab('verification')">🔍 Verification</button>
+                </div>
+
+                <!-- Required Tab -->
+                <div class="tab-content active" id="required">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Required Components</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>.NET 9.0 SDK or later</strong><br>
+                                    <span class="text-sm">Para compilação e execução</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>Visual Studio 2022 17.8+ ou VS Code</strong><br>
+                                    <span class="text-sm">IDE com suporte ao .NET 9</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>SQL Server ou PostgreSQL</strong><br>
+                                    <span class="text-sm">Banco de dados principal</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>Git</strong><br>
+                                    <span class="text-sm">Controle de versão</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>PowerShell 7+ ou Bash</strong><br>
+                                    <span class="text-sm">Para execução de scripts</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check met">
+                                <span class="mr-3">✅</span>
+                                <div>
+                                    <strong>Node.js 18+ (para frontend)</strong><br>
+                                    <span class="text-sm">Se integrar com aplicação frontend</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Tab -->
+                <div class="tab-content" id="optional">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Optional Components</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>Redis Server</strong><br>
+                                    <span class="text-sm">Para cache distribuído (fallback automático para memória)</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>Docker Desktop</strong><br>
+                                    <span class="text-sm">Para containers e easy setup</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>Azure CLI</strong><br>
+                                    <span class="text-sm">Para integração com Azure services</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>Postman ou Insomnia</strong><br>
+                                    <span class="text-sm">Para testing de APIs</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>JetBrains Rider</strong><br>
+                                    <span class="text-sm">IDE alternativa premium</span>
+                                </div>
+                            </div>
+                            <div class="requirement-check optional">
+                                <span class="mr-3">⭐</span>
+                                <div>
+                                    <strong>Auth0 Account</strong><br>
+                                    <span class="text-sm">Para social login integration</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Tab -->
+                <div class="tab-content" id="verification">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Version Verification Commands</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">.NET SDK</h4>
+                            <div class="code-block">
+<pre>dotnet --version
+# Expected: 9.0.x or later
+
+dotnet --list-sdks
+# Should show .NET 9.0.x</pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Entity Framework Tools</h4>
+                            <div class="code-block">
+<pre>dotnet ef --version
+# Expected: 9.0.x
+
+# If not installed:
+dotnet tool install --global dotnet-ef</pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">SQL Server (if using)</h4>
+                            <div class="code-block">
+<pre># SQL Server via sqlcmd
+sqlcmd -S localhost -E -Q "SELECT @@VERSION"
+
+# Or check service
+sc query MSSQLSERVER</pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Redis (if using)</h4>
+                            <div class="code-block">
+<pre># Redis via redis-cli
+redis-cli --version
+redis-cli ping
+# Expected: PONG</pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Docker (if using)</h4>
+                            <div class="code-block">
+<pre>docker --version
+docker-compose --version
+docker run hello-world</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation Steps -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🚀 Installation Steps</h2>
+            
+            <!-- Step 1: Clone Repository -->
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Clone the Repository</h3>
+                <p class="text-gray-600 mb-4">
+                    Clone o repositório do GrydAuth e navegue para o diretório do projeto.
+                </p>
+                <div class="code-block mb-4">
+<pre># Clone via HTTPS
+git clone https://github.com/your-org/GrydAuth.git
+
+# Ou via SSH
+git clone git@github.com:your-org/GrydAuth.git
+
+# Navegar para o diretório
+cd GrydAuth</pre>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">💡 Dica</h4>
+                    <p class="text-blue-700 text-sm">
+                        Certifique-se de ter acesso ao repositório. Se for privado, configure suas credenciais Git corretamente.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2: Configure Database -->
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Database Setup</h3>
+                <p class="text-gray-600 mb-4">
+                    Configure o banco de dados (SQL Server ou PostgreSQL) para o GrydAuth.
+                </p>
+                
+                <!-- Database Tabs -->
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button class="tab-button active" onclick="showDbTab('sqlserver')">🔶 SQL Server</button>
+                    <button class="tab-button" onclick="showDbTab('postgresql')">🐘 PostgreSQL</button>
+                    <button class="tab-button" onclick="showDbTab('docker-db')">🐳 Docker</button>
+                </div>
+
+                <!-- SQL Server Tab -->
+                <div class="tab-content active" id="sqlserver">
+                    <h4 class="font-semibold text-gray-700 mb-3">SQL Server Configuration</h4>
+                    <div class="code-block mb-4">
+<pre># 1. Create database
+sqlcmd -S localhost -E -Q "CREATE DATABASE GrydAuth"
+
+# 2. Update connection string in appsettings.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=GrydAuth;Trusted_Connection=true;TrustServerCertificate=true;"
+  }
+}
+
+# 3. Run migrations
+dotnet ef database update --project src/Infrastructure/GrydAuth.Infrastructure</pre>
+                    </div>
+                </div>
+
+                <!-- PostgreSQL Tab -->
+                <div class="tab-content" id="postgresql">
+                    <h4 class="font-semibold text-gray-700 mb-3">PostgreSQL Configuration</h4>
+                    <div class="code-block mb-4">
+<pre># 1. Create database and user
+sudo -u postgres psql
+CREATE DATABASE grydauth;
+CREATE USER grydauth_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE grydauth TO grydauth_user;
+\q
+
+# 2. Update connection string in appsettings.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=grydauth;Username=grydauth_user;Password=your_password"
+  }
+}
+
+# 3. Install PostgreSQL provider and run migrations
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+dotnet ef database update --project src/Infrastructure/GrydAuth.Infrastructure</pre>
+                    </div>
+                </div>
+
+                <!-- Docker Database Tab -->
+                <div class="tab-content" id="docker-db">
+                    <h4 class="font-semibold text-gray-700 mb-3">Docker Database Setup</h4>
+                    <div class="code-block mb-4">
+<pre># SQL Server via Docker
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrong@Passw0rd" \
+   -p 1433:1433 --name grydauth-sqlserver \
+   -d mcr.microsoft.com/mssql/server:2022-latest
+
+# PostgreSQL via Docker  
+docker run --name grydauth-postgres \
+   -e POSTGRES_PASSWORD=your_password \
+   -e POSTGRES_USER=grydauth_user \
+   -e POSTGRES_DB=grydauth \
+   -p 5432:5432 -d postgres:15
+
+# Redis via Docker (optional)
+docker run --name grydauth-redis -p 6379:6379 -d redis:7-alpine
+
+# Or use docker-compose.yml
+version: '3.8'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+    ports:
+      - "1433:1433"
+    
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Configuration -->
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Application Configuration</h3>
+                <p class="text-gray-600 mb-4">
+                    Configure as variáveis de ambiente e settings do aplicativo.
+                </p>
+                
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-700 mb-3">appsettings.Development.json</h4>
+                    <div class="code-block">
+<pre>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Your database connection string here"
+  },
+  "GrydAuth": {
+    "JwtSettings": {
+      "SecretKey": "your-super-secret-key-at-least-32-characters-long-for-production",
+      "Issuer": "GrydAuth",
+      "Audience": "GrydAuth-API",
+      "ExpirationMinutes": 60
+    },
+    "EncryptionSettings": {
+      "PrivateKey": "-----BEGIN PRIVATE KEY-----\nYour RSA private key here\n-----END PRIVATE KEY-----",
+      "PublicKey": "-----BEGIN PUBLIC KEY-----\nYour RSA public key here\n-----END PUBLIC KEY-----"
+    },
+    "Auth0": {
+      "Domain": "your-domain.auth0.com",
+      "ClientId": "your-auth0-client-id",
+      "ClientSecret": "your-auth0-client-secret",
+      "Audience": "your-api-identifier"
+    },
+    "Redis": {
+      "ConnectionString": "localhost:6379",
+      "InstanceName": "GrydAuth",
+      "DefaultExpirationMinutes": 60
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "GrydAuth": "Debug"
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-yellow-800 mb-2">🔐 Security Note</h4>
+                    <p class="text-yellow-700 text-sm">
+                        Para produção, use Azure Key Vault, AWS Secrets Manager ou similar para secrets. 
+                        Nunca commite secrets no código fonte.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 4: Generate RSA Keys -->
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Generate RSA Keys</h3>
+                <p class="text-gray-600 mb-4">
+                    Gere o par de chaves RSA para criptografia dos refresh tokens.
+                </p>
+                
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-700 mb-3">Using OpenSSL</h4>
+                    <div class="code-block mb-4">
+<pre># Generate private key (2048 bits)
+openssl genpkey -algorithm RSA -out private_key.pem -pkcs8 -aes256
+
+# Generate public key from private key
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+
+# View keys content
+cat private_key.pem
+cat public_key.pem</pre>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-700 mb-3">Using PowerShell (Windows)</h4>
+                    <div class="code-block">
+<pre># Generate RSA key pair
+$rsa = [System.Security.Cryptography.RSA]::Create(2048)
+
+# Export private key
+$privateKey = [System.Convert]::ToBase64String($rsa.ExportRSAPrivateKey())
+$privateKeyPem = "-----BEGIN PRIVATE KEY-----`n" + $privateKey + "`n-----END PRIVATE KEY-----"
+
+# Export public key  
+$publicKey = [System.Convert]::ToBase64String($rsa.ExportRSAPublicKey())
+$publicKeyPem = "-----BEGIN PUBLIC KEY-----`n" + $publicKey + "`n-----END PUBLIC KEY-----"
+
+# Save to files
+$privateKeyPem | Out-File -FilePath "private_key.pem" -Encoding utf8
+$publicKeyPem | Out-File -FilePath "public_key.pem" -Encoding utf8</pre>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-2">🔒 Important</h4>
+                    <p class="text-red-700 text-sm">
+                        Mantenha a chave privada segura e nunca a exponha. Para produção, use HSM ou Key Vault.
+                        A chave pública pode ser compartilhada com outros serviços se necessário.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 5: Install Dependencies -->
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Install Dependencies</h3>
+                <p class="text-gray-600 mb-4">
+                    Restaure todas as dependências NuGet do projeto.
+                </p>
+                
+                <div class="code-block mb-4">
+<pre># Restore all packages
+dotnet restore
+
+# Build entire solution
+dotnet build
+
+# Verify no build errors
+echo $LASTEXITCODE  # Should be 0 (Windows)
+echo $?             # Should be 0 (Linux/Mac)</pre>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">✅ Success Indicators</h4>
+                    <ul class="text-green-700 text-sm space-y-1">
+                        <li>• Restore completed without errors</li>
+                        <li>• Build succeeded for all projects</li>
+                        <li>• No missing package warnings</li>
+                        <li>• All tests can be discovered</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 6: Database Migration -->
+            <div class="step-card">
+                <div class="step-number">6</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Database Migration</h3>
+                <p class="text-gray-600 mb-4">
+                    Execute as migrations para criar as tabelas no banco de dados.
+                </p>
+                
+                <div class="code-block mb-4">
+<pre># Run migrations
+dotnet ef database update --project src/Infrastructure/GrydAuth.Infrastructure --startup-project src/Presentation/GrydAuth.API
+
+# Check migration status
+dotnet ef migrations list --project src/Infrastructure/GrydAuth.Infrastructure
+
+# If needed, create new migration
+dotnet ef migrations add InitialCreate --project src/Infrastructure/GrydAuth.Infrastructure</pre>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-3">Expected Database Tables</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div class="bg-gray-50 p-2 rounded border text-sm">Users</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">Roles</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">Permissions</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">UserRoles</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">UserPermissions</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">RolePermissions</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">Tenants</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">UserTenants</div>
+                        <div class="bg-gray-50 p-2 rounded border text-sm">RefreshTokens</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Run Application -->
+            <div class="step-card">
+                <div class="step-number">7</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Run the Application</h3>
+                <p class="text-gray-600 mb-4">
+                    Execute a aplicação em modo de desenvolvimento.
+                </p>
+                
+                <div class="code-block mb-4">
+<pre># Run API project
+dotnet run --project src/Presentation/GrydAuth.API
+
+# Or with hot reload
+dotnet watch run --project src/Presentation/GrydAuth.API
+
+# Or using Visual Studio
+# Open GrydAuth.sln and press F5</pre>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-3">Expected Output</h4>
+                    <div class="code-block">
+<pre>info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7001
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.</pre>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">🌐 Swagger UI</h4>
+                        <p class="text-blue-700 text-sm mb-2">
+                            Acesse a documentação interativa da API:
+                        </p>
+                        <a href="#" class="text-blue-600 underline text-sm">https://localhost:7001/swagger</a>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">🔍 Health Check</h4>
+                        <p class="text-green-700 text-sm mb-2">
+                            Verifique a saúde da aplicação:
+                        </p>
+                        <a href="#" class="text-green-600 underline text-sm">https://localhost:7001/health</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testing Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🧪 Testing Your Setup</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-6">
+                    Verifique se sua instalação está funcionando corretamente com estes testes básicos.
+                </p>
+
+                <!-- Test Steps -->
+                <div class="space-y-6">
+                    <!-- Unit Tests -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">1. Run Unit Tests</h3>
+                        <div class="code-block mb-4">
+<pre># Run all tests
+dotnet test
+
+# Run tests with coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Run specific test project
+dotnet test tests/GrydAuth.Domain.Tests
+dotnet test tests/GrydAuth.Application.Tests  
+dotnet test tests/GrydAuth.Infrastructure.Tests</pre>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-2">Expected Results</h4>
+                            <ul class="text-green-700 text-sm space-y-1">
+                                <li>• Total tests: 712</li>
+                                <li>• Domain tests: 136 passed</li>
+                                <li>• Application tests: 386 passed</li>
+                                <li>• Infrastructure tests: 190 passed</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- API Tests -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">2. Test API Endpoints</h3>
+                        <div class="code-block mb-4">
+<pre># Test health endpoint
+curl -k https://localhost:7001/health
+
+# Test swagger endpoint
+curl -k https://localhost:7001/swagger/index.html
+
+# Test auth endpoint (should return 400 - bad request)
+curl -k -X POST https://localhost:7001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test","password":"test"}'</pre>
+                        </div>
+                    </div>
+
+                    <!-- Database Tests -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">3. Verify Database</h3>
+                        <div class="code-block mb-4">
+<pre># SQL Server
+sqlcmd -S localhost -E -d GrydAuth -Q "SELECT COUNT(*) FROM Users"
+
+# PostgreSQL
+psql -h localhost -U grydauth_user -d grydauth -c "SELECT COUNT(*) FROM \"Users\""
+
+# Should return 0 (empty table initially)</pre>
+                        </div>
+                    </div>
+
+                    <!-- Cache Tests -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">4. Test Cache (if Redis installed)</h3>
+                        <div class="code-block mb-4">
+<pre># Test Redis connection
+redis-cli ping
+# Expected: PONG
+
+# Check if app connects to Redis (check logs)
+# Should see: "Connected to Redis cache" in application logs</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔧 Troubleshooting</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="space-y-6">
+                    <!-- Common Issues -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Common Issues & Solutions</h3>
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-600 mb-2">❌ Database Connection Failed</h4>
+                                <p class="text-gray-600 text-sm mb-2">Error: Unable to connect to database</p>
+                                <div class="bg-gray-50 p-3 rounded text-sm">
+                                    <strong>Solutions:</strong><br>
+                                    • Verify connection string in appsettings.json<br>
+                                    • Check if database server is running<br>
+                                    • Ensure database exists<br>
+                                    • Verify user permissions
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-600 mb-2">❌ JWT Secret Key Error</h4>
+                                <p class="text-gray-600 text-sm mb-2">Error: JWT secret key not configured</p>
+                                <div class="bg-gray-50 p-3 rounded text-sm">
+                                    <strong>Solutions:</strong><br>
+                                    • Add JwtSettings:SecretKey to appsettings.json<br>
+                                    • Ensure key is at least 32 characters<br>
+                                    • Use strong, random key for production
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-600 mb-2">❌ RSA Keys Invalid</h4>
+                                <p class="text-gray-600 text-sm mb-2">Error: Invalid RSA key format</p>
+                                <div class="bg-gray-50 p-3 rounded text-sm">
+                                    <strong>Solutions:</strong><br>
+                                    • Generate new RSA key pair<br>
+                                    • Ensure PEM format with headers/footers<br>
+                                    • Check for newline characters in JSON
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-600 mb-2">❌ Redis Connection Issues</h4>
+                                <p class="text-gray-600 text-sm mb-2">Error: Unable to connect to Redis</p>
+                                <div class="bg-gray-50 p-3 rounded text-sm">
+                                    <strong>Solutions:</strong><br>
+                                    • App will fallback to in-memory cache<br>
+                                    • Check Redis server is running<br>
+                                    • Verify connection string<br>
+                                    • Redis is optional for development
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Analysis -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Log Analysis</h3>
+                        <div class="code-block">
+<pre># Check application logs for errors
+# Look for these patterns in console output:
+
+✅ Good indicators:
+"Application started. Press Ctrl+C to shut down"
+"Connected to database successfully"
+"JWT service initialized"
+"RSA encryption service ready"
+
+❌ Error indicators:
+"Unable to connect to database"
+"JWT secret key not configured"
+"RSA key loading failed"
+"Redis connection failed" (warning only)</pre>
+                        </div>
+                    </div>
+
+                    <!-- Performance Check -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Performance Verification</h3>
+                        <div class="code-block">
+<pre># Test API response times
+curl -w "@curl-format.txt" -o /dev/null -s https://localhost:7001/health
+
+# curl-format.txt content:
+     time_namelookup:  %{time_namelookup}\n
+        time_connect:  %{time_connect}\n
+     time_appconnect:  %{time_appconnect}\n
+    time_pretransfer:  %{time_pretransfer}\n
+       time_redirect:  %{time_redirect}\n
+  time_starttransfer:  %{time_starttransfer}\n
+                     ----------\n
+          time_total:  %{time_total}\n
+
+# Expected time_total: < 100ms for health check</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Workflow -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔄 Development Workflow</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Daily Development -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Daily Development</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-blue-500">
+                                <h4 class="font-medium text-gray-800">Start Development</h4>
+                                <div class="code-block text-xs mt-2">
+<pre>git pull origin main
+dotnet restore
+dotnet run --project src/Presentation/GrydAuth.API</pre>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-green-500">
+                                <h4 class="font-medium text-gray-800">Run Tests</h4>
+                                <div class="code-block text-xs mt-2">
+<pre>dotnet test
+dotnet test --watch</pre>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-purple-500">
+                                <h4 class="font-medium text-gray-800">Database Changes</h4>
+                                <div class="code-block text-xs mt-2">
+<pre>dotnet ef migrations add FeatureName
+dotnet ef database update</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debugging -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Debugging Tips</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-yellow-500">
+                                <h4 class="font-medium text-gray-800">Enable Debug Logging</h4>
+                                <div class="code-block text-xs mt-2">
+<pre>"Logging": {
+  "LogLevel": {
+    "GrydAuth": "Debug"
+  }
+}</pre>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-red-500">
+                                <h4 class="font-medium text-gray-800">Breakpoint Locations</h4>
+                                <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                                    <li>• AuthController methods</li>
+                                    <li>• JWT token generation</li>
+                                    <li>• Permission checks</li>
+                                    <li>• Database operations</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm">
+                📦 GrydAuth Installation Guide - Versão 1.0.0
+            </p>
+            <p class="text-xs mt-2 text-gray-400">
+                Última atualização: 31 de agosto de 2025
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Database tab switching
+        function showDbTab(tabId) {
+            // Hide all database tab contents
+            document.querySelectorAll('#sqlserver, #postgresql, #docker-db').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Update button states
+            event.target.parentNode.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to step cards
+            const stepCards = document.querySelectorAll('.step-card');
+            stepCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
