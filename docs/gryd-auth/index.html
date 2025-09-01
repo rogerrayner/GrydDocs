@@ -454,7 +454,7 @@ dotnet ef migrations script --output migration.sql</pre>
                     <button class="tab-button active" onclick="showTab('auth-flow')">🔐 Authentication Flow</button>
                     <button class="tab-button" onclick="showTab('user-mgmt')">👥 User Management</button>
                     <button class="tab-button" onclick="showTab('permissions')">🔑 Permissions</button>
-                    <button class="tab-button" onclick="showTab('multi-tenant')">🏢 Multi-Tenant</button>
+                    <button class="tab-button" onclick="showTab('multi-tenant-tab')">🏢 Multi-Tenant</button>
                 </div>
 
                 <!-- Authentication Flow Tab -->
@@ -858,7 +858,7 @@ Authorization: Bearer your-jwt-token</pre>
                 </div>
 
                 <!-- Multi-Tenant Tab -->
-                <div class="tab-content" id="multi-tenant">
+                <div class="tab-content" id="multi-tenant-tab">
                     <h3 class="text-xl font-semibold text-gray-800 mb-6">4. Multi-Tenant APIs</h3>
                     
                     <!-- Get User Tenants -->
@@ -1065,6 +1065,2822 @@ if (hasPermission) {
                         <div class="p-4 bg-purple-50 rounded-lg">
                             <h4 class="font-medium text-purple-800 mb-2">🏢 Tenant Context</h4>
                             <p class="text-sm text-purple-600">Maintain tenant context throughout the application session</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Setup Section -->
+        <section class="mb-12" id="configuration-setup">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔧 Configuration Setup</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth utiliza um sistema de configuração flexível baseado no padrão de configuração do .NET.
+                    Configure através do appsettings.json ou variáveis de ambiente.
+                </p>
+
+                <!-- Program.cs Configuration -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Program.cs Configuration</h3>
+                    <div class="code-block">
+<pre>using GrydAuth.Application;
+using GrydAuth.Infrastructure;
+using GrydAuth.Infrastructure.Auth0;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddControllers();
+
+// Add GrydAuth Framework services
+builder.Services.AddApplicationGrydAuthServices();
+builder.Services.AddInfrastructureGrydAuthServices(builder.Configuration);
+
+// Optional: Add Auth0 integration
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
+
+// Configure JWT Authentication (required)
+builder.Services.AddGrydAuthJwtAuthentication(builder.Configuration);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.Run();</pre>
+                    </div>
+                </div>
+
+                <!-- Complete appsettings.json -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Complete appsettings.json</h3>
+                    <div class="code-block">
+<pre>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=YourApp;Trusted_Connection=true"
+  },
+  "JwtSettings": {
+    "SecretKey": "YourSuperSecretKeyThatShouldBeAtLeast32CharactersLong",
+    "Issuer": "YourApplication",
+    "Audience": "YourApplication",
+    "ExpirationMinutes": 60
+  },
+  "GrydAuth": {
+    "RefreshToken": {
+      "Strategy": "Stateless",
+      "ExpirationDays": 7,
+      "MaxTokensPerUser": 5,
+      "TrackIpAddresses": true,
+      "TrackDeviceInfo": true,
+      "CleanupIntervalHours": 24
+    },
+    "Jwt": {
+      "ExpirationMinutes": 30,
+      "RefreshBeforeExpirationMinutes": 5
+    },
+    "Cache": {
+      "DefaultExpiration": "00:15:00",
+      "Redis": {
+        "ConnectionString": "localhost:6379",
+        "Database": 0
+      }
+    }
+  },
+  "Auth0": {
+    "Domain": "your-auth0-domain.auth0.com",
+    "ClientId": "your-auth0-client-id",
+    "ClientSecret": "your-auth0-client-secret",
+    "Audience": "your-auth0-api-audience",
+    "ManagementApiAudience": "https://your-auth0-domain.auth0.com/api/v2/",
+    "ManagementApiToken": "your-management-api-token",
+    "ConnectionName": "Username-Password-Authentication",
+    "SocialProviders": {
+      "google": {
+        "Name": "Google",
+        "ConnectionName": "google-oauth2",
+        "Enabled": true
+      },
+      "facebook": {
+        "Name": "Facebook", 
+        "ConnectionName": "facebook",
+        "Enabled": true
+      },
+      "github": {
+        "Name": "GitHub",
+        "ConnectionName": "github",
+        "Enabled": true
+      }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Configuration Strategies -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Configuration Strategies</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-2">Refresh Token Strategy</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li><strong>Stateless:</strong> Encrypted tokens, no database storage</li>
+                                <li><strong>Database:</strong> Stored in database, can be revoked</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-2">Cache Strategy</h4>
+                            <ul class="text-sm text-green-600 space-y-1">
+                                <li><strong>Redis:</strong> Distributed caching for production</li>
+                                <li><strong>In-Memory:</strong> Local caching for development</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Environment Variables Section -->
+        <section class="mb-12" id="environment-variables">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🌍 Environment Variables</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Para ambientes de produção, recomenda-se usar variáveis de ambiente para configurações sensíveis.
+                    O GrydAuth suporta configuração via variáveis de ambiente seguindo o padrão do .NET.
+                </p>
+
+                <!-- Required Environment Variables -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Required Variables</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Variable</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">ConnectionStrings__DefaultConnection</td>
+                                    <td class="border border-gray-300 px-4 py-2">Database connection string</td>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">Server=localhost;Database=MyApp</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">JwtSettings__SecretKey</td>
+                                    <td class="border border-gray-300 px-4 py-2">JWT signing secret key (min 32 chars)</td>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">YourSuperSecretKeyHere...</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">JwtSettings__Issuer</td>
+                                    <td class="border border-gray-300 px-4 py-2">JWT token issuer</td>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">YourApplicationName</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">JwtSettings__Audience</td>
+                                    <td class="border border-gray-300 px-4 py-2">JWT token audience</td>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">YourApplicationName</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Optional Environment Variables -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Optional Variables</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Variable</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__RefreshToken__Strategy</td>
+                                    <td class="border border-gray-300 px-4 py-2">Refresh token storage strategy</td>
+                                    <td class="border border-gray-300 px-4 py-2">Stateless</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__RefreshToken__ExpirationDays</td>
+                                    <td class="border border-gray-300 px-4 py-2">Refresh token expiration days</td>
+                                    <td class="border border-gray-300 px-4 py-2">7</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__Cache__Redis__ConnectionString</td>
+                                    <td class="border border-gray-300 px-4 py-2">Redis connection string for caching</td>
+                                    <td class="border border-gray-300 px-4 py-2">localhost:6379</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">Auth0__Domain</td>
+                                    <td class="border border-gray-300 px-4 py-2">Auth0 domain for social login</td>
+                                    <td class="border border-gray-300 px-4 py-2">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">Auth0__ClientId</td>
+                                    <td class="border border-gray-300 px-4 py-2">Auth0 client ID</td>
+                                    <td class="border border-gray-300 px-4 py-2">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">Auth0__ClientSecret</td>
+                                    <td class="border border-gray-300 px-4 py-2">Auth0 client secret</td>
+                                    <td class="border border-gray-300 px-4 py-2">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Docker Example -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Docker Environment Example</h3>
+                    <div class="code-block">
+<pre># docker-compose.yml
+version: '3.8'
+services:
+  web:
+    image: your-app:latest
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=MyApp;User=sa;Password=YourStrong!Passw0rd
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=MyApplication
+      - JwtSettings__Audience=MyApplication
+      - GrydAuth__RefreshToken__Strategy=Database
+      - GrydAuth__Cache__Redis__ConnectionString=redis:6379
+      - Auth0__Domain=${AUTH0_DOMAIN}
+      - Auth0__ClientId=${AUTH0_CLIENT_ID}
+      - Auth0__ClientSecret=${AUTH0_CLIENT_SECRET}
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+
+  redis:
+    image: redis:alpine</pre>
+                    </div>
+                </div>
+
+                <!-- Security Recommendations -->
+                <div class="bg-yellow-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-4">🔐 Security Recommendations</h3>
+                    <ul class="text-sm text-yellow-700 space-y-2">
+                        <li>• Never commit sensitive configuration values to source control</li>
+                        <li>• Use Azure Key Vault, AWS Secrets Manager, or similar for production secrets</li>
+                        <li>• Generate strong, unique JWT secret keys (minimum 32 characters)</li>
+                        <li>• Rotate secrets regularly following your organization's security policies</li>
+                        <li>• Use different configurations for development, staging, and production environments</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dependency Injection Section -->
+        <section class="mb-12" id="dependency-injection">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">💉 Dependency Injection</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth utiliza o sistema de Dependency Injection nativo do .NET, organizando os serviços
+                    em camadas bem definidas seguindo os princípios da Clean Architecture.
+                </p>
+
+                <!-- Service Registration Layers -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Service Registration Layers</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Application Layer -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🧠 Application Layer</h4>
+                            <div class="code-block mb-4">
+<pre>// ApplicationServiceRegistration.cs
+builder.Services.AddApplicationGrydAuthServices();
+
+// Registra:
+// - MediatR (CQRS)
+// - FluentValidation
+// - Pipeline Behaviors (Validation, Logging)
+// - Application Services (Business Logic)</pre>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Registered Services:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• IJwtEnrichmentService</li>
+                                        <li>• IClaimsBuilderService</li>
+                                        <li>• IEnrichedJwtTokenService</li>
+                                        <li>• IRefreshTokenService</li>
+                                        <li>• IZeroTrustSecurityService</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Behaviors:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• ValidationBehavior&lt;,&gt;</li>
+                                        <li>• LoggingBehavior&lt;,&gt;</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Infrastructure Layer -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🏗️ Infrastructure Layer</h4>
+                            <div class="code-block mb-4">
+<pre>// InfrastructureServiceRegistration.cs
+builder.Services.AddInfrastructureGrydAuthServices(builder.Configuration);
+
+// Registra:
+// - Entity Framework DbContext
+// - Repositories
+// - Infrastructure Services
+// - Caching (Redis/In-Memory)</pre>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Repositories:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• IUserRepository</li>
+                                        <li>• IRoleRepository</li>
+                                        <li>• IPermissionRepository</li>
+                                        <li>• ITenantRepository</li>
+                                        <li>• IUserTenantRepository</li>
+                                        <li>• IUnitOfWork</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Core Services:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• IJwtTokenService</li>
+                                        <li>• ICurrentUserService</li>
+                                        <li>• IPasswordHashService</li>
+                                        <li>• IEncryptionService</li>
+                                        <li>• IPermissionGeneratorService</li>
+                                        <li>• ITenantContextService</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Caching:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• ICacheService (Redis)</li>
+                                        <li>• InMemoryCacheService</li>
+                                        <li>• ICircuitBreakerService</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auth0 Integration -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🔗 Auth0 Integration (Optional)</h4>
+                            <div class="code-block mb-4">
+<pre>// Auth0ServiceRegistration.cs
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
+
+// Registra:
+// - Auth0 API Clients
+// - Social Login Services
+// - Auth0 Configuration</pre>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Auth0 Services:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• IAuth0Service</li>
+                                        <li>• IAuthenticationApiClient</li>
+                                        <li>• IManagementApiClient</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-gray-700 mb-2">Configuration:</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Auth0Settings</li>
+                                        <li>• Social Providers</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- JWT Authentication -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🎫 JWT Authentication</h4>
+                            <div class="code-block mb-4">
+<pre>// JWT Configuration (Required)
+builder.Services.AddGrydAuthJwtAuthentication(builder.Configuration);
+
+// Or with custom configuration:
+builder.Services.AddGrydAuthJwtAuthentication(builder.Configuration, options =>
+{
+    options.RequireHttpsMetadata = true;
+    options.SaveToken = true;
+    // Custom JWT Bearer options
+});</pre>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h5 class="font-medium text-blue-800 mb-2">⚠️ Important Note</h5>
+                                <p class="text-sm text-blue-600">
+                                    JWT Authentication is configured separately to give host applications full control
+                                    over JWT settings. This follows Clean Architecture principles by keeping
+                                    authentication configuration at the host level.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Lifetimes -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Service Lifetimes</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-3">🟢 Singleton</h4>
+                            <ul class="text-sm text-green-600 space-y-1">
+                                <li>• IEncryptionService</li>
+                                <li>• IAuthenticationApiClient</li>
+                                <li>• Configuration objects</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-3">🔵 Scoped</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>• DbContext</li>
+                                <li>• Repositories</li>
+                                <li>• Application Services</li>
+                                <li>• Current User Services</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <h4 class="font-medium text-purple-800 mb-3">🟣 Transient</h4>
+                            <ul class="text-sm text-purple-600 space-y-1">
+                                <li>• Pipeline Behaviors</li>
+                                <li>• Validators</li>
+                                <li>• Commands/Queries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Service Registration -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Custom Service Registration</h3>
+                    <div class="code-block">
+<pre>// For custom implementations
+builder.Services.AddScoped&lt;ICustomAuthService, CustomAuthService&gt;();
+
+// Override default implementations
+builder.Services.Replace(ServiceDescriptor.Scoped&lt;IPasswordHashService, CustomPasswordHashService&gt;());
+
+// Add decorators
+builder.Services.Decorate&lt;IJwtTokenService, LoggingJwtTokenService&gt;();
+
+// Conditional registration
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped&lt;ICacheService, InMemoryCacheService&gt;();
+}
+else
+{
+    builder.Services.AddScoped&lt;ICacheService, RedisCacheService&gt;();
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JWT Management Section -->
+        <section class="mb-12" id="jwt-management">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🎫 JWT Management</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth implementa um sistema avançado de gestão de tokens JWT com recursos de segurança
+                    modernos, incluindo tokens stateless, encriptação RSA e enriquecimento de claims.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Token Generation -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔐 Token Generation</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>HS256 Signing:</strong> Secure HMAC-SHA256 algorithm</li>
+                                <li>• <strong>Custom Claims:</strong> Role, permission, tenant context</li>
+                                <li>• <strong>Configurable Expiration:</strong> Default 60 minutes</li>
+                                <li>• <strong>Jti (JWT ID):</strong> Unique identifier for each token</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 Stateless Refresh Tokens</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>RSA-2048 Encryption:</strong> Military-grade security</li>
+                                <li>• <strong>No Database Storage:</strong> Completely stateless</li>
+                                <li>• <strong>7-day Expiration:</strong> Configurable lifetime</li>
+                                <li>• <strong>Automatic Rotation:</strong> New tokens on each refresh</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Features -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚡ Token Enrichment</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Dynamic Claims:</strong> Runtime permission calculation</li>
+                                <li>• <strong>Tenant Context:</strong> Multi-tenant claim injection</li>
+                                <li>• <strong>User Metadata:</strong> Additional user information</li>
+                                <li>• <strong>Custom Extensions:</strong> Pluggable enrichment pipeline</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🛡️ Security Features</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Clock Skew:</strong> Zero tolerance for time drifts</li>
+                                <li>• <strong>Audience Validation:</strong> Strict audience checking</li>
+                                <li>• <strong>Issuer Validation:</strong> Trusted issuer verification</li>
+                                <li>• <strong>Signature Validation:</strong> Cryptographic integrity</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JWT Structure Example -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">JWT Token Structure</h3>
+                    <div class="code-block">
+<pre>{
+  "header": {
+    "alg": "HS256",
+    "typ": "JWT"
+  },
+  "payload": {
+    "sub": "user-uuid",
+    "email": "user@example.com",
+    "roles": ["User", "Manager"],
+    "permissions": ["users:read", "orders:create"],
+    "tenant_id": "tenant-uuid",
+    "tenant_name": "Company ABC",
+    "iss": "GrydAuth",
+    "aud": "GrydAuth-API",
+    "exp": 1693497600,
+    "iat": 1693494000,
+    "jti": "unique-jwt-id"
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auto-Permissions Section -->
+        <section class="mb-12" id="auto-permissions">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔐 Auto-Permissions</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O sistema de Auto-Permissions do GrydAuth gera automaticamente permissões baseadas nos controllers
+                    e actions da aplicação, implementando RBAC (Role-Based Access Control) com herança de permissões.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Automatic Generation -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🤖 Automatic Generation</h3>
+                            <div class="code-block mb-4">
+<pre>// Controller automaticamente gera permissões:
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
+{
+    [HttpGet] // users:read
+    public IActionResult GetUsers() { }
+    
+    [HttpPost] // users:create
+    public IActionResult CreateUser() { }
+    
+    [HttpPut("{id}")] // users:update
+    public IActionResult UpdateUser(int id) { }
+    
+    [HttpDelete("{id}")] // users:delete
+    public IActionResult DeleteUser(int id) { }
+}</pre>
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                Permissões são geradas no formato: <code>controller:action</code>
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Custom Permissions</h3>
+                            <div class="code-block">
+<pre>// Permissões customizadas
+[GrydPermission("admin:full-access")]
+public IActionResult AdminOnlyAction() { }
+
+[GrydPermission("reports:financial")]
+public IActionResult FinancialReport() { }
+
+// Múltiplas permissões (OR logic)
+[GrydPermission("users:read", "users:admin")]
+public IActionResult GetUserDetails() { }</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RBAC System -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">👥 RBAC System</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">Role</th>
+                                            <th class="px-3 py-2 text-left">Inherits From</th>
+                                            <th class="px-3 py-2 text-left">Additional Permissions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="space-y-1">
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">Guest</td>
+                                            <td class="px-3 py-2">-</td>
+                                            <td class="px-3 py-2">public:read</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="px-3 py-2 font-medium">User</td>
+                                            <td class="px-3 py-2">Guest</td>
+                                            <td class="px-3 py-2">profile:update</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">Manager</td>
+                                            <td class="px-3 py-2">User</td>
+                                            <td class="px-3 py-2">users:read, reports:view</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="px-3 py-2 font-medium">Admin</td>
+                                            <td class="px-3 py-2">Manager</td>
+                                            <td class="px-3 py-2">*:* (all permissions)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 Permission Inheritance</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Hierarchical Roles:</strong> Roles inherit permissions from parent roles</li>
+                                <li>• <strong>Additive System:</strong> Child roles add permissions, never remove</li>
+                                <li>• <strong>Runtime Calculation:</strong> Permissions calculated during token generation</li>
+                                <li>• <strong>Cache Optimization:</strong> Inheritance tree cached for performance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permission Checking -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Permission Checking Examples</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Backend (Controller)</h4>
+                            <div class="code-block">
+<pre>[Authorize]
+[GrydPermission("users:create")]
+public IActionResult CreateUser([FromBody] CreateUserRequest request)
+{
+    // Only users with 'users:create' permission can access
+    return Ok();
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Frontend (JavaScript)</h4>
+                            <div class="code-block">
+<pre>// Check permission before showing UI element
+const canCreateUsers = await checkPermission('users:create');
+
+if (canCreateUsers) {
+    document.getElementById('createUserBtn').style.display = 'block';
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multi-Tenant Section -->
+        <section class="mb-12" id="multi-tenant">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🏢 Multi-Tenant Support</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth oferece suporte completo a multi-tenancy com isolamento de dados, contexto por tenant
+                    e configurações específicas por organização.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Tenant Context -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Tenant Context</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Request-Level Context:</strong> Tenant identified per request</li>
+                                <li>• <strong>JWT Integration:</strong> Tenant ID embedded in JWT tokens</li>
+                                <li>• <strong>Automatic Injection:</strong> Context injected in services</li>
+                                <li>• <strong>Validation:</strong> User-tenant relationship validation</li>
+                            </ul>
+                            
+                            <div class="code-block mt-4">
+<pre>// Accessing tenant context
+public class OrderService
+{
+    private readonly ITenantContextService _tenantContext;
+    
+    public async Task&lt;Order&gt; GetOrder(int id)
+    {
+        var tenantId = _tenantContext.GetCurrentTenantId();
+        return await _repository.GetByIdAndTenant(id, tenantId);
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Isolation -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔒 Data Isolation</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Row-Level Security:</strong> Database-level tenant filtering</li>
+                                <li>• <strong>Query Filters:</strong> Automatic tenant filtering in EF Core</li>
+                                <li>• <strong>Schema Separation:</strong> Optional schema-per-tenant</li>
+                                <li>• <strong>Audit Trail:</strong> Tenant-aware audit logging</li>
+                            </ul>
+                            
+                            <div class="code-block mt-4">
+<pre>// Automatic tenant filtering
+public class ApplicationDbContext : BaseDbContext
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Global query filter for tenant isolation
+        modelBuilder.Entity&lt;Order&gt;()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.GetCurrentTenantId());
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tenant Management -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Tenant Management Flow</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl mb-2">1️⃣</div>
+                            <h4 class="font-medium text-blue-800 mb-2">User Registration</h4>
+                            <p class="text-sm text-blue-600">User registers and selects/creates tenant</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl mb-2">2️⃣</div>
+                            <h4 class="font-medium text-green-800 mb-2">Tenant Assignment</h4>
+                            <p class="text-sm text-green-600">User-tenant relationship established with role</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-purple-50 rounded-lg">
+                            <div class="text-2xl mb-2">3️⃣</div>
+                            <h4 class="font-medium text-purple-800 mb-2">Context Switching</h4>
+                            <p class="text-sm text-purple-600">User can switch between tenant contexts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Tenant Configuration -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Multi-Tenant Configuration</h3>
+                    <div class="code-block">
+<pre>// Entity configuration for multi-tenancy
+public class Order
+{
+    public int Id { get; set; }
+    public string Description { get; set; }
+    
+    // Multi-tenant properties
+    public Guid TenantId { get; set; }
+    public Tenant Tenant { get; set; }
+}
+
+// User-Tenant relationship
+public class UserTenant
+{
+    public Guid UserId { get; set; }
+    public User User { get; set; }
+    
+    public Guid TenantId { get; set; }
+    public Tenant Tenant { get; set; }
+    
+    public string Role { get; set; } // Role within this tenant
+    public bool IsActive { get; set; }
+    public DateTime JoinedAt { get; set; }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Features Section -->
+        <section class="mb-12" id="security-features">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🛡️ Security Features</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth implementa múltiplas camadas de segurança seguindo as melhores práticas da indústria,
+                    incluindo Zero-Trust Architecture, Argon2id hashing e Circuit Breaker patterns.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Password Security -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔐 Password Security</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Argon2id Algorithm:</strong> OWASP recommended hashing</li>
+                                <li>• <strong>Memory Cost:</strong> 12 MiB memory usage</li>
+                                <li>• <strong>Time Cost:</strong> 3 iterations for optimal security</li>
+                                <li>• <strong>Parallelism:</strong> Single-threaded execution</li>
+                                <li>• <strong>Salt Generation:</strong> Cryptographically secure random salts</li>
+                            </ul>
+                            
+                            <div class="code-block mt-4">
+<pre>// Argon2id configuration
+var hashedPassword = _passwordHashService.HashPassword(
+    plainPassword,
+    memoryCost: 12288,  // 12 MiB
+    timeCost: 3,        // 3 iterations
+    parallelism: 1      // Single thread
+);</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔒 RSA Encryption</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>RSA-2048:</strong> Military-grade key strength</li>
+                                <li>• <strong>OAEP Padding:</strong> Optimal Asymmetric Encryption</li>
+                                <li>• <strong>SHA-256 Hash:</strong> Secure hash algorithm</li>
+                                <li>• <strong>Refresh Token Encryption:</strong> Stateless token security</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Security -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Zero-Trust Security</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Never Trust, Always Verify:</strong> Every request validated</li>
+                                <li>• <strong>Principle of Least Privilege:</strong> Minimal required permissions</li>
+                                <li>• <strong>Continuous Verification:</strong> Real-time permission checking</li>
+                                <li>• <strong>Context-Aware Security:</strong> Tenant and role-based decisions</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚡ Circuit Breaker</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Failure Detection:</strong> Automatic error monitoring</li>
+                                <li>• <strong>Service Protection:</strong> Prevent cascade failures</li>
+                                <li>• <strong>Graceful Degradation:</strong> Fallback mechanisms</li>
+                                <li>• <strong>Auto Recovery:</strong> Intelligent retry strategies</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Layers -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Security Architecture Layers</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                            <h4 class="font-medium text-red-800 mb-2">Layer 1: Network</h4>
+                            <p class="text-sm text-red-600">HTTPS, TLS 1.3, Certificate Pinning</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                            <h4 class="font-medium text-orange-800 mb-2">Layer 2: Authentication</h4>
+                            <p class="text-sm text-orange-600">JWT, OAuth 2.0, Multi-Factor Auth</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-medium text-blue-800 mb-2">Layer 3: Authorization</h4>
+                            <p class="text-sm text-blue-600">RBAC, Permissions, Tenant Context</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-medium text-green-800 mb-2">Layer 4: Data</h4>
+                            <p class="text-sm text-green-600">Encryption at Rest, Row-Level Security</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Best Practices -->
+                <div class="mt-8 bg-yellow-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-4">🔥 Security Best Practices</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ul class="text-sm text-yellow-700 space-y-2">
+                            <li>• Rotate JWT signing keys regularly</li>
+                            <li>• Use environment variables for secrets</li>
+                            <li>• Enable audit logging for security events</li>
+                            <li>• Implement rate limiting on auth endpoints</li>
+                        </ul>
+                        <ul class="text-sm text-yellow-700 space-y-2">
+                            <li>• Monitor failed authentication attempts</li>
+                            <li>• Use secure headers (HSTS, CSP, etc.)</li>
+                            <li>• Regular security updates and patches</li>
+                            <li>• Penetration testing and security audits</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Caching System Section -->
+        <section class="mb-12" id="caching-system">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">💾 Caching System</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O sistema de cache do GrydAuth oferece estratégias flexíveis com suporte a Redis para ambientes
+                    distribuídos e fallback para cache em memória, com circuit breaker para alta disponibilidade.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Redis Caching -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🚀 Redis Distributed Cache</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>High Performance:</strong> Sub-millisecond response times</li>
+                                <li>• <strong>Scalability:</strong> Shared cache across multiple instances</li>
+                                <li>• <strong>Persistence:</strong> Configurable data persistence</li>
+                                <li>• <strong>Expiration:</strong> TTL-based automatic cleanup</li>
+                                <li>• <strong>Compression:</strong> Automatic data compression</li>
+                            </ul>
+                            
+                            <div class="code-block mt-4">
+<pre>// Redis configuration
+"GrydAuth": {
+  "Cache": {
+    "DefaultExpiration": "00:15:00",
+    "Redis": {
+      "ConnectionString": "localhost:6379",
+      "Database": 0,
+      "Compression": true
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚡ Circuit Breaker</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Failure Detection:</strong> Monitors Redis connectivity</li>
+                                <li>• <strong>Automatic Fallback:</strong> Switches to in-memory cache</li>
+                                <li>• <strong>Self-Healing:</strong> Automatic Redis reconnection</li>
+                                <li>• <strong>Health Monitoring:</strong> Continuous availability checks</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- In-Memory Fallback -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🧠 In-Memory Fallback</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Zero Dependencies:</strong> No external services required</li>
+                                <li>• <strong>Instant Fallback:</strong> Seamless Redis failure handling</li>
+                                <li>• <strong>Process-Local:</strong> Per-instance cache storage</li>
+                                <li>• <strong>Memory Management:</strong> Configurable size limits</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">📊 Cache Metrics</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Hit Ratio:</strong> Cache effectiveness monitoring</li>
+                                <li>• <strong>Performance Metrics:</strong> Response time tracking</li>
+                                <li>• <strong>Memory Usage:</strong> Cache size monitoring</li>
+                                <li>• <strong>Error Rates:</strong> Failure rate tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cached Data Types -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Cached Data Types</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-3">🔑 Authentication Data</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>• User permissions</li>
+                                <li>• Role inheritance trees</li>
+                                <li>• JWT validation results</li>
+                                <li>• Failed login attempts</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-3">🏢 Tenant Data</h4>
+                            <ul class="text-sm text-green-600 space-y-1">
+                                <li>• Tenant configurations</li>
+                                <li>• User-tenant relationships</li>
+                                <li>• Tenant-specific permissions</li>
+                                <li>• Active tenant sessions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <h4 class="font-medium text-purple-800 mb-3">⚙️ System Data</h4>
+                            <ul class="text-sm text-purple-600 space-y-1">
+                                <li>• Generated permissions</li>
+                                <li>• Auth0 user data</li>
+                                <li>• Configuration values</li>
+                                <li>• API rate limits</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cache Usage Example -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Cache Usage Example</h3>
+                    <div class="code-block">
+<pre>public class UserPermissionService
+{
+    private readonly ICacheService _cache;
+    
+    public async Task&lt;List&lt;string&gt;&gt; GetUserPermissions(Guid userId)
+    {
+        string cacheKey = $"user_permissions_{userId}";
+        
+        // Try to get from cache first
+        var cached = await _cache.GetAsync&lt;List&lt;string&gt;&gt;(cacheKey);
+        if (cached != null)
+            return cached;
+        
+        // Load from database if not cached
+        var permissions = await LoadPermissionsFromDatabase(userId);
+        
+        // Cache for 15 minutes
+        await _cache.SetAsync(cacheKey, permissions, TimeSpan.FromMinutes(15));
+        
+        return permissions;
+    }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auth0 Integration Section -->
+        <section class="mb-12" id="auth0-integration">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔗 Auth0 Integration</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth oferece integração completa com Auth0 para social login, SSO e federation,
+                    mantendo compatibilidade total com o sistema de permissões interno.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Auth0 Setup -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚙️ Auth0 Configuration</h3>
+                            <div class="code-block mb-4">
+<pre>// appsettings.json
+"Auth0": {
+  "Domain": "your-domain.auth0.com",
+  "ClientId": "your-client-id",
+  "ClientSecret": "your-client-secret",
+  "Audience": "your-api-identifier",
+  "ManagementApiAudience": "https://your-domain.auth0.com/api/v2/",
+  "ManagementApiToken": "your-management-token",
+  "ConnectionName": "Username-Password-Authentication",
+  "SocialProviders": {
+    "google": {
+      "Name": "Google",
+      "ConnectionName": "google-oauth2",
+      "Enabled": true
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔧 Service Registration</h3>
+                            <div class="code-block">
+<pre>// Program.cs
+builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
+
+// Registra automaticamente:
+// - IAuth0Service
+// - IAuthenticationApiClient  
+// - IManagementApiClient
+// - Auth0Settings configuration</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Login Flow -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">📱 Social Login Flow</h3>
+                            <ol class="text-sm text-gray-600 space-y-2">
+                                <li><strong>1.</strong> Frontend redirects to Auth0 social provider</li>
+                                <li><strong>2.</strong> User authenticates with social provider</li>
+                                <li><strong>3.</strong> Auth0 returns authorization code</li>
+                                <li><strong>4.</strong> Backend exchanges code for Auth0 tokens</li>
+                                <li><strong>5.</strong> User data synchronized with local database</li>
+                                <li><strong>6.</strong> GrydAuth JWT tokens generated</li>
+                                <li><strong>7.</strong> Client receives GrydAuth tokens for API access</li>
+                            </ol>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Features</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>User Synchronization:</strong> Auto-sync Auth0 users to local DB</li>
+                                <li>• <strong>Permission Mapping:</strong> Auth0 roles → GrydAuth permissions</li>
+                                <li>• <strong>Multi-Provider:</strong> Google, Facebook, GitHub, etc.</li>
+                                <li>• <strong>Custom Connections:</strong> Enterprise SSO support</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Login API Example -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Social Login API Example</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">📤 Request</h4>
+                            <div class="code-block">
+<pre>POST /api/auth/social-login
+
+{
+  "provider": "google",
+  "authorizationCode": "auth_code_from_auth0",
+  "redirectUri": "https://yourapp.com/callback"
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">📥 Response</h4>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "accessToken": "grydauth_jwt_token",
+    "refreshToken": "encrypted_refresh_token",
+    "user": {
+      "id": "user-uuid",
+      "email": "user@gmail.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "provider": "google",
+      "roles": ["User"]
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Providers Section -->
+        <section class="mb-12" id="social-providers">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📱 Social Providers</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Suporte completo para os principais provedores de autenticação social,
+                    com configuração flexível e mapeamento automático de dados de usuário.
+                </p>
+
+                <!-- Supported Providers -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
+                        <div class="text-4xl mb-3">🔵</div>
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Google</h3>
+                        <p class="text-sm text-blue-600">Google OAuth 2.0</p>
+                        <p class="text-xs text-blue-500">Connection: google-oauth2</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
+                        <div class="text-4xl mb-3">📘</div>
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Facebook</h3>
+                        <p class="text-sm text-blue-600">Facebook Login</p>
+                        <p class="text-xs text-blue-500">Connection: facebook</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
+                        <div class="text-4xl mb-3">⚫</div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">GitHub</h3>
+                        <p class="text-sm text-gray-600">GitHub OAuth</p>
+                        <p class="text-xs text-gray-500">Connection: github</p>
+                    </div>
+                </div>
+
+                <!-- Provider Configuration -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Provider Configuration</h3>
+                        <div class="code-block">
+<pre>"Auth0": {
+  "SocialProviders": {
+    "google": {
+      "Name": "Google",
+      "ConnectionName": "google-oauth2",
+      "Enabled": true,
+      "Scopes": ["openid", "profile", "email"],
+      "AdditionalParameters": {
+        "access_type": "offline"
+      }
+    },
+    "facebook": {
+      "Name": "Facebook",
+      "ConnectionName": "facebook", 
+      "Enabled": true,
+      "Scopes": ["public_profile", "email"]
+    },
+    "github": {
+      "Name": "GitHub",
+      "ConnectionName": "github",
+      "Enabled": false
+    }
+  }
+}</pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">User Data Mapping</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">Google Profile Mapping</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <code>sub</code> → Internal User ID</li>
+                                    <li>• <code>email</code> → User Email</li>
+                                    <li>• <code>given_name</code> → First Name</li>
+                                    <li>• <code>family_name</code> → Last Name</li>
+                                    <li>• <code>picture</code> → Profile Picture URL</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">Facebook Profile Mapping</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <code>id</code> → Internal User ID</li>
+                                    <li>• <code>email</code> → User Email</li>
+                                    <li>• <code>first_name</code> → First Name</li>
+                                    <li>• <code>last_name</code> → Last Name</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Custom Providers Section -->
+        <section class="mb-12" id="custom-providers">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🛠️ Custom Providers</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth permite implementar provedores de autenticação customizados para integração
+                    com sistemas corporativos, LDAP, Active Directory ou APIs proprietárias.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Custom Provider Interface -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔌 Custom Provider Interface</h3>
+                            <div class="code-block">
+<pre>public interface ICustomAuthProvider
+{
+    Task&lt;AuthResult&gt; AuthenticateAsync(
+        string identifier, 
+        string credential, 
+        CancellationToken cancellationToken = default);
+        
+    Task&lt;UserInfo&gt; GetUserInfoAsync(
+        string accessToken, 
+        CancellationToken cancellationToken = default);
+        
+    string ProviderName { get; }
+    bool IsEnabled { get; }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏢 LDAP Provider Example</h3>
+                            <div class="code-block">
+<pre>public class LdapAuthProvider : ICustomAuthProvider
+{
+    public string ProviderName => "LDAP";
+    
+    public async Task&lt;AuthResult&gt; AuthenticateAsync(
+        string username, 
+        string password, 
+        CancellationToken cancellationToken)
+    {
+        // LDAP authentication logic
+        var ldapConnection = new LdapConnection();
+        var isValid = await ldapConnection
+            .ValidateCredentials(username, password);
+            
+        if (isValid)
+        {
+            var userInfo = await GetLdapUserInfo(username);
+            return AuthResult.Success(userInfo);
+        }
+        
+        return AuthResult.Failed("Invalid credentials");
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration and Usage -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 Provider Registration</h3>
+                            <div class="code-block">
+<pre>// Program.cs
+builder.Services.AddScoped&lt;ICustomAuthProvider, LdapAuthProvider&gt;();
+builder.Services.AddScoped&lt;ICustomAuthProvider, ActiveDirectoryProvider&gt;();
+builder.Services.AddScoped&lt;ICustomAuthProvider, ApiKeyAuthProvider&gt;();
+
+// Custom provider configuration
+builder.Services.Configure&lt;LdapSettings&gt;(
+    builder.Configuration.GetSection("LDAP"));
+    
+builder.Services.Configure&lt;ActiveDirectorySettings&gt;(
+    builder.Configuration.GetSection("ActiveDirectory"));</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Usage Example</h3>
+                            <div class="code-block">
+<pre>// Custom login endpoint
+[HttpPost("custom-login")]
+public async Task&lt;IActionResult&gt; CustomLogin(
+    [FromBody] CustomLoginRequest request)
+{
+    var provider = _providers.FirstOrDefault(
+        p => p.ProviderName == request.ProviderType);
+        
+    if (provider == null)
+        return BadRequest("Provider not supported");
+        
+    var result = await provider.AuthenticateAsync(
+        request.Username, 
+        request.Password);
+        
+    if (result.IsSuccess)
+    {
+        // Generate GrydAuth JWT token
+        var token = await _jwtService.GenerateToken(result.User);
+        return Ok(new { token });
+    }
+    
+    return Unauthorized();
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Examples -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Configuration Examples</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">LDAP Configuration</h4>
+                            <div class="code-block">
+<pre>"LDAP": {
+  "Server": "ldap://company.com:389",
+  "BaseDn": "DC=company,DC=com",
+  "UserSearchBase": "OU=Users",
+  "UsernameAttribute": "sAMAccountName",
+  "EmailAttribute": "mail",
+  "FirstNameAttribute": "givenName",
+  "LastNameAttribute": "sn",
+  "UseSSL": true,
+  "Timeout": 30
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">API Key Provider</h4>
+                            <div class="code-block">
+<pre>"ApiKeyAuth": {
+  "ValidateEndpoint": "https://api.company.com/validate",
+  "UserInfoEndpoint": "https://api.company.com/user",
+  "ApiKey": "${API_VALIDATION_KEY}",
+  "Timeout": 10,
+  "RetryPolicy": {
+    "MaxRetries": 3,
+    "DelayMs": 1000
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Role-Based Access Section -->
+        <section class="mb-12" id="role-based-access">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">👥 Role-Based Access Control</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Sistema RBAC robusto com hierarquia de roles, herança de permissões e suporte
+                    a contextos multi-tenant com roles específicos por organização.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Role Hierarchy -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏗️ Role Hierarchy</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
+                                    <span class="text-red-800 font-semibold mr-3">SuperAdmin</span>
+                                    <span class="text-sm text-red-600">Sistema completo</span>
+                                </div>
+                                <div class="ml-4 flex items-center p-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                                    <span class="text-orange-800 font-semibold mr-3">Admin</span>
+                                    <span class="text-sm text-orange-600">Tenant específico</span>
+                                </div>
+                                <div class="ml-8 flex items-center p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                                    <span class="text-blue-800 font-semibold mr-3">Manager</span>
+                                    <span class="text-sm text-blue-600">Gestão de equipe</span>
+                                </div>
+                                <div class="ml-12 flex items-center p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
+                                    <span class="text-green-800 font-semibold mr-3">User</span>
+                                    <span class="text-sm text-green-600">Acesso básico</span>
+                                </div>
+                                <div class="ml-16 flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-500">
+                                    <span class="text-gray-800 font-semibold mr-3">Guest</span>
+                                    <span class="text-sm text-gray-600">Somente leitura</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 Permission Inheritance</h3>
+                            <div class="code-block">
+<pre>// Role configuration
+{
+  "Guest": {
+    "permissions": ["public:read"]
+  },
+  "User": {
+    "inherits": ["Guest"],
+    "permissions": ["profile:update", "documents:read"]
+  },
+  "Manager": {
+    "inherits": ["User"], 
+    "permissions": ["team:manage", "reports:view"]
+  },
+  "Admin": {
+    "inherits": ["Manager"],
+    "permissions": ["tenant:admin", "users:manage"]
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Tenant Roles -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏢 Multi-Tenant Role Context</h3>
+                            <div class="space-y-4">
+                                <div class="p-3 bg-blue-50 rounded-lg">
+                                    <h4 class="font-medium text-blue-800 mb-2">Empresa A</h4>
+                                    <p class="text-sm text-blue-600">João Silva: <span class="font-semibold">Admin</span></p>
+                                    <p class="text-xs text-blue-500">Pode gerenciar usuários, configurações</p>
+                                </div>
+                                
+                                <div class="p-3 bg-green-50 rounded-lg">
+                                    <h4 class="font-medium text-green-800 mb-2">Empresa B</h4>
+                                    <p class="text-sm text-green-600">João Silva: <span class="font-semibold">User</span></p>
+                                    <p class="text-xs text-green-500">Acesso básico, sem gestão</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Dynamic Role Assignment</h3>
+                            <div class="code-block">
+<pre>// Assign role to user in specific tenant
+await _userService.AssignRoleToTenant(
+    userId: "user-uuid",
+    tenantId: "tenant-uuid", 
+    role: "Manager",
+    assignedBy: "admin-uuid"
+);
+
+// Check user role in current tenant context
+var userRole = await _userService.GetUserRoleInTenant(
+    userId: "user-uuid",
+    tenantId: _tenantContext.GetCurrentTenantId()
+);
+
+// Get effective permissions
+var permissions = await _permissionService
+    .GetEffectivePermissions(userId, tenantId);</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RBAC Implementation -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">RBAC Implementation Examples</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Controller Protection</h4>
+                            <div class="code-block">
+<pre>[Authorize]
+[GrydRole("Admin", "Manager")]
+public class AdminController : ControllerBase
+{
+    [GrydRole("Admin")] // Only Admin role
+    public IActionResult DeleteUser(int id) => Ok();
+    
+    [GrydPermission("reports:financial")]
+    public IActionResult FinancialReport() => Ok();
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Service-Level Checks</h4>
+                            <div class="code-block">
+<pre>public class DocumentService
+{
+    public async Task&lt;Document&gt; GetDocument(int id)
+    {
+        var currentUser = _currentUserService.GetUser();
+        
+        if (!currentUser.HasRole("Manager") && 
+            !currentUser.HasPermission("documents:admin"))
+        {
+            throw new UnauthorizedException();
+        }
+        
+        return await _repository.GetById(id);
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Middleware Section -->
+        <section class="mb-12" id="middleware">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔄 Middleware</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Pipeline de middleware avançado para autenticação, autorização, tenant context
+                    e logging de segurança com performance otimizada.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Middleware Pipeline -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔗 Middleware Pipeline</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center p-2 bg-blue-50 rounded border-l-4 border-blue-500">
+                                    <span class="text-sm font-medium text-blue-800">1. JWT Authentication</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-green-50 rounded border-l-4 border-green-500">
+                                    <span class="text-sm font-medium text-green-800">2. Tenant Context</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                                    <span class="text-sm font-medium text-yellow-800">3. Permission Authorization</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-purple-50 rounded border-l-4 border-purple-500">
+                                    <span class="text-sm font-medium text-purple-800">4. Security Logging</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-gray-50 rounded border-l-4 border-gray-500">
+                                    <span class="text-sm font-medium text-gray-800">5. Request Processing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚙️ Middleware Configuration</h3>
+                            <div class="code-block">
+<pre>// Program.cs - Middleware pipeline
+app.UseHttpsRedirection();
+app.UseAuthentication();
+
+// GrydAuth middleware (order matters)
+app.UseMiddleware&lt;TenantContextMiddleware&gt;();
+app.UseMiddleware&lt;PermissionAuthorizationMiddleware&gt;();
+app.UseMiddleware&lt;SecurityLoggingMiddleware&gt;();
+
+app.UseAuthorization();
+app.MapControllers();</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Middleware -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🛠️ Custom Middleware Example</h3>
+                            <div class="code-block">
+<pre>public class TenantContextMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ITenantContextService _tenantContext;
+    
+    public async Task InvokeAsync(
+        HttpContext context,
+        ITenantContextService tenantContext)
+    {
+        // Extract tenant from JWT claims
+        var tenantId = context.User.FindFirst("tenant_id")?.Value;
+        
+        if (!string.IsNullOrEmpty(tenantId))
+        {
+            await _tenantContext.SetCurrentTenantAsync(
+                Guid.Parse(tenantId)
+            );
+        }
+        
+        await _next(context);
+    }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Security Logging</h3>
+                            <div class="code-block">
+<pre>public class SecurityLoggingMiddleware
+{
+    public async Task InvokeAsync(HttpContext context)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        
+        try
+        {
+            await _next(context);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            
+            _logger.LogInformation(
+                "Security Event: {Method} {Path} by {User} " +
+                "in {TenantId} - {StatusCode} ({Duration}ms)",
+                context.Request.Method,
+                context.Request.Path,
+                context.User.Identity?.Name,
+                _tenantContext.GetCurrentTenantId(),
+                context.Response.StatusCode,
+                stopwatch.ElapsedMilliseconds
+            );
+        }
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Considerations -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Performance Considerations</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-2">✅ Best Practices</h4>
+                            <ul class="text-sm text-green-600 space-y-1">
+                                <li>• Cache permission lookups</li>
+                                <li>• Minimize database calls</li>
+                                <li>• Use async/await properly</li>
+                                <li>• Early exit on failures</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-yellow-50 rounded-lg">
+                            <h4 class="font-medium text-yellow-800 mb-2">⚠️ Watch Out For</h4>
+                            <ul class="text-sm text-yellow-600 space-y-1">
+                                <li>• Heavy computations in middleware</li>
+                                <li>• Blocking synchronous calls</li>
+                                <li>• Memory leaks in scoped services</li>
+                                <li>• Excessive logging overhead</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-2">📈 Optimization Tips</h4>
+                            <ul class="text-sm text-blue-600 space-y-1">
+                                <li>• Use memory cache for hot paths</li>
+                                <li>• Implement circuit breakers</li>
+                                <li>• Monitor middleware timing</li>
+                                <li>• Profile under load</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controllers Section -->
+        <section class="mb-12" id="controllers">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🎯 Controllers</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth disponibiliza controllers RESTful para autenticação, gerenciamento de usuários
+                    e administração do sistema, seguindo padrões de API consistency.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Auth Controller -->
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">🔐 AuthController</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm font-medium">POST /api/auth/login</span>
+                                <span class="text-xs text-green-600">Login</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                <span class="text-sm font-medium">POST /api/auth/social-login</span>
+                                <span class="text-xs text-blue-600">Social</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                <span class="text-sm font-medium">POST /api/auth/refresh-token</span>
+                                <span class="text-xs text-yellow-600">Refresh</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-red-50 rounded">
+                                <span class="text-sm font-medium">POST /api/auth/logout</span>
+                                <span class="text-xs text-red-600">Logout</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-purple-50 rounded">
+                                <span class="text-sm font-medium">POST /api/auth/switch-tenant</span>
+                                <span class="text-xs text-purple-600">Tenant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Controller -->
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">👥 UsersController</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm font-medium">GET /api/users</span>
+                                <span class="text-xs text-green-600">List Users</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                <span class="text-sm font-medium">GET /api/users/{id}</span>
+                                <span class="text-xs text-blue-600">Get User</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                <span class="text-sm font-medium">POST /api/users</span>
+                                <span class="text-xs text-yellow-600">Create</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-orange-50 rounded">
+                                <span class="text-sm font-medium">PUT /api/users/{id}</span>
+                                <span class="text-xs text-orange-600">Update</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-red-50 rounded">
+                                <span class="text-sm font-medium">DELETE /api/users/{id}</span>
+                                <span class="text-xs text-red-600">Delete</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles Controller -->
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">🎭 RolesController</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm font-medium">GET /api/roles</span>
+                                <span class="text-xs text-green-600">List Roles</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                <span class="text-sm font-medium">GET /api/roles/{id}</span>
+                                <span class="text-xs text-blue-600">Get Role</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                <span class="text-sm font-medium">POST /api/roles</span>
+                                <span class="text-xs text-yellow-600">Create</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-purple-50 rounded">
+                                <span class="text-sm font-medium">POST /api/roles/{id}/permissions</span>
+                                <span class="text-xs text-purple-600">Assign</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Controller -->
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">🔑 PermissionsController</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm font-medium">GET /api/permissions</span>
+                                <span class="text-xs text-green-600">List All</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                <span class="text-sm font-medium">GET /api/permissions/generate</span>
+                                <span class="text-xs text-blue-600">Auto-Gen</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                <span class="text-sm font-medium">GET /api/permissions/user/{id}</span>
+                                <span class="text-xs text-yellow-600">User Perms</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-purple-50 rounded">
+                                <span class="text-sm font-medium">POST /api/permissions/check</span>
+                                <span class="text-xs text-purple-600">Check</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Formats -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Standard Response Formats</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">✅ Success Response</h4>
+                            <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    // Response data here
+  },
+  "message": "Operation completed successfully"
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">❌ Error Response</h4>
+                            <div class="code-block">
+<pre>{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input provided",
+    "details": ["Email is required", "Password too short"]
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="mb-12" id="services">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔧 Services</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Arquitetura de serviços em camadas com separação clara de responsabilidades,
+                    seguindo princípios de Clean Architecture e Domain-Driven Design.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Infrastructure Services -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🏗️ Infrastructure Services</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Authentication & Security</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>IJwtTokenService:</strong> JWT token generation and validation</li>
+                                <li>• <strong>IPasswordHashService:</strong> Argon2id password hashing</li>
+                                <li>• <strong>IEncryptionService:</strong> RSA-2048 encryption for refresh tokens</li>
+                                <li>• <strong>ICurrentUserService:</strong> Current user context</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Caching & Performance</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>ICacheService:</strong> Redis distributed caching</li>
+                                <li>• <strong>InMemoryCacheService:</strong> Fallback caching</li>
+                                <li>• <strong>ICircuitBreakerService:</strong> Resilience patterns</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Multi-Tenancy</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>ITenantContextService:</strong> Tenant context management</li>
+                                <li>• <strong>IPermissionGeneratorService:</strong> Auto-permission generation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Application Services -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">📱 Application Services</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">JWT Enrichment</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>IJwtEnrichmentService:</strong> Token enrichment pipeline</li>
+                                <li>• <strong>IClaimsBuilderService:</strong> Dynamic claims building</li>
+                                <li>• <strong>IEnrichedJwtTokenService:</strong> Enhanced JWT tokens</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Token Management</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>IRefreshTokenService:</strong> Refresh token handling</li>
+                                <li>• <strong>StatelessRefreshTokenService:</strong> Stateless implementation</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Security</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>IZeroTrustSecurityService:</strong> Zero-trust architecture</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Example -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Service Usage Example</h3>
+                    <div class="code-block">
+<pre>public class AuthenticationService
+{
+    private readonly IJwtTokenService _jwtService;
+    private readonly IPasswordHashService _passwordService;
+    private readonly IUserRepository _userRepository;
+    private readonly ICurrentUserService _currentUser;
+    
+    public async Task&lt;AuthResult&gt; LoginAsync(LoginRequest request)
+    {
+        // Find user
+        var user = await _userRepository.GetByEmailAsync(request.Email);
+        if (user == null) return AuthResult.Failed("User not found");
+        
+        // Verify password
+        var isValidPassword = _passwordService.VerifyPassword(
+            request.Password, user.PasswordHash);
+        if (!isValidPassword) return AuthResult.Failed("Invalid password");
+        
+        // Generate JWT token
+        var token = await _jwtService.GenerateTokenAsync(user);
+        
+        return AuthResult.Success(token, user);
+    }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entities Section -->
+        <section class="mb-12" id="entities">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📊 Entities & Models</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Modelo de domínio rico com entidades bem definidas, seguindo princípios de DDD
+                    e encapsulamento de regras de negócio.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Core Entities -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🎯 Core Entities</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">👤 User</h4>
+                            <div class="code-block text-xs">
+<pre>public class User : BaseEntity
+{
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string PasswordHash { get; set; }
+    public bool IsActive { get; set; }
+    public bool EmailConfirmed { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    
+    // Navigation properties
+    public ICollection&lt;UserRole&gt; UserRoles { get; set; }
+    public ICollection&lt;UserTenant&gt; UserTenants { get; set; }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🎭 Role</h4>
+                            <div class="code-block text-xs">
+<pre>public class Role : BaseEntity
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public bool IsSystemRole { get; set; }
+    public Guid? ParentRoleId { get; set; }
+    
+    // Navigation properties
+    public Role ParentRole { get; set; }
+    public ICollection&lt;Role&gt; ChildRoles { get; set; }
+    public ICollection&lt;RolePermission&gt; RolePermissions { get; set; }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Entities -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🏢 Business Entities</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🔑 Permission</h4>
+                            <div class="code-block text-xs">
+<pre>public class Permission : BaseEntity
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Category { get; set; }
+    public bool IsAutoGenerated { get; set; }
+    
+    // Navigation properties
+    public ICollection&lt;RolePermission&gt; RolePermissions { get; set; }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🏬 Tenant</h4>
+                            <div class="code-block text-xs">
+<pre>public class Tenant : BaseEntity
+{
+    public string Name { get; set; }
+    public string Slug { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime SubscriptionExpiresAt { get; set; }
+    public TenantSettings Settings { get; set; }
+    
+    // Navigation properties
+    public ICollection&lt;UserTenant&gt; UserTenants { get; set; }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Value Objects -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">💎 Value Objects</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">📧 Email Value Object</h4>
+                            <div class="code-block">
+<pre>public class Email : ValueObject
+{
+    public string Value { get; private set; }
+    
+    private Email(string value)
+    {
+        Value = value;
+    }
+    
+    public static Email Create(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email cannot be empty");
+            
+        if (!IsValidEmail(email))
+            throw new ArgumentException("Invalid email format");
+            
+        return new Email(email);
+    }
+}</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">🔐 Password Value Object</h4>
+                            <div class="code-block">
+<pre>public class Password : ValueObject
+{
+    public string Hash { get; private set; }
+    
+    private Password(string hash)
+    {
+        Hash = hash;
+    }
+    
+    public static Password Create(
+        string plainPassword, 
+        IPasswordHashService hashService)
+    {
+        ValidatePassword(plainPassword);
+        var hash = hashService.HashPassword(plainPassword);
+        return new Password(hash);
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DTOs Section -->
+        <section class="mb-12" id="dtos">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">📋 DTOs & Requests</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Objetos de transferência de dados (DTOs) e requests bem estruturados com validação
+                    FluentValidation e mapeamento automático.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Request DTOs -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">📤 Request DTOs</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🔐 LoginRequest</h4>
+                            <div class="code-block text-xs">
+<pre>public class LoginRequest
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public Guid? TenantId { get; set; }
+    public bool RememberMe { get; set; }
+}
+
+public class LoginRequestValidator : AbstractValidator&lt;LoginRequest&gt;
+{
+    public LoginRequestValidator()
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required")
+            .EmailAddress().WithMessage("Invalid email format");
+            
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required")
+            .MinimumLength(6).WithMessage("Password too short");
+    }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">👤 CreateUserRequest</h4>
+                            <div class="code-block text-xs">
+<pre>public class CreateUserRequest
+{
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Password { get; set; }
+    public List&lt;string&gt; Roles { get; set; } = new();
+    public Guid? TenantId { get; set; }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Response DTOs -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">📥 Response DTOs</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🎫 AuthResponse</h4>
+                            <div class="code-block text-xs">
+<pre>public class AuthResponse
+{
+    public string AccessToken { get; set; }
+    public string RefreshToken { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public UserDto User { get; set; }
+    public TenantDto CurrentTenant { get; set; }
+}
+
+public class UserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public List&lt;string&gt; Roles { get; set; }
+    public List&lt;string&gt; Permissions { get; set; }
+    public List&lt;TenantDto&gt; Tenants { get; set; }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🏢 TenantDto</h4>
+                            <div class="code-block text-xs">
+<pre>public class TenantDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Slug { get; set; }
+    public bool IsActive { get; set; }
+    public string UserRole { get; set; }
+    public DateTime JoinedAt { get; set; }
+    public TenantSettingsDto Settings { get; set; }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Examples -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">✅ FluentValidation Examples</h3>
+                    <div class="code-block">
+<pre>public class CreateUserRequestValidator : AbstractValidator&lt;CreateUserRequest&gt;
+{
+    public CreateUserRequestValidator()
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required")
+            .EmailAddress().WithMessage("Invalid email format")
+            .MaximumLength(255).WithMessage("Email too long");
+            
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required")
+            .MaximumLength(100).WithMessage("First name too long");
+            
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters")
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)")
+            .WithMessage("Password must contain lowercase, uppercase and number");
+            
+        RuleFor(x => x.Roles)
+            .NotNull().WithMessage("Roles list cannot be null")
+            .Must(roles => roles.All(r => !string.IsNullOrWhiteSpace(r)))
+            .WithMessage("Role names cannot be empty");
+    }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- AutoMapper Configuration -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">🗺️ AutoMapper Configuration</h3>
+                    <div class="code-block">
+<pre>public class MappingProfile : Profile
+{
+    public MappingProfile()
+    {
+        // Entity to DTO mappings
+        CreateMap&lt;User, UserDto&gt;()
+            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => 
+                src.UserRoles.Select(ur => ur.Role.Name).ToList()))
+            .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src =>
+                src.UserRoles.SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name).Distinct().ToList()));
+                
+        CreateMap&lt;Tenant, TenantDto&gt;();
+        CreateMap&lt;CreateUserRequest, User&gt;()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+    }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clean Architecture Section -->
+        <section class="mb-12" id="clean-architecture">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🧹 Clean Architecture</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth implementa Clean Architecture com separação clara de responsabilidades,
+                    inversão de dependências e testabilidade máxima.
+                </p>
+
+                <!-- Architecture Layers -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-r-lg">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-2">🎯 Domain Layer</h3>
+                            <p class="text-sm text-blue-600 mb-2">Core business logic and entities</p>
+                            <ul class="text-xs text-blue-500 space-y-1">
+                                <li>• Entities (User, Role, Permission, Tenant)</li>
+                                <li>• Value Objects (Email, Password)</li>
+                                <li>• Domain Events</li>
+                                <li>• Business Rules</li>
+                            </ul>
+                        </div>
+
+                        <div class="border-l-4 border-green-500 pl-4 bg-green-50 p-4 rounded-r-lg">
+                            <h3 class="text-lg font-semibold text-green-800 mb-2">📱 Application Layer</h3>
+                            <p class="text-sm text-green-600 mb-2">Use cases and business workflows</p>
+                            <ul class="text-xs text-green-500 space-y-1">
+                                <li>• Commands and Queries (CQRS)</li>
+                                <li>• Application Services</li>
+                                <li>• DTOs and Mappers</li>
+                                <li>• Validation and Behaviors</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-orange-500 pl-4 bg-orange-50 p-4 rounded-r-lg">
+                            <h3 class="text-lg font-semibold text-orange-800 mb-2">🏗️ Infrastructure Layer</h3>
+                            <p class="text-sm text-orange-600 mb-2">External concerns and data access</p>
+                            <ul class="text-xs text-orange-500 space-y-1">
+                                <li>• Entity Framework DbContext</li>
+                                <li>• Repository Implementations</li>
+                                <li>• External Service Integrations</li>
+                                <li>• Caching and Security Services</li>
+                            </ul>
+                        </div>
+
+                        <div class="border-l-4 border-purple-500 pl-4 bg-purple-50 p-4 rounded-r-lg">
+                            <h3 class="text-lg font-semibold text-purple-800 mb-2">🎮 Presentation Layer</h3>
+                            <p class="text-sm text-purple-600 mb-2">API controllers and external interfaces</p>
+                            <ul class="text-xs text-purple-500 space-y-1">
+                                <li>• REST API Controllers</li>
+                                <li>• Middleware Pipeline</li>
+                                <li>• Authentication Filters</li>
+                                <li>• Error Handling</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dependency Direction -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">🔄 Dependency Direction</h3>
+                    <div class="flex items-center justify-center space-x-8 p-6 bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mb-2">UI</div>
+                            <p class="text-xs text-gray-600">Presentation</p>
+                        </div>
+                        <div class="text-2xl text-gray-400">→</div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold mb-2">APP</div>
+                            <p class="text-xs text-gray-600">Application</p>
+                        </div>
+                        <div class="text-2xl text-gray-400">→</div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mb-2">DOM</div>
+                            <p class="text-xs text-gray-600">Domain</p>
+                        </div>
+                        <div class="text-2xl text-gray-400">←</div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold mb-2">INF</div>
+                            <p class="text-xs text-gray-600">Infrastructure</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                        <h4 class="font-medium text-green-800 mb-2">✅ Benefits</h4>
+                        <ul class="text-sm text-green-600 space-y-1">
+                            <li>• High testability</li>
+                            <li>• Framework independence</li>
+                            <li>• Database independence</li>
+                            <li>• Easy to modify and extend</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-medium text-blue-800 mb-2">🎯 Principles</h4>
+                        <ul class="text-sm text-blue-600 space-y-1">
+                            <li>• Dependency Inversion</li>
+                            <li>• Single Responsibility</li>
+                            <li>• Open/Closed Principle</li>
+                            <li>• Interface Segregation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+                        <h4 class="font-medium text-purple-800 mb-2">🔧 Implementation</h4>
+                        <ul class="text-sm text-purple-600 space-y-1">
+                            <li>• CQRS with MediatR</li>
+                            <li>• Repository Pattern</li>
+                            <li>• Unit of Work</li>
+                            <li>• Dependency Injection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Domain Driven Design Section -->
+        <section class="mb-12" id="domain-driven-design">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🎯 Domain Driven Design</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O GrydAuth aplica conceitos de DDD para modelar complexidades do domínio de autenticação
+                    e autorização de forma clara e expressiva.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Domain Model -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🏛️ Domain Model</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🎭 Aggregates</h4>
+                            <div class="space-y-2">
+                                <div class="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
+                                    <strong class="text-blue-800">User Aggregate</strong>
+                                    <p class="text-xs text-blue-600">Manages user identity, roles, and authentication</p>
+                                </div>
+                                <div class="p-2 bg-green-50 rounded border-l-4 border-green-500">
+                                    <strong class="text-green-800">Tenant Aggregate</strong>
+                                    <p class="text-xs text-green-600">Handles tenant configuration and user relationships</p>
+                                </div>
+                                <div class="p-2 bg-purple-50 rounded border-l-4 border-purple-500">
+                                    <strong class="text-purple-800">Permission Aggregate</strong>
+                                    <p class="text-xs text-purple-600">Controls access permissions and role hierarchies</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">💎 Value Objects</h4>
+                            <div class="code-block text-xs">
+<pre>// Email Value Object
+public class Email : ValueObject
+{
+    public string Value { get; private set; }
+    
+    public static Email Create(string email)
+    {
+        if (!IsValidEmail(email))
+            throw new DomainException("Invalid email format");
+        return new Email(email);
+    }
+}
+
+// Password Value Object
+public class Password : ValueObject
+{
+    public string Hash { get; private set; }
+    
+    public static Password Create(string plain, IHasher hasher)
+    {
+        ValidatePasswordStrength(plain);
+        return new Password(hasher.Hash(plain));
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Domain Events -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibant text-gray-800 mb-4">📢 Domain Events</h3>
+                        
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🎯 Event Examples</h4>
+                            <div class="code-block text-xs">
+<pre>// User registered event
+public class UserRegisteredEvent : DomainEvent
+{
+    public Guid UserId { get; }
+    public string Email { get; }
+    public Guid? TenantId { get; }
+    
+    public UserRegisteredEvent(
+        Guid userId, 
+        string email, 
+        Guid? tenantId)
+    {
+        UserId = userId;
+        Email = email;
+        TenantId = tenantId;
+    }
+}
+
+// User role changed event
+public class UserRoleChangedEvent : DomainEvent
+{
+    public Guid UserId { get; }
+    public string OldRole { get; }
+    public string NewRole { get; }
+    public Guid TenantId { get; }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-800 mb-3">🔄 Event Handlers</h4>
+                            <div class="code-block text-xs">
+<pre>public class UserRegisteredEventHandler 
+    : INotificationHandler&lt;UserRegisteredEvent&gt;
+{
+    public async Task Handle(
+        UserRegisteredEvent notification, 
+        CancellationToken cancellationToken)
+    {
+        // Send welcome email
+        await _emailService.SendWelcomeEmail(
+            notification.Email);
+            
+        // Generate initial permissions
+        await _permissionService.GenerateUserPermissions(
+            notification.UserId);
+            
+        // Log audit event
+        _logger.LogInformation(
+            "User {UserId} registered", 
+            notification.UserId);
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ubiquitous Language -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">📚 Ubiquitous Language</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Authentication Domain</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>Principal:</strong> Authenticated user identity</li>
+                                <li>• <strong>Credential:</strong> Authentication proof (password, token)</li>
+                                <li>• <strong>Session:</strong> Authenticated user context</li>
+                                <li>• <strong>Claims:</strong> User attributes and assertions</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Authorization Domain</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• <strong>Permission:</strong> Specific action authorization</li>
+                                <li>• <strong>Role:</strong> Collection of permissions</li>
+                                <li>• <strong>Grant:</strong> Permission assignment to user</li>
+                                <li>• <strong>Context:</strong> Environment-specific access (tenant)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Patterns Section -->
+        <section class="mb-12" id="security-patterns">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🔒 Security Patterns</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    Implementação de padrões de segurança avançados incluindo Zero-Trust, Defense in Depth,
+                    Fail-Safe Defaults e Principle of Least Privilege.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Security Patterns -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">🎯 Zero-Trust Architecture</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Never Trust, Always Verify:</strong> Every request validated</li>
+                                <li>• <strong>Least Privilege Access:</strong> Minimal required permissions</li>
+                                <li>• <strong>Verify Explicitly:</strong> Authentication and authorization required</li>
+                                <li>• <strong>Assume Breach:</strong> Continuous monitoring and verification</li>
+                            </ul>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">🛡️ Defense in Depth</h3>
+                            <ol class="space-y-2 text-sm text-gray-600">
+                                <li><strong>1. Network Security:</strong> HTTPS, TLS 1.3</li>
+                                <li><strong>2. Authentication:</strong> JWT, Social Login, MFA</li>
+                                <li><strong>3. Authorization:</strong> RBAC, Permissions, Context</li>
+                                <li><strong>4. Data Protection:</strong> Encryption, Hashing, Salting</li>
+                                <li><strong>5. Monitoring:</strong> Audit Logs, Security Events</li>
+                            </ol>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">⚖️ Fail-Safe Defaults</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>Deny by Default:</strong> No access without explicit permission</li>
+                                <li>• <strong>Secure Configuration:</strong> Security-first default settings</li>
+                                <li>• <strong>Graceful Degradation:</strong> Maintain security during failures</li>
+                                <li>• <strong>Error Handling:</strong> No sensitive information in errors</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Implementation Examples -->
+                    <div class="space-y-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">🔧 Implementation Examples</h3>
+                            <div class="code-block text-xs">
+<pre>// Zero-Trust Permission Check
+public async Task&lt;bool&gt; HasPermissionAsync(
+    string permission, 
+    Guid? tenantId = null)
+{
+    // Never trust cached data for security decisions
+    var user = await _userService.GetCurrentUserAsync();
+    var currentTenant = tenantId ?? _tenantContext.GetCurrentTenantId();
+    
+    // Always verify from authoritative source
+    var permissions = await _permissionService
+        .GetUserPermissionsAsync(user.Id, currentTenant);
+        
+    return permissions.Contains(permission);
+}
+
+// Fail-Safe Authorization Attribute
+public class GrydPermissionAttribute : AuthorizeAttribute
+{
+    public override void OnAuthorization(AuthorizationContext context)
+    {
+        try
+        {
+            // Attempt authorization
+            var hasPermission = CheckPermission(context);
+            if (!hasPermission)
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fail-safe: deny access on any error
+            _logger.LogError(ex, "Authorization error");
+            context.Result = new ForbidResult();
+            return;
+        }
+    }
+}</pre>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibant text-gray-800 mb-4">📊 Security Monitoring</h3>
+                            <div class="code-block text-xs">
+<pre>// Security Event Logging
+public class SecurityAuditService
+{
+    public async Task LogSecurityEventAsync(
+        SecurityEventType eventType,
+        string details,
+        Guid? userId = null,
+        Guid? tenantId = null)
+    {
+        var auditEvent = new SecurityAuditEvent
+        {
+            EventType = eventType,
+            Details = details,
+            UserId = userId,
+            TenantId = tenantId,
+            IpAddress = _httpContext.Connection.RemoteIpAddress,
+            UserAgent = _httpContext.Request.Headers["User-Agent"],
+            Timestamp = DateTime.UtcNow
+        };
+        
+        await _auditRepository.SaveAsync(auditEvent);
+        
+        // Real-time alerting for critical events
+        if (IsCriticalEvent(eventType))
+        {
+            await _alertService.SendSecurityAlertAsync(auditEvent);
+        }
+    }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Checklist -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibant text-gray-800 mb-6">✅ Security Implementation Checklist</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Authentication Security</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Strong password requirements</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Argon2id password hashing</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">JWT token expiration</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Refresh token rotation</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Authorization Security</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Role-based access control</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Permission inheritance</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Tenant context isolation</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" checked disabled class="text-green-500">
+                                    <span class="text-sm text-gray-600">Fail-safe authorization</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
