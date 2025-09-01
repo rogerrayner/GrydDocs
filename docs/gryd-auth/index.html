@@ -75,7 +75,7 @@
                         <a href="#overview" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md active">
                             📋 Overview
                         </a>
-                        <a href="installation.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                        <a href="#installation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             📦 Installation & Setup
                         </a>
                         <a href="#integration-flow" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
@@ -103,22 +103,6 @@
                     </div>
                 </div>
 
-                <!-- Auth Providers -->
-                <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🔐 Auth Providers</h3>
-                    <div class="space-y-1">
-                        <a href="#auth0-integration" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🔗 Auth0 Integration
-                        </a>
-                        <a href="#social-providers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            📱 Social Providers
-                        </a>
-                        <a href="#custom-providers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🛠️ Custom Providers
-                        </a>
-                    </div>
-                </div>
-
                 <!-- Core Features -->
                 <div class="mb-4">
                     <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">✨ Core Features</h3>
@@ -127,10 +111,7 @@
                             🎫 JWT Management
                         </a>
                         <a href="#auto-permissions" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🔐 Auto-Permissions
-                        </a>
-                        <a href="#role-based-access" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            👥 Role-Based Access
+                            � Auto-Permissions
                         </a>
                         <a href="#multi-tenant" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🏢 Multi-Tenant Support
@@ -141,8 +122,28 @@
                         <a href="#caching-system" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             💾 Caching System
                         </a>
-                        <a href="#middleware" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🔄 Middleware
+                    </div>
+                </div>
+
+                <!-- Auth Providers -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🔐 Auth Providers</h3>
+                    <div class="space-y-1">
+                        <a href="#auth0-integration" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            � Auth0 Integration
+                        </a>
+
+                            �️ Custom Providers
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Access Control -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">👥 Access Control</h3>
+                    <div class="space-y-1">
+                        <a href="#role-based-access" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            � Role-Based Access
                         </a>
                     </div>
                 </div>
@@ -151,6 +152,9 @@
                 <div class="mb-4">
                     <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">🎮 API Reference</h3>
                     <div class="space-y-1">
+                        <a href="#middleware" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔄 Middleware
+                        </a>
                         <a href="#controllers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🎯 Controllers
                         </a>
@@ -176,12 +180,6 @@
                         <a href="#clean-architecture" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🧹 Clean Architecture
                         </a>
-                        <a href="#domain-driven-design" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🎯 Domain Driven Design
-                        </a>
-                        <a href="#security-patterns" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
-                            🔒 Security Patterns
-                        </a>
                     </div>
                 </div>
 
@@ -200,6 +198,19 @@
                         </a>
                         <a href="code-documentation.html#api-controllers" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🎮 API Controllers
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Additional Resources -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">📖 Additional Resources</h3>
+                    <div class="space-y-1">
+                        <a href="installation.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            📦 Detailed Installation Guide
+                        </a>
+                        <a href="auto-permissions.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🔐 Auto-Permissions Guide
                         </a>
                     </div>
                 </div>
@@ -2297,256 +2308,6 @@ builder.Services.AddAuth0GrydAuthServices(builder.Configuration);
         </section>
 
         <!-- Social Providers Section -->
-        <section class="mb-12" id="social-providers">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">📱 Social Providers</h2>
-            
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <p class="text-gray-600 mb-8">
-                    Suporte completo para os principais provedores de autenticação social,
-                    com configuração flexível e mapeamento automático de dados de usuário.
-                </p>
-
-                <!-- Supported Providers -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="text-center p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-                        <div class="text-4xl mb-3">🔵</div>
-                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Google</h3>
-                        <p class="text-sm text-blue-600">Google OAuth 2.0</p>
-                        <p class="text-xs text-blue-500">Connection: google-oauth2</p>
-                    </div>
-                    
-                    <div class="text-center p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-                        <div class="text-4xl mb-3">📘</div>
-                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Facebook</h3>
-                        <p class="text-sm text-blue-600">Facebook Login</p>
-                        <p class="text-xs text-blue-500">Connection: facebook</p>
-                    </div>
-                    
-                    <div class="text-center p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
-                        <div class="text-4xl mb-3">⚫</div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">GitHub</h3>
-                        <p class="text-sm text-gray-600">GitHub OAuth</p>
-                        <p class="text-xs text-gray-500">Connection: github</p>
-                    </div>
-                </div>
-
-                <!-- Provider Configuration -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Provider Configuration</h3>
-                        <div class="code-block">
-<pre>"Auth0": {
-  "SocialProviders": {
-    "google": {
-      "Name": "Google",
-      "ConnectionName": "google-oauth2",
-      "Enabled": true,
-      "Scopes": ["openid", "profile", "email"],
-      "AdditionalParameters": {
-        "access_type": "offline"
-      }
-    },
-    "facebook": {
-      "Name": "Facebook",
-      "ConnectionName": "facebook", 
-      "Enabled": true,
-      "Scopes": ["public_profile", "email"]
-    },
-    "github": {
-      "Name": "GitHub",
-      "ConnectionName": "github",
-      "Enabled": false
-    }
-  }
-}</pre>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-6">User Data Mapping</h3>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h4 class="font-medium text-gray-700 mb-2">Google Profile Mapping</h4>
-                                <ul class="text-sm text-gray-600 space-y-1">
-                                    <li>• <code>sub</code> → Internal User ID</li>
-                                    <li>• <code>email</code> → User Email</li>
-                                    <li>• <code>given_name</code> → First Name</li>
-                                    <li>• <code>family_name</code> → Last Name</li>
-                                    <li>• <code>picture</code> → Profile Picture URL</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <h4 class="font-medium text-gray-700 mb-2">Facebook Profile Mapping</h4>
-                                <ul class="text-sm text-gray-600 space-y-1">
-                                    <li>• <code>id</code> → Internal User ID</li>
-                                    <li>• <code>email</code> → User Email</li>
-                                    <li>• <code>first_name</code> → First Name</li>
-                                    <li>• <code>last_name</code> → Last Name</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Custom Providers Section -->
-        <section class="mb-12" id="custom-providers">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8">🛠️ Custom Providers</h2>
-            
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <p class="text-gray-600 mb-8">
-                    O GrydAuth permite implementar provedores de autenticação customizados para integração
-                    com sistemas corporativos, LDAP, Active Directory ou APIs proprietárias.
-                </p>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Custom Provider Interface -->
-                    <div class="space-y-6">
-                        <div class="border border-gray-200 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔌 Custom Provider Interface</h3>
-                            <div class="code-block">
-<pre>public interface ICustomAuthProvider
-{
-    Task&lt;AuthResult&gt; AuthenticateAsync(
-        string identifier, 
-        string credential, 
-        CancellationToken cancellationToken = default);
-        
-    Task&lt;UserInfo&gt; GetUserInfoAsync(
-        string accessToken, 
-        CancellationToken cancellationToken = default);
-        
-    string ProviderName { get; }
-    bool IsEnabled { get; }
-}</pre>
-                            </div>
-                        </div>
-
-                        <div class="border border-gray-200 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏢 LDAP Provider Example</h3>
-                            <div class="code-block">
-<pre>public class LdapAuthProvider : ICustomAuthProvider
-{
-    public string ProviderName => "LDAP";
-    
-    public async Task&lt;AuthResult&gt; AuthenticateAsync(
-        string username, 
-        string password, 
-        CancellationToken cancellationToken)
-    {
-        // LDAP authentication logic
-        var ldapConnection = new LdapConnection();
-        var isValid = await ldapConnection
-            .ValidateCredentials(username, password);
-            
-        if (isValid)
-        {
-            var userInfo = await GetLdapUserInfo(username);
-            return AuthResult.Success(userInfo);
-        }
-        
-        return AuthResult.Failed("Invalid credentials");
-    }
-}</pre>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Registration and Usage -->
-                    <div class="space-y-6">
-                        <div class="border border-gray-200 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 Provider Registration</h3>
-                            <div class="code-block">
-<pre>// Program.cs
-builder.Services.AddScoped&lt;ICustomAuthProvider, LdapAuthProvider&gt;();
-builder.Services.AddScoped&lt;ICustomAuthProvider, ActiveDirectoryProvider&gt;();
-builder.Services.AddScoped&lt;ICustomAuthProvider, ApiKeyAuthProvider&gt;();
-
-// Custom provider configuration
-builder.Services.Configure&lt;LdapSettings&gt;(
-    builder.Configuration.GetSection("LDAP"));
-    
-builder.Services.Configure&lt;ActiveDirectorySettings&gt;(
-    builder.Configuration.GetSection("ActiveDirectory"));</pre>
-                            </div>
-                        </div>
-
-                        <div class="border border-gray-200 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Usage Example</h3>
-                            <div class="code-block">
-<pre>// Custom login endpoint
-[HttpPost("custom-login")]
-public async Task&lt;IActionResult&gt; CustomLogin(
-    [FromBody] CustomLoginRequest request)
-{
-    var provider = _providers.FirstOrDefault(
-        p => p.ProviderName == request.ProviderType);
-        
-    if (provider == null)
-        return BadRequest("Provider not supported");
-        
-    var result = await provider.AuthenticateAsync(
-        request.Username, 
-        request.Password);
-        
-    if (result.IsSuccess)
-    {
-        // Generate GrydAuth JWT token
-        var token = await _jwtService.GenerateToken(result.User);
-        return Ok(new { token });
-    }
-    
-    return Unauthorized();
-}</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Configuration Examples -->
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-6">Configuration Examples</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h4 class="font-medium text-gray-700 mb-3">LDAP Configuration</h4>
-                            <div class="code-block">
-<pre>"LDAP": {
-  "Server": "ldap://company.com:389",
-  "BaseDn": "DC=company,DC=com",
-  "UserSearchBase": "OU=Users",
-  "UsernameAttribute": "sAMAccountName",
-  "EmailAttribute": "mail",
-  "FirstNameAttribute": "givenName",
-  "LastNameAttribute": "sn",
-  "UseSSL": true,
-  "Timeout": 30
-}</pre>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700 mb-3">API Key Provider</h4>
-                            <div class="code-block">
-<pre>"ApiKeyAuth": {
-  "ValidateEndpoint": "https://api.company.com/validate",
-  "UserInfoEndpoint": "https://api.company.com/user",
-  "ApiKey": "${API_VALIDATION_KEY}",
-  "Timeout": 10,
-  "RetryPolicy": {
-    "MaxRetries": 3,
-    "DelayMs": 1000
-  }
-}</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Role-Based Access Section -->
         <section class="mb-12" id="role-based-access">
             <h2 class="text-3xl font-bold text-gray-800 mb-8">👥 Role-Based Access Control</h2>
