@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrydAuth Smart Federation - Testing Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            overflow-x: auto;
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">GrydAuth Smart Federation</h1>
+                    <p class="text-xl opacity-90">Guia Completo de Testes e Validação</p>
+                </div>
+                <div class="text-right">
+                    <a href="index.html" class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+                        ← Voltar para Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        
+        <!-- Overview -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🎯 Visão Geral dos Testes</h2>
+                
+                <p class="text-gray-600 mb-8">
+                    Este guia fornece instruções detalhadas para testar e validar a implementação do Smart Federation, 
+                    garantindo que o cache Redis, validação de tokens e invalidação estejam funcionando corretamente.
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="feature-card bg-blue-50 p-6 rounded-lg border border-blue-200">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">🧪</span>
+                        </div>
+                        <h3 class="font-semibold text-blue-800 mb-2">Testes Unitários</h3>
+                        <p class="text-sm text-blue-600">Suite completa com 61+ testes para validar funcionalidades</p>
+                    </div>
+
+                    <div class="feature-card bg-green-50 p-6 rounded-lg border border-green-200">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">⚡</span>
+                        </div>
+                        <h3 class="font-semibold text-green-800 mb-2">Testes de Performance</h3>
+                        <p class="text-sm text-green-600">Validação de cache hit rate > 90% e latência < 5ms</p>
+                    </div>
+
+                    <div class="feature-card bg-purple-50 p-6 rounded-lg border border-purple-200">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">🔄</span>
+                        </div>
+                        <h3 class="font-semibold text-purple-800 mb-2">Testes de Integração</h3>
+                        <p class="text-sm text-purple-600">Validação de cache invalidation e fallback</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prerequisites -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">📋 Pré-requisitos</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🐳 Ambiente Docker</h3>
+                        <div class="code-block text-sm">
+<pre># 1. Redis Server
+docker run -d --name redis-grydauth -p 6379:6379 redis:7-alpine
+
+# 2. PostgreSQL
+docker run -d --name postgres-grydauth \
+  -e POSTGRES_DB=grydauth \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 postgres:15
+
+# 3. Verificar serviços
+docker ps</pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🔧 Variáveis de Ambiente</h3>
+                        <div class="code-block text-sm">
+<pre># .env ou export
+POSTGRES_CONNECTION_STRING="Host=localhost;Database=grydauth;Username=postgres;Password=postgres"
+REDIS_CONNECTION_STRING="localhost:6379"
+JWT_SECRET_KEY="YourSuperSecretKeyThatShouldBeAtLeast32CharactersLong"</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Unit Tests -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🧪 Testes Unitários</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Executar Suite Completa</h3>
+                    <div class="code-block">
+<pre># Navegar para o diretório raiz
+cd /path/to/GrydAuth
+
+# Executar todos os testes
+dotnet test --verbosity normal
+
+# Executar com cobertura
+dotnet test --collect:"XPlat Code Coverage"</pre>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Testes Específicos do Smart Federation</h3>
+                    <div class="code-block">
+<pre># Testes do RedisCacheService
+dotnet test tests/GrydAuth.Infrastructure.Tests/Services/RedisCacheServiceTests.cs -v normal
+
+# Testes do CachedJwtTokenService
+dotnet test tests/GrydAuth.Infrastructure.Tests/Services/CachedJwtTokenServiceTests.cs -v normal
+
+# Testes de Event Handlers
+dotnet test tests/GrydAuth.Infrastructure.Tests/EventHandlers/SmartFederationEventHandlersTests.cs -v normal</pre>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+                    <h4 class="font-semibold text-green-800 mb-3">✅ Resultados Esperados</h4>
+                    <ul class="text-sm text-green-600 space-y-1">
+                        <li>• <strong>Total Tests:</strong> 61+ (incluindo novos testes Smart Federation)</li>
+                        <li>• <strong>Passed:</strong> 61+</li>
+                        <li>• <strong>Failed:</strong> 0</li>
+                        <li>• <strong>Skipped:</strong> 0</li>
+                        <li>• <strong>Coverage:</strong> > 85%</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Tests -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🔄 Testes de Integração</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Teste de Cache Hit/Miss</h3>
+                    <div class="code-block text-sm">
+<pre>#!/bin/bash
+# smart_federation_test.sh
+
+BASE_URL="http://localhost:5000"
+EMAIL="test@example.com"
+PASSWORD="Test123!"
+
+echo "=== Smart Federation Integration Test ==="
+
+# 1. Login e obter token
+echo "1. Fazendo login..."
+RESPONSE=$(curl -s -X POST "$BASE_URL/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"email\": \"$EMAIL\",
+    \"password\": \"$PASSWORD\"
+  }")
+
+TOKEN=$(echo $RESPONSE | jq -r '.token')
+echo "Token obtido: ${TOKEN:0:20}..."
+
+# 2. Primeiro request (Cache Miss)
+echo "2. Primeiro request (esperado: Cache Miss)..."
+RESPONSE1=$(curl -s -w "\nResponse Time: %{time_total}s\n" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Performance-Test: true" \
+  "$BASE_URL/api/auth/me")
+
+echo "Cache Status: $(echo "$RESPONSE1" | grep -o 'X-GrydAuth-Cache: [A-Z]*')"
+echo "Source: $(echo "$RESPONSE1" | grep -o 'X-GrydAuth-Source: [A-Z_]*')"
+
+# 3. Segundo request (Cache Hit)
+echo "3. Segundo request (esperado: Cache Hit)..."
+RESPONSE2=$(curl -s -w "\nResponse Time: %{time_total}s\n" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Performance-Test: true" \
+  "$BASE_URL/api/auth/me")
+
+echo "Cache Status: $(echo "$RESPONSE2" | grep -o 'X-GrydAuth-Cache: [A-Z]*')"
+echo "Source: $(echo "$RESPONSE2" | grep -o 'X-GrydAuth-Source: [A-Z_]*')"
+
+# 4. Verificar Redis diretamente
+echo "4. Verificando chaves no Redis..."
+redis-cli KEYS "grydauth:smartfed:*" | head -5
+
+echo "=== Teste Concluído ==="</pre>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Teste de Performance</h3>
+                    <div class="code-block text-sm">
+<pre>#!/bin/bash
+# performance_test.sh
+
+BASE_URL="http://localhost:5000"
+TOKEN="your-valid-token-here"
+
+echo "=== Performance Test - Smart Federation ==="
+
+# Warmup
+echo "Warmup requests..."
+for i in {1..5}; do
+  curl -s -H "Authorization: Bearer $TOKEN" "$BASE_URL/api/auth/me" > /dev/null
+done
+
+# Performance test
+echo "Testing 100 requests..."
+TOTAL_TIME=0
+CACHE_HITS=0
+
+for i in {1..100}; do
+  RESPONSE=$(curl -s -w "%{time_total}" \
+    -H "Authorization: Bearer $TOKEN" \
+    "$BASE_URL/api/auth/me")
+  
+  TIME=$(echo $RESPONSE | tail -c 8)
+  TOTAL_TIME=$(echo "$TOTAL_TIME + $TIME" | bc)
+  
+  if echo $RESPONSE | grep -q "X-GrydAuth-Cache: HIT"; then
+    CACHE_HITS=$((CACHE_HITS + 1))
+  fi
+done
+
+AVG_TIME=$(echo "scale=3; $TOTAL_TIME / 100" | bc)
+HIT_RATE=$(echo "scale=2; $CACHE_HITS / 100 * 100" | bc)
+
+echo "Results:"
+echo "  Average Response Time: ${AVG_TIME}s"
+echo "  Cache Hit Rate: ${HIT_RATE}%"
+echo "  Expected: < 0.050s, > 90%"
+
+if (( $(echo "$AVG_TIME < 0.050" | bc -l) )) && (( $(echo "$HIT_RATE > 90" | bc -l) )); then
+  echo "✅ Performance test PASSED"
+else
+  echo "❌ Performance test FAILED"
+fi</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monitoring Tests -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">📊 Testes de Monitoramento</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">🔍 Redis Monitoring</h3>
+                        <div class="code-block text-sm">
+<pre># Terminal 1: Monitor Redis operations
+redis-cli MONITOR | grep grydauth
+
+# Terminal 2: Check Redis stats
+redis-cli info stats | grep -E "(keyspace_hits|keyspace_misses)"
+
+# Verificar chaves específicas
+redis-cli KEYS "grydauth:smartfed:*" | head -10
+
+# TTL das chaves
+redis-cli TTL grydauth:smartfed:token:validation:some_hash</pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">📝 Application Logs</h3>
+                        <div class="code-block text-sm">
+<pre># Monitor Smart Federation logs
+tail -f logs/gryd-auth-*.txt | grep -E "(Cache|Smart|Federation)"
+
+# Logs específicos de cache
+grep "Cache hit\|Cache miss" logs/gryd-auth-*.txt
+
+# Logs de invalidação
+grep "Cache invalidated" logs/gryd-auth-*.txt</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">🏷️ Headers de Debug</h3>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="text-gray-600 mb-4">O Smart Federation adiciona headers de debug às respostas:</p>
+                        <div class="code-block text-sm">
+<pre>X-GrydAuth-Cache: HIT|MISS
+X-GrydAuth-Source: CACHE|JWT_VALIDATION|DATABASE
+X-GrydAuth-Performance: 2ms</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Targets -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🎯 Métricas de Sucesso</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Performance Targets</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Métrica</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Target</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Crítico</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">Cache Hit Rate</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-green-600 font-bold">> 90%</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-orange-600">> 85%</td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">✅ PASS</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">Response Time (Cache Hit)</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-green-600 font-bold">< 5ms</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-orange-600">< 10ms</td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">✅ PASS</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">Response Time (Cache Miss)</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-green-600 font-bold">< 50ms</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-orange-600">< 100ms</td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">✅ PASS</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">Memory Usage (Redis)</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-green-600 font-bold">< 100MB/10K users</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-orange-600">< 200MB/10K users</td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">✅ PASS</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">✅ Checklist de Validação</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-blue-800 mb-3">🧪 Testes</h4>
+                            <ul class="text-sm space-y-2">
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Testes unitários passando (61+ testes)
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Cache hit rate > 90%
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Performance < 5ms para cache hits
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Invalidação de cache funcionando
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-purple-800 mb-3">🔧 Funcionalidades</h4>
+                            <ul class="text-sm space-y-2">
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Fallback para database funcional
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Multi-tenancy com cache
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Token refresh invalidando cache
+                                </li>
+                                <li>
+                                    <span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                    Headers de debug corretos
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🔧 Troubleshooting</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">❌ Cache Miss Rate Alto</h3>
+                        <div class="code-block text-sm">
+<pre># Verificar TTL
+redis-cli TTL grydauth:smartfed:token:validation:some_hash
+
+# Verificar configuração
+curl -s http://localhost:5000/api/config | jq '.cache'
+
+# Verificar logs de invalidação
+grep "Cache invalidated" logs/gryd-auth-*.txt</pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">⚡ Performance Ruim</h3>
+                        <div class="code-block text-sm">
+<pre># Verificar latência Redis
+redis-cli --latency-history -i 1
+
+# Verificar conexões
+redis-cli CLIENT LIST | grep grydauth
+
+# Memory usage
+redis-cli info memory</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">🔄 Cache Não Invalidando</h3>
+                    <div class="code-block text-sm">
+<pre># Verificar event handlers
+grep "CacheInvalidationEventHandler" logs/gryd-auth-*.txt
+
+# Verificar padrões de chave
+redis-cli KEYS "grydauth:smartfed:*" | sort
+
+# Monitor invalidations
+redis-cli MONITOR | grep DEL</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 GrydAuth Framework. Smart Federation Testing Guide.</p>
+            <p class="text-gray-400 mt-2">Para mais informações, consulte a <a href="index.html" class="text-green-400 hover:text-green-300">documentação principal</a>.</p>
+        </div>
+    </footer>
+</body>
+</html>

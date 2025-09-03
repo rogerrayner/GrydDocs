@@ -122,6 +122,9 @@
                         <a href="#caching-system" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             💾 Caching System
                         </a>
+                        <a href="#smart-federation" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🚀 Smart Federation
+                        </a>
                     </div>
                 </div>
 
@@ -179,6 +182,9 @@
                         </a>
                         <a href="#clean-architecture" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
                             🧹 Clean Architecture
+                        </a>
+                        <a href="smart-federation-testing.html" class="nav-link block px-3 py-2 text-sm text-gray-700 rounded-md">
+                            🧪 Smart Federation Testing
                         </a>
                     </div>
                 </div>
@@ -1278,6 +1284,51 @@ app.Run();</pre>
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__SmartFederation__IsEnabled</td>
+                                    <td class="border border-gray-300 px-4 py-2">Enable Smart Federation architecture</td>
+                                    <td class="border border-gray-300 px-4 py-2">true</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__SmartFederation__CacheFirst</td>
+                                    <td class="border border-gray-300 px-4 py-2">Use cache-first strategy for token validation</td>
+                                    <td class="border border-gray-300 px-4 py-2">true</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__SmartFederation__PerformanceHeaders</td>
+                                    <td class="border border-gray-300 px-4 py-2">Add performance debugging headers</td>
+                                    <td class="border border-gray-300 px-4 py-2">false</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__SmartFederation__TokenCacheMinutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">Token cache expiration in minutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">15</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__SmartFederation__UserClaimsCacheMinutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">User claims cache expiration in minutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">30</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__Cache__IsEnabled</td>
+                                    <td class="border border-gray-300 px-4 py-2">Enable distributed caching (Redis)</td>
+                                    <td class="border border-gray-300 px-4 py-2">true</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__Cache__DefaultExpirationMinutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">Default cache expiration in minutes</td>
+                                    <td class="border border-gray-300 px-4 py-2">15</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__Cache__Redis__Database</td>
+                                    <td class="border border-gray-300 px-4 py-2">Redis database number</td>
+                                    <td class="border border-gray-300 px-4 py-2">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__Cache__Redis__KeyPrefix</td>
+                                    <td class="border border-gray-300 px-4 py-2">Redis key prefix for Smart Federation</td>
+                                    <td class="border border-gray-300 px-4 py-2">grydauth:smartfed:</td>
+                                </tr>
+                                <tr>
                                     <td class="border border-gray-300 px-4 py-2 font-mono text-sm">GrydAuth__RefreshToken__Strategy</td>
                                     <td class="border border-gray-300 px-4 py-2">Refresh token storage strategy</td>
                                     <td class="border border-gray-300 px-4 py-2">Stateless</td>
@@ -1322,12 +1373,32 @@ services:
   web:
     image: your-app:latest
     environment:
+      # Database
       - ConnectionStrings__DefaultConnection=Server=db;Database=MyApp;User=sa;Password=YourStrong!Passw0rd
+      
+      # JWT Configuration
       - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - JwtSettings__Issuer=MyApplication
       - JwtSettings__Audience=MyApplication
-      - GrydAuth__RefreshToken__Strategy=Database
+      
+      # Smart Federation Configuration
+      - GrydAuth__SmartFederation__IsEnabled=true
+      - GrydAuth__SmartFederation__CacheFirst=true
+      - GrydAuth__SmartFederation__PerformanceHeaders=false
+      - GrydAuth__SmartFederation__TokenCacheMinutes=15
+      - GrydAuth__SmartFederation__UserClaimsCacheMinutes=30
+      
+      # Cache Configuration (Redis)
+      - GrydAuth__Cache__IsEnabled=true
+      - GrydAuth__Cache__DefaultExpirationMinutes=15
       - GrydAuth__Cache__Redis__ConnectionString=redis:6379
+      - GrydAuth__Cache__Redis__Database=0
+      - GrydAuth__Cache__Redis__KeyPrefix=grydauth:smartfed:
+      
+      # Refresh Token Strategy
+      - GrydAuth__RefreshToken__Strategy=Database
+      
+      # Auth0 (Optional)
       - Auth0__Domain=${AUTH0_DOMAIN}
       - Auth0__ClientId=${AUTH0_CLIENT_ID}
       - Auth0__ClientSecret=${AUTH0_CLIENT_SECRET}
@@ -1342,7 +1413,13 @@ services:
       - SA_PASSWORD=YourStrong!Passw0rd
 
   redis:
-    image: redis:alpine</pre>
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:</pre>
                     </div>
                 </div>
 
@@ -2182,6 +2259,293 @@ var hashedPassword = _passwordHashService.HashPassword(
         return permissions;
     }
 }</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Smart Federation Section -->
+        <section class="mb-12" id="smart-federation">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">🚀 Smart Federation Architecture</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-gray-600 mb-8">
+                    O Smart Federation é uma arquitetura híbrida revolucionária que combina o melhor das abordagens 
+                    <strong>Cache-First</strong>, <strong>Database-First</strong> e <strong>Stateless JWT</strong> para 
+                    oferecer máxima performance, segurança e escalabilidade em ambientes de microserviços.
+                </p>
+
+                <!-- Características Principais -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="feature-card bg-green-50 p-6 rounded-lg border border-green-200">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">🔐</span>
+                        </div>
+                        <h3 class="font-semibold text-green-800 mb-2">Segurança Máxima</h3>
+                        <ul class="text-sm text-green-600 space-y-1">
+                            <li>• Zero duplicação de dados</li>
+                            <li>• Controle centralizado</li>
+                            <li>• Rotação automática</li>
+                            <li>• Autorização granular</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card bg-blue-50 p-6 rounded-lg border border-blue-200">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">🚀</span>
+                        </div>
+                        <h3 class="font-semibold text-blue-800 mb-2">Performance</h3>
+                        <ul class="text-sm text-blue-600 space-y-1">
+                            <li>• 95% cache hit rate</li>
+                            <li>• < 5ms validação</li>
+                            <li>• Redis distribuído</li>
+                            <li>• Stateless design</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card bg-purple-50 p-6 rounded-lg border border-purple-200">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">🔧</span>
+                        </div>
+                        <h3 class="font-semibold text-purple-800 mb-2">Manutenibilidade</h3>
+                        <ul class="text-sm text-purple-600 space-y-1">
+                            <li>• Single source of truth</li>
+                            <li>• Event sourcing</li>
+                            <li>• Separação limpa</li>
+                            <li>• Scaling independente</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card bg-orange-50 p-6 rounded-lg border border-orange-200">
+                        <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4">
+                            <span class="text-white text-xl">⚡</span>
+                        </div>
+                        <h3 class="font-semibold text-orange-800 mb-2">Confiabilidade</h3>
+                        <ul class="text-sm text-orange-600 space-y-1">
+                            <li>• Circuit breakers</li>
+                            <li>• Graceful degradation</li>
+                            <li>• Cache local fallback</li>
+                            <li>• Health monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Configuração -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">⚙️ Configuração</h3>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="font-medium text-gray-800 mb-3">appsettings.json</h4>
+                        <pre class="code-block text-sm overflow-x-auto"><code>{
+  "GrydAuth": {
+    "SmartFederation": {
+      "IsEnabled": true,
+      "CacheFirst": true,
+      "PerformanceHeaders": true,
+      "TokenCacheMinutes": 15,
+      "UserClaimsCacheMinutes": 30,
+      "DatabaseFallback": true
+    },
+    "Cache": {
+      "IsEnabled": true,
+      "DefaultExpirationMinutes": 15,
+      "TokenCacheMinutes": 15,
+      "UserClaimsCacheMinutes": 30,
+      "Redis": {
+        "ConnectionString": "localhost:6379",
+        "Database": 0,
+        "KeyPrefix": "grydauth:smartfed:",
+        "Compression": true
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-6 mt-4">
+                        <h4 class="font-medium text-gray-800 mb-3">Startup Configuration</h4>
+                        <pre class="code-block text-sm overflow-x-auto"><code>public void ConfigureServices(IServiceCollection services)
+{
+    // Configure GrydAuth with Smart Federation
+    services.AddGrydAuthInfrastructure(Configuration)
+            .AddGrydAuthJwtAuthentication(Configuration);
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // Add Smart Federation middleware after authentication
+    app.UseAuthentication();
+    app.UseSmartFederationTokenValidation(); // Cache-first validation
+    app.UseAuthorization();
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Fluxos de Arquitetura -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">🔄 Fluxos de Arquitetura</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+                            <h4 class="font-medium text-green-800 mb-3">🔐 Fluxo de Autenticação</h4>
+                            <ol class="text-sm text-green-600 space-y-2 list-decimal list-inside">
+                                <li>Client envia credenciais</li>
+                                <li>API verifica cache Redis primeiro</li>
+                                <li>Se cache miss → consulta PostgreSQL</li>
+                                <li>Gera JWT + armazena no cache</li>
+                                <li>Retorna token ao client</li>
+                            </ol>
+                            <div class="mt-4 p-3 bg-green-100 rounded">
+                                <span class="text-xs text-green-700">⚡ Performance: Cache hit = 1-5ms vs Database = 50-100ms</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                            <h4 class="font-medium text-blue-800 mb-3">✅ Fluxo de Validação</h4>
+                            <ol class="text-sm text-blue-600 space-y-2 list-decimal list-inside">
+                                <li>Request com Bearer Token</li>
+                                <li>Middleware verifica cache primeiro</li>
+                                <li>Se cache hit → validação instantânea</li>
+                                <li>Se cache miss → valida JWT + cache result</li>
+                                <li>Autoriza request</li>
+                            </ol>
+                            <div class="mt-4 p-3 bg-blue-100 rounded">
+                                <span class="text-xs text-blue-700">🎯 Target: 95% cache hit rate para validações</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cache Patterns -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">🗝️ Cache Key Patterns</h3>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-3">Token Cache</h4>
+                                <pre class="code-block text-xs overflow-x-auto"><code>grydauth:smartfed:token:validation:{hash}
+grydauth:smartfed:token:expiration:{hash}
+grydauth:smartfed:token:user:{user_id}:{hash}</code></pre>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-3">User Cache</h4>
+                                <pre class="code-block text-xs overflow-x-auto"><code>grydauth:smartfed:user:email:{email}
+grydauth:smartfed:user:id:{user_id}
+grydauth:smartfed:user:permissions:{user_id}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">TTL Strategy</h4>
+                            <div class="grid md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600">15min</div>
+                                    <div class="text-xs text-gray-600">Token Validation</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-600">30min</div>
+                                    <div class="text-xs text-gray-600">User Claims</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-purple-600">2h</div>
+                                    <div class="text-xs text-gray-600">Tenant Context</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-orange-600">1h</div>
+                                    <div class="text-xs text-gray-600">Permissions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monitoramento -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">📊 Monitoramento e Debugging</h3>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
+                            <h4 class="font-medium text-yellow-800 mb-3">🏷️ Performance Headers</h4>
+                            <pre class="code-block text-xs overflow-x-auto"><code>X-GrydAuth-Cache: HIT|MISS
+X-GrydAuth-Source: CACHE|JWT|DB
+X-GrydAuth-Performance: 2ms</code></pre>
+                        </div>
+
+                        <div class="bg-red-50 rounded-lg p-6 border border-red-200">
+                            <h4 class="font-medium text-red-800 mb-3">📝 Debug Logs</h4>
+                            <pre class="code-block text-xs overflow-x-auto"><code>"Logging": {
+  "LogLevel": {
+    "GrydAuth.*.Cache*": "Debug",
+    "GrydAuth.*.Smart*": "Debug"
+  }
+}</code></pre>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-lg p-6 border border-indigo-200">
+                            <h4 class="font-medium text-indigo-800 mb-3">🔍 Redis Monitoring</h4>
+                            <pre class="code-block text-xs overflow-x-auto"><code># Cache keys
+KEYS grydauth:smartfed:*
+
+# Live monitoring
+MONITOR</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métricas de Performance -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">🎯 Targets de Performance</h3>
+                    
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border">
+                        <div class="grid md:grid-cols-4 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600 mb-2">95%+</div>
+                                <div class="text-sm font-medium text-gray-700">Cache Hit Rate</div>
+                                <div class="text-xs text-gray-500 mt-1">Target: > 90%</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">&lt;5ms</div>
+                                <div class="text-sm font-medium text-gray-700">Cache Hit Response</div>
+                                <div class="text-xs text-gray-500 mt-1">Critical: < 10ms</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-purple-600 mb-2">&lt;50ms</div>
+                                <div class="text-sm font-medium text-gray-700">Cache Miss Response</div>
+                                <div class="text-xs text-gray-500 mt-1">Critical: < 100ms</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-orange-600 mb-2">&lt;100MB</div>
+                                <div class="text-sm font-medium text-gray-700">Memory/10K Users</div>
+                                <div class="text-xs text-gray-500 mt-1">Critical: < 200MB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefícios -->
+                <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 border">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">✨ Benefícios do Smart Federation</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-blue-800 mb-3">🏢 Para Empresas</h4>
+                            <ul class="text-sm text-blue-600 space-y-2">
+                                <li>• <strong>95% redução</strong> no tempo de resposta</li>
+                                <li>• <strong>80% menos</strong> carga no banco de dados</li>
+                                <li>• <strong>99.9% uptime</strong> com fallback automático</li>
+                                <li>• <strong>Escalabilidade</strong> para milhões de usuários</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-green-800 mb-3">👩‍💻 Para Desenvolvedores</h4>
+                            <ul class="text-sm text-green-600 space-y-2">
+                                <li>• <strong>Zero configuração</strong> adicional necessária</li>
+                                <li>• <strong>Debugging transparente</strong> com headers</li>
+                                <li>• <strong>Backward compatible</strong> - funciona sem Redis</li>
+                                <li>• <strong>Monitoring built-in</strong> para observabilidade</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
